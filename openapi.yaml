@@ -1,0 +1,2067 @@
+openapi: 3.1.0
+info:
+  title: API fipeX
+  description: |
+    ## A API fipeX
+    
+    O fipeX é uma API REST que criei para oferecer acesso simples, rápido e gratuito aos dados de veículos da Tabela FIPE. A ideia é descomplicar a vida de desenvolvedores, curiosos e entusiastas de dados que precisam dessas informações.
+    
+    Os dados são atualizados mensalmente, direto da fonte, e armazenados em um banco de dados próprio para garantir a performance. A API foi construída com Protocol Buffers, o que a torna super eficiente, mas ela conversa com você via JSON, sem complicação.
+    
+    O FipeX nasceu como um projeto de hobby, um campo de testes que acabou se tornando algo maior. A filosofia é simples:
+
+    - Dados Abertos e Acessíveis: Acredito que dados públicos devem ser fáceis de acessar. Por isso, tudo aqui é gratuito.
+    - Sem Fins Lucrativos: Não há nenhuma monetização. O objetivo é puramente fornecer uma ferramenta útil para a comunidade.
+    - Foco na Simplicidade: Sem anúncios, sem rastreadores invasivos, sem complicação. Apenas os dados que você precisa, de forma rápida.
+
+    ⚠️ Aviso Importante: **Sem Vínculo com a FIPE**\
+    É fundamental deixar isso 100% claro: o fipeX é um projeto independente e não possui qualquer tipo de vínculo, afiliação, parceria ou endosso da Fundação Instituto de Pesquisas Econômicas (FIPE).
+    
+    Eu apenas extraio os dados públicos que eles disponibilizam e os organizo de uma forma acessível através desta API. O fipeX não é, de forma alguma, um canal oficial da FIPE.
+    
+    ### Principais Funcionalidades
+    
+    - Dados Completos: Acesse marcas, modelos, preços e todo o histórico de períodos de referência.
+    - Busca Inteligente: Uma pesquisa textual simples que te ajuda a encontrar o que precisa.
+    - Filtros Avançados: Use múltiplos operadores para refinar suas buscas.
+    - Paginação Consistente: Navegue por grandes volumes de dados de forma previsível.
+    - Limite de Requisições Generoso: O limite padrão é de 10 requisições por segundo. Isso dá quase 26 milhões de requisições por mês, mais do que o suficiente para a maioria dos projetos.
+    - CORS Aberto: A política de CORS é `*`, permitindo que você use a API diretamente no navegador sem dores de cabeça.
+
+    ### Diretrizes de Uso (Como Usar)
+    
+    Para manter o serviço rápido e estável para todos, peço que siga algumas diretrizes simples:
+    
+    - **Não faça crawling da API**! Se você precisa do conjunto completo de dados, não há necessidade de sobrecarregar a API. Basta me pedir! Envie uma mensagem através do [formulário de contato](https://www.fipex.com.br/contato) e eu terei o prazer de te fornecer um dump completo do banco de dados.
+    - Limite de Requisições: Mantenha suas chamadas dentro do limite de 10 por segundo. Se o seu projeto tem uma necessidade especial e precisa de mais, entre em contato para conversarmos.
+    - Tamanho da Página: O número máximo de itens por página é 50.
+    
+    ## Paginação e Links
+
+    Todos os endpoints de listagem suportam paginação consistente com os seguintes parâmetros:
+
+    ### Parâmetros
+    - `page`: Número da página (mínimo 1, padrão 1)
+    - `limit`: Itens por página (1-50, padrão 10)
+
+    Toda resposta paginada inclui:
+
+    ```json
+    {
+      "data": [...],
+      "pagination": {
+        "total": 150,
+        "limit": 10,
+        "offset": 20,
+        "page": 3,
+        "pages": 15
+      },
+      "links": {
+        "self": "https://api.fipex.com.br/v1/makes?page=3&limit=10",
+        "next": "https://api.fipex.com.br/v1/makes?page=4&limit=10",
+        "prev": "https://api.fipex.com.br/v1/makes?page=2&limit=10",
+        "first": "https://api.fipex.com.br/v1/makes?page=1&limit=10",
+        "last": "https://api.fipex.com.br/v1/makes?page=15&limit=10"
+      }
+    }
+    ```
+
+    ### Comportamento dos Links
+    - `next` e `prev` são `null` quando não aplicáveis (primeira/última página).
+    - Todos os parâmetros de query (filtros, ordenação) são preservados nos links.
+    - Os links são URLs absolutas.
+
+    ### Exemplos
+
+    **Paginação básica:**
+    ```
+    GET /v1/makes?page=2&limit=20
+    ```
+
+    **Com filtros e ordenação:**
+    ```
+    GET /v1/makes?page=2&limit=20&order_by=name&filters[0].field=name&filters[0].op=CONTAINS&filters[0].value=honda
+    ```
+
+    ## Filtragem Avançada
+
+    A API suporta filtragem avançada usando um formato de parâmetro estruturado que permite consultas complexas com múltiplos operadores.
+
+    ### Formato do Parâmetro de Filtro
+
+    Os filtros usam notação de array com três componentes obrigatórios:
+    - `field`: O nome do campo a ser filtrado.
+    - `op`: O operador do filtro.
+    - `value`: O valor para filtrar.
+
+    **Formato básico:**
+    ```
+    filters[INDEX].field=NOME_DO_CAMPO&filters[INDEX].op=OPERADOR&filters[INDEX].value=VALOR
+    ```
+
+    ### Operadores de Filtro Disponíveis
+
+    | Operador | URL Encoded | Descrição | Exemplo de Valor |
+    |:---|:---|:---|:---|
+    | `=` | `=` | Igual a | `honda` |
+    | `!=` | `!=` | Diferente de | `honda` |
+    | `>` | `%3E` | Maior que | `2010` |
+    | `<` | `%3C` | Menor que | `2020` |
+    | `>=` | `%3E%3D` | Maior ou igual a | `2010` |
+    | `<=` | `%3C%3D` | Menor ou igual a | `2020` |
+    | `CONTAINS` | `CONTAINS` | String contém | `civic` |
+    | `NOT CONTAINS` | `NOT%20CONTAINS` | String não contém | `civic` |
+    | `IN` | `IN` | Valor está na lista | `honda,toyota,ford` |
+    | `NOT IN` | `NOT%20IN` | Valor não está na lista | `honda,toyota` |
+    | `TO` | `TO` | Entre (intervalo) | `2010,2020` |
+    | `IS NULL` | `IS%20NULL` | Campo é nulo | (não precisa de valor) |
+
+    ### Regras de Filtro por Campo
+
+    Cada endpoint define quais campos podem ser filtrados e quais operadores são permitidos:
+
+    #### Endpoint de Marcas (`/v1/makes`)
+    - **id**: Campo UUID
+      - Operadores: `=`, `!=`, `IN`, `NOT IN`
+      - Validação: Deve ser um UUID v4 válido
+    - **name**: Campo de texto
+      - Operadores: `=`, `!=`, `CONTAINS`, `NOT CONTAINS`
+      - Validação: 1-255 caracteres
+
+    #### Endpoint de Modelos (`/v1/models`)
+    - **id**: Campo UUID
+      - Operadores: `=`, `!=`, `IN`, `NOT IN`
+      - Validação: Deve ser um UUID v4 válido
+    - **name**: Campo de texto
+      - Operadores: `=`, `!=`, `CONTAINS`, `NOT CONTAINS`
+      - Validação: 1-255 caracteres
+
+    #### Endpoint de Busca (`/v1/search`)
+    - **model**: Campo UUID (mapeia para model_id)
+      - Operadores: `=`, `!=`, `IN`, `NOT IN`
+    - **make**: Campo UUID (mapeia para make_id)
+      - Operadores: `=`, `!=`, `IN`, `NOT IN`
+    - **fuel**: Campo UUID (mapeia para fuel_id)
+      - Operadores: `=`, `!=`, `IN`, `NOT IN`
+    - **type**: Campo UUID (mapeia para type_id)
+      - Operadores: `=`, `!=`, `IN`, `NOT IN`
+    - **year**: Campo de ano
+      - Operadores: `=`, `!=`, `>`, `<`, `>=`, `<=`, `IN`, `TO`
+      - Validação: 1980-ano atual ou "zero" para veículos 0km.
+    - **price**: Campo de preço (mapeia para latest_market_price_cents)
+      - Operadores: `>`, `<`, `>=`, `<=`, `TO`
+      - Processamento: Convertido automaticamente de moeda para centavos (multiplicado por 100).
+
+    #### Endpoint de Períodos de Referência (`/v1/reference-periods`)
+    - **year**: Campo de ano
+      - Operadores: `=`, `!=`, `>`, `<`, `>=`, `<=`, `IN`, `NOT IN`, `TO`
+      - Validação: 2001-ano atual
+    - **month**: Campo de mês
+      - Operadores: `=`, `!=`, `>`, `<`, `>=`, `<=`, `IN`, `NOT IN`, `TO`
+      - Validação: 1-12
+
+    ### Exemplos
+
+    **Filtro único (ano maior que 2010):**
+    ```
+    GET /v1/search?filters[0].field=year&filters[0].op=%3E&filters[0].value=2010
+    ```
+
+    **Múltiplos filtros (ano > 2010 E preço entre 20000-50000):**
+    ```
+    GET /v1/search?filters[0].field=year&filters[0].op=%3E&filters[0].value=2010&filters[1].field=price&filters[1].op=TO&filters[1].value=20000,50000
+    ```
+
+    **Operador IN (múltiplas marcas):**
+    ```
+    GET /v1/search?filters[0].field=make&filters[0].op=IN&filters[0].value=uuid1,uuid2,uuid3
+    ```
+
+    ### Tratamento de Valores Especiais
+
+    #### Casos Especiais do Campo `year`
+    O campo `year` suporta o valor especial `"zero"` para representar veículos zero-quilômetro (0km):
+
+    - **Igualdade**: `year=zero` encontra apenas veículos 0km.
+    - **Intervalo com zero**: `year TO 2020,zero` encontra veículos de 2020 ou 0km.
+    - **IN com zero**: `year IN 2020,2021,zero` encontra veículos de 2020, 2021 ou 0km.
+
+    #### Processamento do Campo `price`
+    Valores de preço são convertidos automaticamente de moeda para centavos:
+    - Entrada: `25000.50` → Armazenado como: `2500050` (centavos)
+    - Esta conversão acontece automaticamente para todos os filtros de preço.
+
+    ### Tratamento de Erros
+
+    Filtros inválidos retornam erros de validação estruturados:
+
+    ```json
+    {
+      "correlation_id": "req-12345",
+      "errors": [
+        {
+          "code": "VALIDATION_ERROR",
+          "message": "o campo 'campo_invalido' não é um campo de filtro válido",
+          "target": "filters[0].field"
+        }
+      ]
+    }
+    ```
+
+    ## Ordenação e Classificação
+
+    A maioria dos endpoints de listagem suporta ordenação flexível com múltiplas opções de sintaxe.
+
+    ### Formatos do Parâmetro de Ordenação
+
+    #### 1. Campo Único
+    ```
+    ?order_by=name          # Ascendente
+    ?order_by=-name         # Descendente (prefixo com -)
+    ```
+
+    #### 2. Separado por Vírgula
+    ```
+    ?order_by=name,-price   # Nome ascendente, depois preço descendente
+    ```
+
+    #### 3. Notação de Array
+    ```
+    ?order_by[]=name&order_by[]=-price
+    ```
+
+    ### Campos de Ordenação Disponíveis por Endpoint
+
+    #### Endpoint de Marcas (`/v1/makes`)
+    - **name**: Ordena pelo nome da marca (padrão: ascendente).
+
+    #### Endpoint de Modelos (`/v1/models`)
+    - **name**: Ordena pelo nome do modelo (padrão: ascendente).
+
+    #### Endpoint de Busca (`/v1/search`)
+    - **year**: Ordena pelo ano do veículo.
+    - **model**: Ordena pelo nome do modelo.
+    - **make**: Ordena pelo nome da marca.
+    - **price**: Ordena pelo preço (padrão: ascendente).
+    - **type**: Ordena pelo nome do tipo de veículo.
+    - **fuel**: Ordena pelo nome do combustível.
+
+    #### Endpoint de Períodos de Referência (`/v1/reference-periods`)
+    - **year**: Ordena pelo ano (padrão: descendente).
+    - **month**: Ordena pelo mês (padrão: descendente).
+
+    ### Ordenação Padrão
+
+    Quando nenhuma ordenação é especificada, os endpoints usam padrões sensatos:
+    - **Marcas/Modelos**: Ordem alfabética por nome (ascendente).
+    - **Busca**: Por preço (ascendente).
+    - **Períodos de Referência**: Por ano e mês (ambos descendentes, os mais novos primeiro).
+
+    ### Exemplos
+
+    **Ordenação básica:**
+    ```
+    GET /v1/makes?order_by=name           # Ascendente
+    GET /v1/makes?order_by=-name          # Descendente
+    ```
+
+    **Múltiplos campos:**
+    ```
+    GET /v1/search?order_by=make,year,-price    # Marca asc, ano asc, preço desc
+    ```
+    
+    ## Protocol Buffers
+    - Arquivo proto: https://api.fipex.com.br/v1/assets/schema.proto
+    - Definições TypeScript:
+      - https://api.fipex.com.br/v1/assets/v1/schema.ts
+      - https://api.fipex.com.br/v1/assets/google/protobuf/timestamp.ts
+      - https://api.fipex.com.br/v1/assets/google/protobuf/wrappers.ts
+    
+    ### Estrutura de diretórios sugerida para projetos TypeScript
+    ```
+    ├── src
+    │   ├── api
+    │   │   ├── v1
+    │   │   │   ├── schema.ts
+    │   │   ├── google
+    │   │   │   ├── protobuf
+    │   │   │   │   ├── timestamp.ts
+    │   │   │   │   ├── wrappers.ts
+    ```
+
+    ## Tipos de Conteúdo
+    A API suporta respostas em JSON e Protocol Buffers:
+    - `Accept: application/json` - Retorna JSON (padrão).
+    - `Accept: application/protobuf` - Retorna Protocol Buffers.
+    
+    ## Guia: Cliente API FIPEX com Axios e Protocol Buffers
+    
+    Este guia demonstra como fazer requisições para a API oficial do FIPEX (https://api.fipex.com.br/v1/) usando Axios e Protocol Buffers em TypeScript, utilizando os schemas protobuf já existentes no projeto.
+    
+    ## Configuração do Cliente
+    
+    ### 1. Configuração Básica do Axios
+    
+    ```typescript
+    import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+    import type { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+    import { ApiError, ErrorObject } from '@/well-known/v1/schema';
+    
+    // Interface para funções protobuf geradas
+    interface TsProtoMessageFns<T> {
+      encode(message: T, writer?: BinaryWriter): BinaryWriter;
+      decode(input: BinaryReader | Uint8Array, length?: number): T;
+      toJSON?(message: T): unknown;
+    }
+    
+    // Cliente Axios configurado para protobuf
+    const apiClient = axios.create({
+      baseURL: 'https://api.fipex.com.br/v1',
+      headers: {
+        Accept: 'application/protobuf',
+        'Content-Type': 'application/json',
+      },
+      responseType: 'arraybuffer',
+      timeout: 30000,
+    });
+    ```
+    
+    ### 2. Interceptador de Resposta com Tratamento de Erro
+    
+    ```typescript
+    apiClient.interceptors.response.use(
+      (response: AxiosResponse<ArrayBuffer>) => response,
+      (error: AxiosError<ArrayBuffer | unknown>) => {
+        if (error.response) {
+          console.log(`Erro da API: Status ${error.response.status} em ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+    
+          if (error.response.data instanceof ArrayBuffer && ApiError.decode) {
+            try {
+              const decodedError = ApiError.decode(new Uint8Array(error.response.data));
+              console.log('Erro decodificado da API:', decodedError);
+              return Promise.reject(decodedError);
+            } catch (parseError) {
+              console.log('Falha ao decodificar erro protobuf:', parseError);
+            }
+          }
+        } else if (error.request) {
+          console.log('Erro de rede: Nenhuma resposta recebida.', error.message);
+        } else {
+          console.log('Erro de configuração da requisição:', error.message);
+        }
+        return Promise.reject(error);
+      }
+    );
+    ```
+    
+    ## Função Principal para Requisições
+    
+    ### 3. Tipos e Interfaces
+    
+    ```typescript
+    interface MakeProtoRequestOptions<RequestProto, ResponseProto> {
+      url: string;
+      httpMethod?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+      requestProto?: RequestProto | null;
+      requestType?: TsProtoMessageFns<RequestProto> | null;
+      responseType: TsProtoMessageFns<ResponseProto>;
+      signal?: AbortSignal;
+      params?: Record<string, unknown>;
+    }
+    
+    interface MakeProtoRequestResult<ResponseProto> {
+      response: ResponseProto;
+      duration: number;
+    }
+    ```
+    
+    ### 4. Função de Requisição
+    
+    ```typescript
+    async function makeProtoRequest<RequestProto, ResponseProto>(
+      options: MakeProtoRequestOptions<RequestProto, ResponseProto>,
+    ): Promise<MakeProtoRequestResult<ResponseProto>> {
+      const {
+        url,
+        httpMethod = 'GET',
+        requestProto = null,
+        requestType = null,
+        responseType,
+        signal,
+        params = {},
+      } = options;
+    
+      const startTime = performance.now();
+    
+      try {
+        const config: AxiosRequestConfig = {
+          headers: { Accept: 'application/protobuf' },
+          method: httpMethod,
+          params,
+          signal,
+          url,
+        };
+    
+        if (
+          requestProto &&
+          requestType &&
+          ['POST', 'PUT', 'PATCH'].includes(httpMethod)
+        ) {
+          config.data = requestType.encode(requestProto).finish();
+          if (!config.headers) {
+            config.headers = {};
+          }
+          config.headers['Content-Type'] = 'application/protobuf';
+        }
+    
+        const axiosResponse = await apiClient.request<ArrayBuffer>(config);
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+    
+        const decodedResponse = responseType.decode(new Uint8Array(axiosResponse.data));
+    
+        console.log(`Requisição para ${url} completada em ${duration.toFixed(2)}ms`);
+        console.log('Resposta decodificada:', responseType.toJSON ? responseType.toJSON(decodedResponse) : decodedResponse);
+    
+        return {
+          duration: Number.parseFloat(duration.toFixed(2)),
+          response: decodedResponse,
+        };
+      } catch (error) {
+        console.log('Erro na requisição:', error);
+    
+        // Se o erro já foi processado pelo interceptador, ele será um ApiError
+        if (typeof (error as any)?.errors !== 'undefined') {
+          throw error as ApiError;
+        }
+    
+        // Criar um ApiError genérico para erros não tratados
+        throw ApiError.create({
+          correlation_id: 'client-error',
+          errors: [
+            ErrorObject.create({
+              code: 3, // INTERNAL_SERVER_ERROR
+              message: `Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+              target: url,
+            }),
+          ],
+        });
+      }
+    }
+    ```
+    
+    ## Exemplo Prático: Buscar Tipos de Veículos
+    
+    ### 5. Importações e Uso dos Schemas
+    
+    ```typescript
+    import { ListVehicleTypesResponse } from '@/well-known/v1/schema';
+    
+    // Função para buscar tipos de veículos disponíveis
+    async function buscarTiposDeVeiculos(): Promise<ListVehicleTypesResponse> {
+      try {
+        console.log('Iniciando busca por tipos de veículos...');
+    
+        const resultado = await makeProtoRequest<never, ListVehicleTypesResponse>({
+          url: '/types',
+          httpMethod: 'GET',
+          responseType: ListVehicleTypesResponse,
+          params: {
+            limit: 50,
+            offset: 0
+          }
+        });
+    
+        console.log(`Encontrados ${resultado.response.data.length} tipos de veículos`);
+        console.log('Tipos disponíveis:', resultado.response.data.map(type => ({
+          id: type.id,
+          nome: type.name,
+          slug: type.slug
+        })));
+    
+        return resultado.response;
+    
+      } catch (error) {
+        if (error instanceof Error && 'errors' in error) {
+          const apiError = error as ApiError;
+          console.log(`Erro da API (${apiError.correlation_id}):`, apiError.errors);
+    
+          apiError.errors.forEach(err => {
+            console.log(`- ${err.message} (código: ${err.code})`);
+          });
+        } else {
+          console.log('Erro inesperado:', error);
+        }
+    
+        throw error;
+      }
+    }
+    ```
+    
+    ### 6. Exemplo de Uso Completo
+    
+    ```typescript
+    // Função principal de exemplo
+    async function exemploCompleto(): Promise<void> {
+      try {
+        // 1. Buscar tipos de veículos
+        const tiposVeiculos = await buscarTiposDeVeiculos();
+    
+        // 2. Mostrar os resultados
+        console.log('=== TIPOS DE VEÍCULOS DISPONÍVEIS ===');
+        tiposVeiculos.data.forEach((tipo, index) => {
+          console.log(`${index + 1}. ${tipo.name} (ID: ${tipo.id})`);
+        });
+    
+        // 3. Informações de paginação
+        if (tiposVeiculos.pagination) {
+          console.log(`\nPaginação: ${tiposVeiculos.pagination.page}/${tiposVeiculos.pagination.pages}`);
+          console.log(`Total de registros: ${tiposVeiculos.pagination.total}`);
+        }
+    
+        // 4. Links de navegação
+        if (tiposVeiculos.links) {
+          console.log('\nLinks disponíveis:');
+          console.log(`- Própria página: ${tiposVeiculos.links.self}`);
+          if (tiposVeiculos.links.next) {
+            console.log(`- Próxima página: ${tiposVeiculos.links.next}`);
+          }
+          if (tiposVeiculos.links.prev) {
+            console.log(`- Página anterior: ${tiposVeiculos.links.prev}`);
+          }
+        }
+    
+      } catch (error) {
+        console.log('Falha ao buscar dados da API FIPEX:', error);
+      }
+    }
+    
+    // Executar o exemplo
+    exemploCompleto();
+    ```
+    
+    ## Tratamento de Erros Específicos da API
+    
+    ### 7. Tratamento Avançado de Erros
+    
+    ```typescript
+    function handleApiError(error: unknown): void {
+      if (error && typeof error === 'object' && 'errors' in error) {
+        const apiError = error as ApiError;
+    
+        console.log(`ID de Correlação: ${apiError.correlation_id}`);
+        console.log('Erros encontrados:');
+    
+        apiError.errors.forEach((err, index) => {
+          console.log(`\n${index + 1}. ${err.message}`);
+          console.log(`   Código: ${err.code}`);
+    
+          if (err.target) {
+            console.log(`   Campo/Alvo: ${err.target}`);
+          }
+    
+          // Traduzir códigos de erro para mensagens mais amigáveis
+          const errorMessages: Record<number, string> = {
+            0: 'Erro não especificado',
+            1: 'Recurso não encontrado',
+            2: 'Entrada inválida',
+            3: 'Erro interno do servidor',
+            4: 'Conflito nos dados',
+            5: 'Tipo de mídia não suportado',
+            6: 'Erro de validação',
+            7: 'Muitas requisições'
+          };
+    
+          const friendlyMessage = errorMessages[err.code] || 'Erro desconhecido';
+          console.log(`   Significado: ${friendlyMessage}`);
+        });
+      } else {
+        console.log('Erro não relacionado à API:', error);
+      }
+    }
+    
+    // Exemplo de uso do tratamento de erro
+    async function exemploComTratamentoDeErro(): Promise<void> {
+      try {
+        await buscarTiposDeVeiculos();
+      } catch (error) {
+        handleApiError(error);
+      }
+    }
+    ```
+    
+    ## Considerações Importantes
+    
+    ### 8. Melhores Práticas
+    
+    ```typescript
+    // Configuração de timeout e retry
+    const configAvancada = {
+      timeout: 10000, // 10 segundos
+      maxRetries: 3,
+      retryDelay: 1000, // 1 segundo entre tentativas
+    };
+    
+    // Função com retry automático
+    async function makeProtoRequestWithRetry<RequestProto, ResponseProto>(
+      options: MakeProtoRequestOptions<RequestProto, ResponseProto>,
+      retries: number = 3
+    ): Promise<MakeProtoRequestResult<ResponseProto>> {
+      let lastError: unknown;
+    
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          console.log(`Tentativa ${attempt}/${retries} para ${options.url}`);
+          return await makeProtoRequest(options);
+        } catch (error) {
+          lastError = error;
+    
+          if (attempt < retries) {
+            const delay = 1000 * attempt; // Delay progressivo
+            console.log(`Falha na tentativa ${attempt}, tentando novamente em ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+    
+      throw lastError;
+    }
+    ```
+    
+    ### 9. Cancelamento de Requisições
+    
+    ```typescript
+    // Exemplo com cancelamento de requisição
+    async function exemploComCancelamento(): Promise<void> {
+      const controller = new AbortController();
+    
+      // Cancelar após 5 segundos
+      const timeoutId = setTimeout(() => {
+        console.log('Cancelando requisição por timeout...');
+        controller.abort();
+      }, 5000);
+    
+      try {
+        const resultado = await makeProtoRequest<never, ListVehicleTypesResponse>({
+          url: '/types',
+          httpMethod: 'GET',
+          responseType: ListVehicleTypesResponse,
+          signal: controller.signal
+        });
+    
+        clearTimeout(timeoutId);
+        console.log('Requisição completada com sucesso:', resultado.response);
+    
+      } catch (error) {
+        clearTimeout(timeoutId);
+    
+        if ((error as Error).name === 'AbortError') {
+          console.log('Requisição cancelada pelo usuário');
+        } else {
+          console.log('Erro na requisição:', error);
+        }
+      }
+    }
+    ```
+
+
+
+  version: 1.9.2-SNAPSHOT-19cdf2c
+
+  #  contact:
+  #    name: Suporte FipeX
+  #    url: https://www.fipex.com.br/contato
+
+  contact:
+    name: "Alan"
+    url: "https://www.fipex.com.br/contato"
+    email: "contato@alanwgt.com"
+
+servers:
+  - url: https://api.fipex.com.br
+    description: Servidor de produção
+
+paths:
+  ## Marcas
+  /v1/makes:
+    get:
+      tags:
+        - Marcas
+      summary: Listar marcas de veículos
+      description: |
+        Recupera uma lista paginada de marcas de veículos com filtros e busca opcionais.
+
+        **Filtros Disponíveis:**
+        - `id`: Filtro por UUID com operadores `=`, `!=`, `IN`, `NOT IN`.
+        - `name`: Filtro de texto com operadores `=`, `!=`, `CONTAINS`, `NOT CONTAINS`.
+
+        **Ordenação:**
+        - `name`: Ordena pelo nome da marca (padrão: ascendente).
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OrderByParam'
+        - name: type_id
+          in: query
+          description: Filtra pelo UUID do tipo de veículo.
+          schema:
+            type: string
+            format: uuid
+        - name: q
+          in: query
+          description: Termo de busca (1-255 caracteres).
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+        - $ref: '#/components/parameters/FiltersParam'
+      responses:
+        '200':
+          description: Lista de marcas obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMakesResponse'
+            application/protobuf:
+              schema:
+                $ref: '#/components/schemas/ListMakesResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/makes/{id}:
+    get:
+      tags:
+        - Marcas
+      summary: Obter marca por ID
+      description: Recupera uma marca de veículo específica pelo seu UUID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID da marca.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Marca obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMakeResponse'
+            application/protobuf:
+              schema:
+                $ref: '#/components/schemas/GetMakeResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/makes/{make_id}/years:
+    get:
+      tags:
+        - Marcas
+        - Anos
+      summary: Listar anos para uma marca específica
+      description: Obtém os anos disponíveis para uma determinada marca de veículo.
+      parameters:
+        - name: make_id
+          in: path
+          required: true
+          description: UUID da marca.
+          schema:
+            type: string
+            format: uuid
+        - name: ref_id
+          in: query
+          description: UUID do período de referência.
+          schema:
+            type: string
+            format: uuid
+        - name: model_id
+          in: query
+          description: UUID do modelo.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Anos obtidos com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/YearOption'
+
+  ## Modelos
+  /v1/models:
+    get:
+      tags:
+        - Modelos
+      summary: Listar modelos de veículos
+      description: |
+        Recupera uma lista paginada de modelos de veículos com filtros e busca opcionais.
+
+        **Filtros Disponíveis:**
+        - `id`: Filtro por UUID com operadores `=`, `!=`, `IN`, `NOT IN`.
+        - `name`: Filtro de texto com operadores `=`, `!=`, `CONTAINS`, `NOT CONTAINS`.
+
+        **Ordenação:**
+        - `name`: Ordena pelo nome do modelo (padrão: ascendente).
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OrderByParam'
+        - name: q
+          in: query
+          description: Termo de busca (1-255 caracteres).
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+        - name: make_id
+          in: query
+          description: Filtra pelo UUID da marca.
+          schema:
+            type: string
+            format: uuid
+        - name: fuel_id
+          in: query
+          description: Filtra pelo UUID do combustível.
+          schema:
+            type: string
+            format: uuid
+        - name: type_id
+          in: query
+          description: Filtra pelo UUID do tipo de veículo.
+          schema:
+            type: string
+            format: uuid
+        - name: ref_id
+          in: query
+          description: Filtra pelo UUID do período de referência.
+          schema:
+            type: string
+            format: uuid
+        - name: year
+          in: query
+          description: Filtra pelo ano (1980-ano atual ou "zero" para 0km).
+          schema:
+            oneOf:
+              - type: integer
+                minimum: 1980
+                maximum: 2025 # Ajustado para o ano atual
+              - type: string
+                enum: [ "zero" ]
+        - $ref: '#/components/parameters/FiltersParam'
+      responses:
+        '200':
+          description: Lista de modelos obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListModelsResponse'
+
+  /v1/models/{id}:
+    get:
+      tags:
+        - Modelos
+      summary: Obter modelo por ID
+      description: Recupera um modelo de veículo específico pelo seu UUID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID do modelo.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Modelo obtido com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetModelResponse'
+
+  /v1/models/{model_id}/years:
+    get:
+      tags:
+        - Modelos
+        - Anos
+      summary: Listar anos para um modelo específico
+      description: Obtém os anos disponíveis para um determinado modelo de veículo.
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          description: UUID do modelo.
+          schema:
+            type: string
+            format: uuid
+        - name: fuel_id
+          in: query
+          description: Filtra pelo UUID do combustível.
+          schema:
+            type: string
+            format: uuid
+        - name: ref_id
+          in: query
+          description: UUID do período de referência.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Anos obtidos com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListModelYearsResponse'
+
+  ## Preços
+  /v1/prices:
+    get:
+      tags:
+        - Preços
+      summary: Encontrar preço do veículo
+      description: |
+        Encontra um preço de veículo específico fornecendo ou o ID do modelo + ID do combustível, ou o slug do modelo + slug do combustível.
+
+        **Parâmetros Obrigatórios (escolha uma combinação):**
+        - `model_id` + `fuel_id` + `year`
+        - `model_slug` + `fuel_acronym` + `year`
+
+        **Parâmetros Opcionais:**
+        - `ref_id`: UUID de um período de referência específico.
+        - `ref_date`: Data de referência no formato AAAA-MM-DD.
+      parameters:
+        - name: model_id
+          in: query
+          description: UUID do modelo (obrigatório sem model_slug).
+          schema:
+            type: string
+            format: uuid
+        - name: fuel_id
+          in: query
+          description: UUID do combustível (obrigatório com model_id).
+          schema:
+            type: string
+            format: uuid
+        - name: model_slug
+          in: query
+          description: Slug do modelo (obrigatório sem model_id).
+          schema:
+            type: string
+            pattern: '^[a-z0-9-]+$'
+        - name: fuel_acronym
+          in: query
+          description: Slug do combustível (obrigatório com model_slug).
+          schema:
+            type: string
+            pattern: '^[a-z0-9-]+$'
+        - name: year
+          in: query
+          required: true
+          description: Ano do veículo (1980-ano atual ou "zero" para 0km).
+          schema:
+            oneOf:
+              - type: integer
+                minimum: 1980
+                maximum: 2025
+              - type: string
+                enum: [ "zero" ]
+        - name: ref_id
+          in: query
+          description: UUID do período de referência.
+          schema:
+            type: string
+            format: uuid
+        - name: ref_date
+          in: query
+          description: Data de referência (AAAA-MM-DD).
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Preço encontrado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPriceResponse'
+
+  /v1/prices/expanded:
+    get:
+      tags:
+        - Preços
+      summary: Obter dados de preço expandidos
+      description: |
+        Obtém dados de preço abrangentes, incluindo análises, histórico e anos disponíveis.
+        Usa os mesmos parâmetros de `/v1/prices`, mas retorna informações expandidas.
+      parameters:
+        - name: model_id
+          in: query
+          description: UUID do modelo (obrigatório sem model_slug).
+          schema:
+            type: string
+            format: uuid
+        - name: fuel_id
+          in: query
+          description: UUID do combustível (obrigatório com model_id).
+          schema:
+            type: string
+            format: uuid
+        - name: model_slug
+          in: query
+          description: Slug do modelo (obrigatório sem model_id).
+          schema:
+            type: string
+            pattern: '^[a-z0-9-]+$'
+        - name: fuel_acronym
+          in: query
+          description: Slug do combustível (obrigatório com model_slug).
+          schema:
+            type: string
+            pattern: '^[a-z0-9-]+$'
+        - name: year
+          in: query
+          required: true
+          description: Ano do veículo.
+          schema:
+            oneOf:
+              - type: integer
+                minimum: 1980
+                maximum: 2025
+              - type: string
+                enum: [ "zero" ]
+        - name: ref_id
+          in: query
+          description: UUID do período de referência.
+          schema:
+            type: string
+            format: uuid
+        - name: ref_date
+          in: query
+          description: Data de referência (AAAA-MM-DD).
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Dados de preço expandidos obtidos com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpandedPriceResponse'
+
+  /v1/prices/history:
+    get:
+      tags:
+        - Preços
+        - Histórico
+      summary: Obter histórico de preços
+      description: Recupera o histórico de dados de preços para um veículo específico.
+      parameters:
+        - name: model_id
+          in: query
+          required: true
+          description: UUID do modelo.
+          schema:
+            type: string
+            format: uuid
+        - name: fuel_id
+          in: query
+          required: true
+          description: UUID do combustível.
+          schema:
+            type: string
+            format: uuid
+        - name: year
+          in: query
+          required: true
+          description: Ano do veículo (mínimo 2001).
+          schema:
+            oneOf:
+              - type: integer
+                minimum: 2001
+                maximum: 2025
+              - type: string
+                enum: [ "zero" ]
+      responses:
+        '200':
+          description: Histórico de preços obtido com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehiclePriceHistoryResponse'
+
+  /v1/prices/compare:
+    get:
+      tags:
+        - Preços
+        - Comparação
+      summary: Comparar preços de veículos
+      description: |
+        Compara preços entre múltiplos veículos usando um formato específico.
+
+        **Formato de Especificação do Veículo:**
+        Cada veículo é especificado como: `slug-do-modelo,slug-do-combustivel,ano`
+        Múltiplos veículos são separados por ponto e vírgula (`;`, ou `%3B` em percent encoding).
+
+        **Exemplo:**
+        `vehicle_specs=850-glt-2-5-20v,g,1997;850-glt-2-5-20v,g,1996;850-glt-2-5-20v,g,1995;850-glt-2-5-20v,g,1994;850-glt-2-5-20v,g,1993;850-glt-2-5-20v,g,1992`
+      parameters:
+        - name: vehicle_specs
+          in: query
+          required: true
+          description: Especificações de veículos separadas por vírgula no formato "slug-do-modelo,slug-do-combustivel,ano".
+          schema:
+            type: string
+            pattern: '^[0-9a-z-]+,[0-9a-z-]+,(zero|\d{4})(;[0-9a-z-]+,[0-9a-z-]+,(zero|\d{4}))*$'
+          example: "850-glt-2-5-20v,g,1997;850-glt-2-5-20v,g,1996;850-glt-2-5-20v,g,1995;850-glt-2-5-20v,g,1994;850-glt-2-5-20v,g,1993;850-glt-2-5-20v,g,1992"
+      responses:
+        '200':
+          description: Comparação de preços obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompareVehiclePricesResponse'
+
+  /v1/prices/{id}:
+    get:
+      tags:
+        - Preços
+      summary: Obter preço por ID
+      description: Recupera um registro de preço específico pelo seu UUID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID do preço.
+          examoke: 'cdc14f5d-acc9-42a3-b85f-aa38c064711c'
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Preço obtido com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPriceResponse'
+
+  ## Busca
+  /v1/search:
+    get:
+      tags:
+        - Busca
+      summary: Buscar veículos
+      description: |
+        Busca de texto completo por veículos usando Meilisearch com filtros e ordenação avançados.
+
+        **Filtros Disponíveis:**
+        - `model`: Filtro por UUID do modelo com operadores `=`, `!=`, `IN`, `NOT IN`.
+        - `make`: Filtro por UUID da marca com operadores `=`, `!=`, `IN`, `NOT IN`.
+        - `fuel`: Filtro por UUID do combustível com operadores `=`, `!=`, `IN`, `NOT IN`.
+        - `type`: Filtro por UUID do tipo de veículo com operadores `=`, `!=`, `IN`, `NOT IN`.
+        - `year`: Filtro de ano com operadores `=`, `!=`, `>`, `<`, `>=`, `<=`, `IN`, `TO` (suporta "zero" para veículos 0km).
+        - `price`: Filtro de preço com operadores `>`, `<`, `>=`, `<=` (convertido automaticamente para centavos).
+
+        **Ordenação:**
+        - `year`: Ordena pelo ano.
+        - `model`: Ordena pelo nome do modelo.
+        - `make`: Ordena pelo nome da marca.
+        - `price`: Ordena pelo preço (padrão: ascendente).
+        - `type`: Ordena pelo nome do tipo de veículo.
+        - `fuel`: Ordena pelo nome do combustível.
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OrderByParam'
+        - name: q
+          in: query
+          description: Termo de busca.
+          schema:
+            type: string
+        - name: model_id
+          in: query
+          description: Filtra pelo UUID do modelo.
+          schema:
+            type: string
+            format: uuid
+        - name: make_id
+          in: query
+          description: Filtra pelo UUID da marca.
+          schema:
+            type: string
+            format: uuid
+        - name: fuel_id
+          in: query
+          description: Filtra pelo UUID do combustível.
+          schema:
+            type: string
+            format: uuid
+        - name: type_id
+          in: query
+          description: Filtra pelo UUID do tipo de veículo.
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/FiltersParam'
+      responses:
+        '200':
+          description: Resultados da busca obtidos com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /v1/search/labels:
+    get:
+      tags:
+        - Busca
+        - Marcas
+        - Modelos
+      summary: Buscar labels de modelo ou marca
+      description: |
+        Busca por _labels_ de modelos ou marcas para funcionalidade de autocompletar.
+
+        **Parâmetros:**
+        - `q`: Termo de busca (formato JSON).
+        - `type`: Tipo de rótulo ("model" ou "make").
+        - `vehicle_type_id`: Filtro opcional por tipo de veículo.
+        - `make_id`: Filtro opcional por marca (para buscas de modelo).
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: q
+          in: query
+          required: true
+          description: Termo de busca em formato JSON.
+          schema:
+            type: string
+            format: json
+        - name: type
+          in: query
+          required: true
+          description: Tipo de rótulo a ser buscado.
+          schema:
+            type: string
+            enum: [ model, make ]
+        - name: vehicle_type_id
+          in: query
+          description: Filtra pelo UUID do tipo de veículo.
+          schema:
+            type: string
+            format: uuid
+        - name: make_id
+          in: query
+          description: Filtra pelo UUID da marca (para buscas de modelo).
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Labels obtidos com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchLabelResponse'
+
+  ## Dados Gerais e Ativos
+  /v1/reference-periods:
+    get:
+      tags:
+        - Períodos de Referência
+      summary: Listar períodos de referência
+      description: |
+        Recupera uma lista paginada de períodos de referência com filtros opcionais.
+
+        **Filtros Disponíveis:**
+        - `year`: Filtro de ano com operadores `=`, `!=`, `>`, `<`, `>=`, `<=`, `IN`, `NOT IN`, `TO`.
+        - `month`: Filtro de mês com operadores `=`, `!=`, `>`, `<`, `>=`, `<=`, `IN`, `NOT IN`, `TO`.
+
+        **Ordenação:**
+        - `year`: Ordena pelo ano (padrão: descendente).
+        - `month`: Ordena pelo mês (padrão: descendente).
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OrderByParam'
+        - name: year
+          in: query
+          description: Filtra por ano (2001-ano atual).
+          schema:
+            type: integer
+            minimum: 2001
+            maximum: 2025
+        - name: month
+          in: query
+          description: Filtra por mês (1-12).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - $ref: '#/components/parameters/FiltersParam'
+      responses:
+        '200':
+          description: Períodos de referência obtidos com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListReferencePeriodsResponse'
+
+  /v1/vehicle-types:
+    get:
+      tags:
+        - Tipos de Veículos
+      summary: Listar tipos de veículos
+      description: Recupera todos os tipos de veículos disponíveis (carros, motocicletas, caminhões).
+      responses:
+        '200':
+          description: Tipos de veículos obtidos com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVehicleTypesResponse'
+
+  /v1/fuels:
+    get:
+      tags:
+        - Tipos de Combustível
+      summary: Listar tipos de combustível
+      description: Recupera todos os tipos de combustível disponíveis.
+      responses:
+        '200':
+          description: Tipos de combustível obtidos com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFuelTypesResponse'
+
+  /v1/assets/{path}:
+    get:
+      summary: Arquivos estáticos
+      description: Esses arquivos são utilizados para tipagens dos protocol buffers e devem ser utilizado apenas para setup inicial de aplicações.
+      operationId: getAsset
+      parameters:
+        - name: path
+          in: path
+          required: true
+          description: Caminho do arquivo.
+          schema:
+            type: string
+            enum:
+              - v1/schema.ts
+              - google/protobuf/timestamp.ts
+              - google/protobuf/wrappers.ts
+              - schema.proto
+      responses:
+        '200':
+          description: Arquivo estático.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+components:
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Número da página (mínimo 1).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      example: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Número de itens por página (1-50).
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 10
+      example: 10
+
+    OrderByParam:
+      name: order_by
+      in: query
+      description: |
+        Especificação de ordenação. Pode ser fornecida em múltiplos formatos:
+
+        **Campo único:** `?order_by=name` (ascendente) ou `?order_by=-name` (descendente)
+
+        **Separado por vírgula:** `?order_by=name,-price`
+
+        **Notação de array:** `?order_by[]=name&order_by[]=-price`
+
+        Use o prefixo `-` para ordem descendente.
+      style: form
+      explode: false
+      schema:
+        oneOf:
+          - type: string
+            example: "name"
+          - type: array
+            items:
+              type: string
+            example: [ "name", "-price" ]
+
+    FiltersParam:
+      name: filters
+      in: query
+      description: |
+        Filtragem avançada usando notação de array. Cada filtro requer:
+        - `field`: O campo a ser filtrado.
+        - `op`: O operador (veja a seção Operadores de Filtro).
+        - `value`: O valor para filtrar.
+
+        **Formato:** `filters[0].field=year&filters[0].op=%3E&filters[0].value=2010`
+
+        **Múltiplos filtros:** `filters[0].field=year&filters[0].op=%3E&filters[0].value=2010&filters[1].field=price&filters[1].op=TO&filters[1].value=20000,50000`
+
+        **URL Encoding:** Caracteres especiais devem ser codificados na URL:
+        - `>` se torna `%3E`
+        - `<` se torna `%3C`
+        - `>=` se torna `%3E%3D`
+        - `<=` se torna `%3C%3D`
+      style: deepObject
+      explode: true
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/FilterExpression'
+
+  schemas:
+    # Schemas de resposta baseados nas definições protobuf
+    # ... (propriedades não traduzidas conforme solicitado) ...
+    YearOption:
+      type: object
+      properties:
+        model_year:
+          type: integer
+          description: 'Ano do modelo (ex: 2020).'
+        is_zero_km:
+          type: boolean
+          description: Indica se é um veículo zero km.
+
+    ModelYearFuels:
+      type: object
+      properties:
+        year_specifier:
+          $ref: '#/components/schemas/YearSpecification'
+        fuels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fuel'
+
+    VehiclePrice:
+      type: object
+      properties:
+        price:
+          $ref: '#/components/schemas/Price'
+        formatted_price:
+          type: string
+          description: Preço formatado para leitura humana.
+        year_specifier:
+          $ref: '#/components/schemas/YearSpecification'
+        query_date:
+          type: string
+          format: date-time
+          description: Data da consulta do preço.
+        make:
+          $ref: '#/components/schemas/Make'
+        model:
+          $ref: '#/components/schemas/Model'
+        fuel:
+          $ref: '#/components/schemas/Fuel'
+        reference:
+          $ref: '#/components/schemas/ReferencePeriod'
+
+    VehicleDetailedPrice:
+      type: object
+      properties:
+        price:
+          $ref: '#/components/schemas/Price'
+        formatted_price:
+          description: Preço formatado para leitura humana.
+        year_specifier:
+          $ref: '#/components/schemas/YearSpecification'
+        query_date:
+          type: string
+          format: date-time
+          description: Data da consulta do preço.
+        make:
+          $ref: '#/components/schemas/Make'
+        model:
+          $ref: '#/components/schemas/Model'
+        fuel:
+          $ref: '#/components/schemas/Fuel'
+        type:
+          $ref: '#/components/schemas/VehicleType'
+        reference:
+          $ref: '#/components/schemas/ReferencePeriod'
+
+    VehicleAnalytics:
+      type: object
+      properties:
+        price_volatility:
+          description: Índice de volatilidade de preço (não é uma porcentagem).
+        price_rank:
+          description: Ranking de preço dentro da categoria.
+        price_rank_total_in_category:
+          description: Total de itens na categoria de ranking de preço.
+        value_retention_pct:
+          description: Percentual do valor original retido.
+        annual_depreciation_rate:
+          description: Taxa média de depreciação anual.
+        lifecycle_status:
+          description: "Status atual do mercado (ex: 'ativo', 'descontinuado')."
+        anomaly_status:
+          description: "Status de anomalia de preço (ex: 'normal', 'outlier_moderado')."
+        anomaly_z_score:
+          description: Z-score estatístico do preço atual.
+
+    ReferencePeriod:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        month_name:
+          type: string
+        year:
+          type: integer
+      required: [ id, month, month_name, year ]
+
+    ListReferencePeriodsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReferencePeriod'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+      required: [ data, pagination, links ]
+
+    Price:
+      type: integer
+      description: Preço em centavos.
+      minimum: 1
+      exclusiveMinimum: true
+
+    SearchHit:
+      type: object
+      properties:
+        price_id:
+          type: string
+          format: uuid
+        model_id:
+          type: string
+          format: uuid
+        model_name:
+          type: string
+        model_slug:
+          type: string
+        make_id:
+          type: string
+          format: uuid
+        make_name:
+          type: string
+        make_slug:
+          type: string
+        fuel_id:
+          type: string
+          format: uuid
+        fuel_name:
+          type: string
+        year_specifier:
+          $ref: '#/components/schemas/YearSpecification'
+        latest_market_price_cents:
+          type: integer
+        type_id:
+          type: string
+          format: uuid
+        type_name:
+          type: string
+        latest_ref_id:
+          type: string
+          format: uuid
+        ref_month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        ref_year:
+          type: integer
+        ref_fipe_id:
+          type: integer
+        ref_ingested_at:
+          type: string
+          format: date-time
+        matches:
+          type: object
+          description: Correspondências da busca destacadas.
+          additionalProperties:
+            type: string
+        score:
+          type: number
+          description: Pontuação de relevância da busca.
+
+    VehicleWithHistory:
+      type: object
+      properties:
+        price_id:
+          type: string
+          format: uuid
+        model_id:
+          type: string
+          format: uuid
+        model_name:
+          type: string
+        model_slug:
+          type: string
+        make_id:
+          type: string
+          format: uuid
+        make_name:
+          type: string
+        make_slug:
+          type: string
+        fuel_id:
+          type: string
+          format: uuid
+        fuel_name:
+          type: string
+        fuel_acronym:
+          type: string
+        type_id:
+          type: string
+          format: uuid
+        type_name:
+          type: string
+        year_specification:
+          $ref: '#/components/schemas/YearSpecification'
+        price_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehiclePriceSnapshot'
+      required: [
+        price_id, model_id, model_name, model_slug,
+        make_id, make_name, make_slug, fuel_id,
+        fuel_name, fuel_acronym, type_id, type_name,
+        year_specification, price_history
+      ]
+
+    # Componentes de Paginação
+    Pagination:
+      type: object
+      properties:
+        total:
+          description: Número total de itens.
+        limit:
+          description: Itens por página.
+        offset:
+          description: Deslocamento atual.
+        page:
+          description: Número da página atual.
+        pages:
+          description: Número total de páginas.
+    PaginationLinks:
+      type: object
+      properties:
+        self:
+          description: URL da página atual.
+        next:
+          description: URL da próxima página (nulo se for a última).
+        prev:
+          description: URL da página anterior (nulo se for a primeira).
+        first:
+          description: URL da primeira página.
+        last:
+          description: URL da última página.
+
+    # Sistema de Filtro
+    FilterExpression:
+      type: object
+      properties:
+        field:
+          description: Nome do campo para filtrar.
+        op:
+          description: Operador do filtro.
+        value:
+          description: Valor do filtro (o tipo depende do campo e do operador).
+        negate:
+          description: Se deve negar a condição do filtro.
+        condition:
+          description: Condição lógica para combinar com outros filtros.
+
+    # Schemas de Resposta
+    # ... (propriedades não traduzidas) ...
+    SearchResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+        estimated_total_hits:
+          description: Total estimado de resultados correspondentes.
+        time_taken_ms:
+          description: Tempo de execução da busca em milissegundos.
+      required: [ data, estimated_total_hits, time_taken_ms ]
+
+    VehicleType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+      required: [ id, name, slug ]
+
+    ListVehicleTypesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleType'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+      required: [ data, pagination, links ]
+
+    Make:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+      required: [ id, name, slug ]
+
+
+    GetMakeResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Make'
+      required: [ data ]
+
+    GetModelResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Model'
+      required: [ data ]
+
+    ListModelYearsResponse:
+      type: object
+      properties:
+        years:
+          type: array
+          items:
+            $ref: '#/components/schemas/YearOption'
+      required: [ years ]
+
+    YearSpecification:
+      type: object
+      properties:
+        model_year:
+          type: integer
+          description: Ano do modelo.
+        is_zero_km:
+          type: boolean
+          description: Indica se é um veículo 0km.
+      required: [ model_year, is_zero_km ]
+
+    GetPriceResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/VehiclePrice'
+      required: [ data ]
+
+    ExpandedPriceResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ExpandedPriceData'
+      required: [ data ]
+
+    ExpandedPriceData:
+      type: object
+      properties:
+        price:
+          $ref: '#/components/schemas/VehicleDetailedPrice'
+        analytics:
+          $ref: '#/components/schemas/VehicleAnalytics'
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehiclePriceSnapshot'
+        available_years:
+          type: array
+          items:
+            $ref: '#/components/schemas/YearOption'
+      required: [ price, analytics, history, available_years ]
+
+    VehiclePriceSnapshot:
+      type: object
+      properties:
+        year:
+          type: integer
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        market_price_cents:
+          type: integer
+        formatted_price:
+          type: string
+      required: [ year, month, market_price_cents, formatted_price ]
+
+    VehiclePriceHistoryResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehiclePriceSnapshot'
+      required: [ data ]
+
+    CompareVehiclePricesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleWithHistory'
+      required: [ data ]
+
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        make:
+          $ref: '#/components/schemas/Make'
+        type:
+          $ref: '#/components/schemas/VehicleType'
+        year_fuels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelYearFuels'
+      required: [ id, name, slug, make, type, year_fuels ]
+
+    ListModelsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimplifiedModel'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+      required: [ data, pagination, links ]
+
+    SimplifiedModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        make_id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+      required: [ id, name, make_id, slug ]
+
+    ListFuelTypesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fuel'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+      required: [ data, pagination, links ]
+
+    ListMakesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Make'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+      required: [ data, pagination, links ]
+
+    SearchLabel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+      required: [ id, name, slug ]
+
+
+    SearchLabelResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchLabel'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+      required: [ data, pagination, links ]
+
+    Fuel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        acronym:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+      required: [ id, acronym, name, slug ]
+
+    # Schemas de Erro
+    ErrorObject:
+      type: object
+      properties:
+        target:
+          description: Campo ou parâmetro específico que causou o erro.
+    ApiError:
+      type: object
+      properties:
+        correlation_id:
+          description: Identificador único da requisição para depuração.
+
+  responses:
+    ValidationError:
+      description: Erro de validação
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            correlation_id: "req-12345"
+            errors:
+              - code: "VALIDATION_ERROR"
+                message: "o campo 'year' deve estar entre 1980 e 2025"
+                target: "year"
+
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            correlation_id: "req-12345"
+            errors:
+              - code: "NOT_FOUND"
+                message: "não encontrado"
+
+    TooManyRequests:
+      description: Limite de requisições excedido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            correlation_id: "req-12345"
+            errors:
+              - code: "TOO_MANY_REQUESTS"
+                message: "muitas requisições"
+
+    InternalServerError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            correlation_id: "req-12345"
+            errors:
+              - code: "INTERNAL_SERVER_ERROR"
+                message: "erro interno do servidor"
+
+    UnsupportedMediaType:
+      description: Tipo de mídia não suportado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            correlation_id: "req-12345"
+            errors:
+              - code: "UNSUPPORTED_MEDIA_TYPE"
+                message: "tipo de mídia não suportado"
+
+    Conflict:
+      description: Expectativa conflitante
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            correlation_id: "req-12345"
+            errors:
+              - code: "CONFLICT"
+                message: "expectativa conflitante"
+

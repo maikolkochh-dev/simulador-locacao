@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Tags -->
+  <title>Simulador de Lucros com Locação de Carros | DRE & ROI</title>
+  <meta name="description" content="Simule a viabilidade financeira da locação de veículos. Calcule o DRE completo, margem líquida, ROI mensal e anual, payback, IPVA e depreciação com dados reais da Tabela FIPE.">
+  <meta name="keywords" content="locação de carros, simulador financeiro, DRE de locação, ROI de veículo, tabela fipe, investimento em carros, aluguel de carros">
+  <meta name="author" content="Antigravity Finance">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       HEADER
+       ========================================================================== -->
+  <header>
+    <div class="container header-wrapper">
+      <a href="#" class="logo" id="app-logo">
+        <svg viewBox="0 0 24 24" width="28" height="28">
+          <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.3V16c0 .6.4 1 1 1h2" />
+          <circle cx="7" cy="17" r="2" />
+          <path d="M9 17h6" />
+          <circle cx="17" cy="17" r="2" />
+        </svg>
+        <span>LOCADOR NÔMADE</span> <span class="logo-sub" style="font-size: 11px; font-weight: 500; color: var(--accent-primary); border-left: 1px solid rgba(255,255,255,0.15); padding-left: 10px; margin-left: 10px; text-transform: uppercase; letter-spacing: 0.05em;">Sistemas Essenciais</span>
+      </a>
+      
+      <div class="user-profile-widget" id="user-widget" style="display: none;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span id="user-widget-name">Usuário</span>
+        <button class="logout-btn" id="logout-btn" title="Sair do Simulador">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN CONTENT
+       ========================================================================== -->
+  <main class="container">
+    
+    <!-- ==========================================================================
+         LANDING PAGE SECTION
+         ========================================================================= -->
+    <section id="landing-page" class="landing-section">
+      <div class="landing-hero">
+        <span class="landing-badge">
+          <span class="badge-dot">●</span> Análise financeira para locação de veículos
+        </span>
+        <h1 class="landing-title">
+          Seu carro vale a pena<br>
+          <span class="text-gradient-cyan">alugar?</span>
+        </h1>
+        <p class="landing-desc">
+          Simule o DRE completo da sua operação. Veja receita, custos, lucro líquido, ROI mensal e payback — com base na tabela FIPE.
+        </p>
+        <button class="btn-landing-primary" id="btn-landing-start">
+          Simular agora &rarr;
+        </button>
+      </div>
+
+      <div class="landing-features">
+        <article class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.3V16c0 .6.4 1 1 1h2"></path>
+              <circle cx="7" cy="17" r="2"></circle>
+              <path d="M9 17h6"></path>
+              <circle cx="17" cy="17" r="2"></circle>
+            </svg>
+          </div>
+          <h3>FIPE automática</h3>
+          <p>Marca, modelo e ano — buscamos o valor de mercado para você.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </div>
+          <h3>DRE completo</h3>
+          <p>Receita, impostos, custos, depreciação e lucro líquido mensal.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </div>
+          <h3>ROI & Payback</h3>
+          <p>Saiba em quantos meses o carro se paga e qual o retorno anual.</p>
+        </article>
+      </div>
+
+      <div class="landing-banner">
+        <div class="banner-left">
+          <div class="banner-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h4>Decida com dados, não com achismo</h4>
+            <p>Análise de risco automática para cada simulação.</p>
+          </div>
+        </div>
+        <button class="btn-landing-secondary" id="btn-landing-start-banner">
+          Começar grátis &rarr;
+        </button>
+      </div>
+    </section>
+
+    <!-- Wizard step timeline progress indicator -->
+    <nav class="wizard-progress-bar" id="wizard-nav" aria-label="Progresso da simulação" style="display: none;">
+      <div class="wizard-progress-bar-fill" id="wizard-progress-fill"></div>
+      
+      <div class="step-indicator active" data-step="1" id="step-ind-1">
+        <div class="step-circle">1</div>
+        <span class="step-label">Acesso</span>
+      </div>
+      <div class="step-indicator" data-step="2" id="step-ind-2">
+        <div class="step-circle">2</div>
+        <span class="step-label">Carro & FIPE</span>
+      </div>
+      <div class="step-indicator" data-step="3" id="step-ind-3">
+        <div class="step-circle">3</div>
+        <span class="step-label">Receita</span>
+      </div>
+      <div class="step-indicator" data-step="4" id="step-ind-4">
+        <div class="step-circle">4</div>
+        <span class="step-label">Despesas</span>
+      </div>
+      <div class="step-indicator" data-step="5" id="step-ind-5">
+        <div class="step-circle">5</div>
+        <span class="step-label">Resultado DRE</span>
+      </div>
+    </nav>
+
+    <!-- Wizard Card Frame -->
+    <article class="wizard-box" style="display: none;">
+      
+      <!-- STEP 1: AUTHENTICATION / LOGIN & REGISTER -->
+      <section class="wizard-page active" id="page-step-1" aria-labelledby="title-step-1">
+        
+        <!-- REGISTER VIEW -->
+        <div class="auth-container" id="auth-register-view">
+          <div class="auth-logo-header">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.3V16c0 .6.4 1 1 1h2" />
+              <circle cx="7" cy="17" r="2" />
+              <path d="M9 17h6" />
+              <circle cx="17" cy="17" r="2" />
+            </svg>
+            <h2>LOCADOR NÔMADE</h2>
+          </div>
+          
+          <h1 class="auth-title" id="title-step-1">Criar conta</h1>
+          <p class="auth-subtitle">Comece a simular em segundos.</p>
+          
+          <form id="register-form" class="auth-form-block" novalidate>
+            <div class="form-group">
+              <label for="reg-nome">Nome</label>
+              <input type="text" id="reg-nome" placeholder="Seu nome" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="reg-telefone">Telefone</label>
+              <input type="tel" id="reg-telefone" placeholder="(11) 99999-9999" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="reg-email">E-mail</label>
+              <input type="email" id="reg-email" placeholder="voce@email.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-senha">Senha</label>
+              <input type="password" id="reg-senha" placeholder="••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-auth-action" id="btn-register-submit">
+              Criar conta
+            </button>
+            
+            <p class="auth-toggle-text">
+              Já tem conta? <a href="#" id="link-go-to-login">Entrar</a>
+            </p>
+          </form>
+        </div>
+
+        <!-- LOGIN VIEW (HIDDEN BY DEFAULT) -->
+        <div class="auth-container" id="auth-login-view" style="display: none;">
+          <div class="auth-logo-header">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.3V16c0 .6.4 1 1 1h2" />
+              <circle cx="7" cy="17" r="2" />
+              <path d="M9 17h6" />
+              <circle cx="17" cy="17" r="2" />
+            </svg>
+            <h2>LOCADOR NÔMADE</h2>
+          </div>
+          
+          <h1 class="auth-title">Acessar conta</h1>
+          <p class="auth-subtitle">Digite suas credenciais para continuar.</p>
+          
+          <form id="login-form" class="auth-form-block" novalidate>
+            <div class="form-group">
+              <label for="login-email">E-mail</label>
+              <input type="email" id="login-email" placeholder="voce@email.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="login-senha">Senha</label>
+              <input type="password" id="login-senha" placeholder="••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-auth-action" id="btn-login-submit">
+              Entrar
+            </button>
+            
+            <p class="auth-toggle-text">
+              Não tem conta? <a href="#" id="link-go-to-register">Criar conta</a>
+            </p>
+          </form>
+        </div>
+
+      </section>
+
+      <!-- STEP 2: VEHICLE INFO & FIPE -->
+      <section class="wizard-page" id="page-step-2" aria-labelledby="title-step-2">
+        <h1 class="page-title" id="title-step-2">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.3V16c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle>
+          </svg>
+          Ficha do Veículo
+        </h1>
+        <p class="page-subtitle">Escolha o modelo para buscar a Tabela FIPE ou digite os dados manualmente.</p>
+        
+        <form id="vehicle-form">
+          <!-- Manual override switch -->
+          <div class="switch-wrapper" style="margin-bottom: 24px;">
+            <div class="switch-label-block">
+              <span class="switch-label-title">Digitar valor FIPE manualmente</span>
+              <span class="switch-label-desc">Ative caso não queira buscar na API da Tabela FIPE</span>
+            </div>
+            <label class="custom-switch" aria-label="Ativar inserção de FIPE manual">
+              <input type="checkbox" id="fipe-manual-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Dynamic FIPE Selectors Grid -->
+          <div class="form-grid grid-3" id="fipe-selectors-grid">
+            <div class="form-group">
+              <label for="fipe-brand">Marca</label>
+              <select id="fipe-brand">
+                <option value="">Carregando marcas...</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="fipe-model">Modelo</label>
+              <select id="fipe-model" disabled>
+                <option value="">Selecione uma marca primeiro</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="fipe-year">Ano Modelo</label>
+              <select id="fipe-year" disabled>
+                <option value="">Selecione um modelo primeiro</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Manual Fields Grid (Hidden by default) -->
+          <div class="form-grid" id="manual-vehicle-grid" style="display: none; animation: fadeIn 0.3s ease;">
+            <div class="form-group">
+              <label for="manual-brand">Marca do Veículo</label>
+              <input type="text" id="manual-brand" placeholder="Ex: Chevrolet">
+            </div>
+            <div class="form-group">
+              <label for="manual-model">Modelo / Ano</label>
+              <input type="text" id="manual-model" placeholder="Ex: Onix Hatch LT 1.0 (2020)">
+            </div>
+          </div>
+
+          <!-- Price Inputs Grid -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="vehicle-valor-fipe">
+                Valor da Tabela FIPE (R$)
+              </label>
+              <input type="text" id="vehicle-valor-fipe" placeholder="R$ 0,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="vehicle-valor-pago">
+                Valor Pago de Aquisição (R$)
+              </label>
+              <input type="text" id="vehicle-valor-pago" placeholder="R$ 0,00" required>
+            </div>
+          </div>
+
+          <!-- Dynamic API Indicators & Previews -->
+          <div id="fipe-feedback-area" class="fipe-details-container" style="display: none;">
+            <!-- Loading indicator -->
+            <div class="fipe-loading-spinner" id="fipe-spinner" style="display: none;">
+              <div class="spinner"></div>
+              <span>Buscando cotação FIPE atualizada...</span>
+            </div>
+
+            <!-- FIPE CARD -->
+            <div class="fipe-card" id="fipe-preview-card" style="display: none;">
+              <div class="fipe-card-left">
+                <span class="fipe-card-brand" id="preview-card-brand">Chevrolet</span>
+                <span class="fipe-card-model" id="preview-card-model">Onix Hatch 1.0 Flex</span>
+                <span class="fipe-card-year" id="preview-card-year">Ano: 2020 Gasolina</span>
+              </div>
+              <div class="fipe-card-right">
+                <span class="fipe-card-price-label">Preço Médio FIPE</span>
+                <span class="fipe-card-price-value" id="preview-card-price">R$ 55.400,00</span>
+                <span class="fipe-ref-date" id="preview-card-ref">Ref: Maio/2026</span>
+              </div>
+            </div>
+
+            <!-- HISTORICAL DEPRECIATION CARD -->
+            <div class="fipe-history-card" id="fipe-depreciation-history-card" style="display: none; margin-top: 16px;">
+              <div class="history-card-header">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                  <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+                <span>Histórico de Depreciação Real (Últimos 2 Anos)</span>
+              </div>
+              <div class="history-card-body">
+                <div class="history-metric">
+                  <span class="history-metric-label">Desvalorização no Período</span>
+                  <span class="history-metric-value" id="history-depreciation-value">R$ 0,00</span>
+                </div>
+                <div class="history-metric">
+                  <span class="history-metric-label">Desvalorização Total</span>
+                  <span class="history-badge" id="history-depreciation-badge">0.0%</span>
+                </div>
+              </div>
+              <p class="history-card-note" id="history-depreciation-note">Baseado na evolução real de mercado da tabela FIPE.</p>
+            </div>
+
+
+            <!-- COMPARATIVE CARD -->
+            <div class="comparison-banner" id="fipe-comparison-banner" style="display: none;">
+              <div class="comparison-text">
+                O valor de aquisição está <span id="comparison-direction">abaixo</span> da FIPE.
+              </div>
+              <span class="badge-comparison discount" id="comparison-badge">9.2% de Desconto</span>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary btn-prev">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              Voltar
+            </button>
+            <button type="button" class="btn btn-primary btn-next" id="btn-step-2-next">
+              Continuar
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- STEP 3: RENTAL INCOME -->
+      <section class="wizard-page" id="page-step-3" aria-labelledby="title-step-3">
+        <h1 class="page-title" id="title-step-3">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          Parâmetros de Receita
+        </h1>
+        <p class="page-subtitle">Configure o valor da caução e o aluguel semanal a ser cobrado do motorista.</p>
+        
+        <form id="rental-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="rental-valor-caucao">
+                Valor da Caução (R$)
+              </label>
+              <input type="text" id="rental-valor-caucao" placeholder="R$ 1.500,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="rental-valor-semanal">
+                Valor do Aluguel por Semana (R$)
+              </label>
+              <input type="text" id="rental-valor-semanal" placeholder="R$ 600,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="rental-semanas-mes">
+                Semanas Faturadas por Mês
+              </label>
+              <input type="number" id="rental-semanas-mes" step="0.1" min="1" max="5.5" value="4.3" required>
+            </div>
+            
+            <div class="form-group" style="justify-content: flex-end;">
+              <div class="switch-wrapper" style="border: 0; background: none; padding: 0;">
+                <div class="switch-label-block">
+                  <span class="switch-label-title" style="font-size: 13px; color: var(--text-muted); font-weight: 500;">
+                    Por que 4.3 semanas?
+                  </span>
+                  <span class="switch-label-desc">O mês comercial possui em média 4.33 semanas faturadas, compensando os meses com 30 ou 31 dias.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary btn-prev">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              Voltar
+            </button>
+            <button type="button" class="btn btn-primary btn-next" id="btn-step-3-next">
+              Continuar
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- STEP 4: OPERATIONAL COSTS -->
+      <section class="wizard-page" id="page-step-4" aria-labelledby="title-step-4">
+        <h1 class="page-title" id="title-step-4">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+          </svg>
+          Custos Operacionais Mensais
+        </h1>
+        <p class="page-subtitle">Informe todas as saídas mensais estimadas. Nós já provisionamos valores padrão baseados no veículo.</p>
+        
+        <form id="costs-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="cost-rastreador">
+                Rastreador Mensal (R$)
+              </label>
+              <input type="text" id="cost-rastreador" value="R$ 50,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="cost-seguro">
+                Seguro Mensal (R$)
+              </label>
+              <input type="text" id="cost-seguro" value="R$ 200,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="cost-manutencao">
+                Provisão Manutenção Mensal (R$)
+              </label>
+              <input type="text" id="cost-manutencao" value="R$ 150,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="cost-suporte">
+                Sistema / Suporte de Locação (R$)
+              </label>
+              <input type="text" id="cost-suporte" value="R$ 39,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="cost-contabilidade">
+                Contabilidade Mensal (R$)
+              </label>
+              <input type="text" id="cost-contabilidade" value="R$ 0,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="cost-ipva">
+                Provisão IPVA/Licenciamento Mensal (R$)
+              </label>
+              <input type="text" id="cost-ipva" value="R$ 0,00" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="cost-tax-rate">
+                Alíquota de Imposto (Simples Nacional %)
+              </label>
+              <input type="number" id="cost-tax-rate" step="0.5" min="0" max="30" value="6.0" required>
+            </div>
+
+            <!-- Dynamic Depreciation display -->
+            <div class="form-group">
+              <label for="cost-depreciacao">
+                Provisão Depreciação Mensal (R$)
+              </label>
+              <input type="text" id="cost-depreciacao" value="R$ 0,00" required>
+              <div class="depreciation-scenarios">
+                <button type="button" class="scenario-btn btn-deprec-media" id="btn-deprec-media">Média (7% a.a.)</button>
+                <button type="button" class="scenario-btn btn-deprec-alta" id="btn-deprec-alta">Alta (12% a.a.)</button>
+              </div>
+            </div>
+
+            <!-- Optional Reserve Fund -->
+            <div class="form-group full-width">
+              <div class="switch-wrapper">
+                <div class="switch-label-block">
+                  <span class="switch-label-title">Fundo de Reserva Operacional</span>
+                  <span class="switch-label-desc">Provisionar uma quantia para emergências graves além da manutenção</span>
+                </div>
+                <label class="custom-switch" aria-label="Ativar Fundo de Reserva">
+                  <input type="checkbox" id="reserve-fund-toggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group full-width" id="reserve-fund-input-group" style="display: none; animation: fadeIn 0.3s ease;">
+              <label for="cost-fundo-reserva">Valor do Fundo de Reserva Mensal (R$)</label>
+              <input type="text" id="cost-fundo-reserva" value="R$ 100,00">
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary btn-prev">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              Voltar
+            </button>
+            <button type="button" class="btn btn-primary btn-next" id="btn-step-4-next">
+              Calcular Viabilidade
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- STEP 5: DRE RESULTS & METRICS -->
+      <section class="wizard-page" id="page-step-5" aria-labelledby="title-step-5">
+        <h1 class="page-title" id="title-step-5">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          DRE & Viabilidade da Operação
+        </h1>
+        <p class="page-subtitle">Demonstração de resultados operacionais e indicadores de atratividade.</p>
+
+        <div class="results-grid">
+          
+          <!-- Detailed DRE Column (Left) -->
+          <div class="dre-card">
+            <div class="dre-title-bar">
+              <div>
+                <h3 class="text-gradient" id="result-vehicle-name">Chevrolet Onix</h3>
+                <span class="dre-subtitle" id="result-fipe-reference">Comparado ao FIPE de R$ 55.400,00</span>
+              </div>
+              <div style="text-align: right">
+                <span class="dre-subtitle">Receita Mensal Bruta</span>
+                <div style="font-weight: 700; font-size: 16px; color: var(--accent-primary);" id="dre-header-revenue">R$ 2.580,00</div>
+              </div>
+            </div>
+
+            <!-- Interactive DRE Rows -->
+            <div class="dre-table">
+              <div class="dre-row revenue">
+                <span>(+) RECEITA BRUTA MENSAL</span>
+                <span class="dre-val" id="dre-receita-bruta">R$ 2.580,00</span>
+              </div>
+              <div class="dre-row tax">
+                <span>(-) Imposto (Simples Nacional)</span>
+                <span class="dre-val" id="dre-impostos">R$ -154,80</span>
+              </div>
+              
+              <div class="dre-row revenue" style="background: rgba(255,255,255,0.02); border-left-color: var(--text-muted);">
+                <span>(=) RECEITA LÍQUIDA MENSAL</span>
+                <span class="dre-val" id="dre-receita-liquida" style="color: var(--text-main)">R$ 2.425,20</span>
+              </div>
+              
+              <div class="dre-row opex-header" style="font-weight: 600; padding: 6px 14px 2px 14px; font-size: 13px; color: var(--text-muted)">
+                <span>(-) CUSTOS OPERACIONAIS RECORRENTES</span>
+                <span id="dre-custos-recorrentes-total">R$ -439,00</span>
+              </div>
+              
+              <div class="dre-row expense dre-indent">
+                <span>Rastreador</span>
+                <span class="dre-val" id="dre-rastreador">R$ -50,00</span>
+              </div>
+              <div class="dre-row expense dre-indent">
+                <span>Seguro de Frota / Locador</span>
+                <span class="dre-val" id="dre-seguro">R$ -200,00</span>
+              </div>
+              <div class="dre-row expense dre-indent">
+                <span>Provisão de Manutenção</span>
+                <span class="dre-val" id="dre-manutencao">R$ -150,00</span>
+              </div>
+              <div class="dre-row expense dre-indent">
+                <span>Sistema / Suporte Operacional</span>
+                <span class="dre-val" id="dre-suporte">R$ -39,00</span>
+              </div>
+              <div class="dre-row expense dre-indent">
+                <span>Contabilidade da Operação</span>
+                <span class="dre-val" id="dre-contabilidade">R$ 0,00</span>
+              </div>
+              <div class="dre-row expense dre-indent">
+                <span>Provisão IPVA & Licenciamento</span>
+                <span class="dre-val" id="dre-ipva">R$ -184,67</span>
+              </div>
+
+              <div class="dre-row opex-header" style="font-weight: 600; padding: 6px 14px 2px 14px; font-size: 13px; color: var(--text-muted)">
+                <span>(-) PROVISÕES E FUNDOS</span>
+                <span id="dre-provisoes-total">R$ -792,50</span>
+              </div>
+              
+              <div class="dre-row expense dre-indent">
+                <span>Fundo de Reserva Emergencial</span>
+                <span class="dre-val" id="dre-fundo-reserva">R$ -100,00</span>
+              </div>
+              <div class="dre-row expense dre-indent">
+                <span>Provisão Depreciação do Bem</span>
+                <span class="dre-val" id="dre-depreciacao">R$ -692,50</span>
+              </div>
+
+              <div class="dre-row total-expenses">
+                <span>(-) TOTAL DE SAÍDAS</span>
+                <span class="dre-val" id="dre-saidas-total">R$ -1.570,97</span>
+              </div>
+              
+              <div class="dre-row net-profit">
+                <span>(=) LUCRO LÍQUIDO MENSAL</span>
+                <span class="dre-val" id="dre-lucro-liquido">R$ 1.009,03</span>
+              </div>
+            </div>
+
+            <!-- SVG Visual Chart segment -->
+            <div class="dre-chart-section">
+              <span class="chart-title">Distribuição da Receita</span>
+              <div class="distribution-bar">
+                <div class="dist-slice profit" id="slice-profit" style="width: 40%" title="Lucro Líquido"></div>
+                <div class="dist-slice taxes" id="slice-taxes" style="width: 10%" title="Impostos"></div>
+                <div class="dist-slice opex" id="slice-opex" style="width: 25%" title="Custos Operacionais"></div>
+                <div class="dist-slice provisions" id="slice-provisions" style="width: 25%" title="Provisões e Reservas"></div>
+              </div>
+              
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <div class="legend-color profit"></div>
+                  <span>Lucro Líquido: <b id="legend-profit-pct">39.1%</b></span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color taxes"></div>
+                  <span>Impostos: <b id="legend-taxes-pct">6.0%</b></span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color opex"></div>
+                  <span>Custos Opex: <b id="legend-opex-pct">24.5%</b></span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color provisions"></div>
+                  <span>Provisões/Reserva: <b id="legend-provisions-pct">30.4%</b></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key KPIs Column (Right) -->
+          <div class="metrics-panel">
+            
+            <!-- Operational Risk Card -->
+            <div class="risk-card success" id="risk-card">
+              <div class="risk-header">
+                <span class="risk-label" id="risk-label">Risco Operacional</span>
+                <span class="risk-badge" id="risk-badge">Operação Viável</span>
+              </div>
+              <p class="risk-desc" id="risk-desc">
+                O carro apresenta potencial de retorno, com rendimento considerável frente aos custos inerentes.
+              </p>
+            </div>
+
+            <!-- Monthly ROI -->
+            <div class="metric-card success" id="metric-card-roi">
+              <span class="metric-label">Retorno Mensal (ROI)</span>
+              <span class="metric-value" id="kpi-roi-mensal">2.18%</span>
+              <span class="metric-subtext" id="kpi-roi-anual">Taxa Anual Equivalente: 26.16%</span>
+            </div>
+
+            <!-- Payback -->
+            <div class="metric-card" id="metric-card-payback">
+              <span class="metric-label">Payback (Retorno Capital)</span>
+              <span class="metric-value" id="kpi-payback">45.8 meses</span>
+              <span class="metric-subtext">Tempo estimado para recuperar o valor pago</span>
+            </div>
+
+            <!-- Margem Líquida -->
+            <div class="metric-card" id="metric-card-margin">
+              <span class="metric-label">Margem Líquida</span>
+              <span class="metric-value" id="kpi-margem">39.11%</span>
+              <span class="metric-subtext">Sob cada real alugado, o que vira lucro líquido</span>
+            </div>
+
+            <!-- FIPE Discount -->
+            <div class="metric-card" id="metric-card-fipe-discount">
+              <span class="metric-label">Margem FIPE Adquirida</span>
+              <span class="metric-value" id="kpi-fipe-desconto">9.2%</span>
+              <span class="metric-subtext" id="kpi-fipe-detalhe">Valor pago R$ 5.000,00 abaixo da média FIPE</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary btn-prev">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Reajustar Custos
+          </button>
+
+          <button type="button" class="btn btn-print" id="btn-print-simulation">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Imprimir Simulação
+          </button>
+
+          <button type="button" class="btn btn-whatsapp" id="btn-share-whatsapp">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.49-3.232c1.716.969 3.411 1.48 5.518 1.481 5.438.002 9.85-4.409 9.853-9.853.002-2.637-1.023-5.116-2.884-6.979C17.172 3.553 14.697 2.53 12.01 2.53c-5.437 0-9.849 4.41-9.853 9.853-.001 2.036.529 4.017 1.536 5.793l-.974 3.552 3.838-.97zm10.741-5.733c-.279-.14-1.654-.816-1.91-.908-.256-.092-.442-.138-.628.14-.186.279-.72.908-.883 1.093-.163.186-.326.209-.605.07-1.1-.55-1.829-1.08-2.551-2.321-.192-.329.192-.305.549-1.02.059-.118.029-.221-.015-.313-.044-.092-.442-1.066-.605-1.46-.16-.388-.323-.335-.442-.34-.114-.005-.245-.006-.375-.006-.13 0-.34.047-.518.243-.18.196-.685.67-.685 1.63 0 .96.7 1.887.798 2.022.097.136 1.378 2.103 3.339 2.95.467.201.83.322 1.116.413.47.148.897.127 1.235.077.377-.056 1.157-.474 1.32-.93.163-.456.163-.847.114-.93-.047-.084-.175-.126-.454-.266z"></path>
+            </svg>
+            Compartilhar WhatsApp
+          </button>
+          
+          <button type="button" class="btn btn-primary" id="btn-restart-simulation">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+            Nova Simulação
+          </button>
+        </div>
+
+        <!-- CONSULTORIA DE ALUGUEL DE CARROS BLOCK -->
+        <div class="consultancy-block">
+          <div class="consultancy-card">
+            <button type="button" class="pulsating-consult-btn" id="btn-consultancy-whatsapp">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.49-3.232c1.716.969 3.411 1.48 5.518 1.481 5.438.002 9.85-4.409 9.853-9.853.002-2.637-1.023-5.116-2.884-6.979C17.172 3.553 14.697 2.53 12.01 2.53c-5.437 0-9.849 4.41-9.853 9.853-.001 2.036.529 4.017 1.536 5.793l-.974 3.552 3.838-.97zm10.741-5.733c-.279-.14-1.654-.816-1.91-.908-.256-.092-.442-.138-.628.14-.186.279-.72.908-.883 1.093-.163.186-.326.209-.605.07-1.1-.55-1.829-1.08-2.551-2.321-.192-.329.192-.305.549-1.02.059-.118.029-.221-.015-.313-.044-.092-.442-1.066-.605-1.46-.16-.388-.323-.335-.442-.34-.114-.005-.245-.006-.375-.006-.13 0-.34.047-.518.243-.18.196-.685.67-.685 1.63 0 .96.7 1.887.798 2.022.097.136 1.378 2.103 3.339 2.95.467.201.83.322 1.116.413.47.148.897.127 1.235.077.377-.056 1.157-.474 1.32-.93.163-.456.163-.847.114-.93-.047-.084-.175-.126-.454-.266z"></path>
+              </svg>
+              Chamar no WhatsApp Suporte
+            </button>
+            <p class="consultancy-text">
+              Precisa de consultoria sobre aluguel de carros? Chame nosso time de Suporte Locador Nômade
+            </p>
+          </div>
+        </div>
+
+        <!-- PRINT ONLY FOOTER (SOCIAL MEDIA INFO) -->
+        <div class="print-only-footer">
+          Para maiores informações nos siga em nossas redes sociais:<br>
+          <strong>@locadornomade</strong>
+        </div>
+      </section>
+
+    </article>
+
+  </main>
+
+  <!-- ==========================================================================
+       FOOTER
+       ========================================================================== -->
+  <footer>
+    <div class="container footer-wrapper">
+      <span>&copy; 2026 LOCADOR NÔMADE - SISTEMAS ESSENCIAIS. Todos os direitos reservados.</span>
+      <ul class="footer-links">
+        <li><a href="#" onclick="alert('Simulador Educativo. Os valores reais podem variar conforme mercado e sinistros.'); return false;">Aviso Legal</a></li>
+        <li><a href="#" onclick="alert('Seus dados são salvos com segurança no banco de dados local.'); return false;">Termos & Privacidade</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- Application Controller Scripts -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
