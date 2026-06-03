@@ -659,6 +659,30 @@ function bindEvents() {
     }
   });
 
+  // IPVA rates buttons click
+  const ipvaBtns = [
+    document.getElementById('btn-ipva-1'),
+    document.getElementById('btn-ipva-2'),
+    document.getElementById('btn-ipva-3'),
+    document.getElementById('btn-ipva-4')
+  ];
+
+  ipvaBtns.forEach(btn => {
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const rate = parseFloat(btn.getAttribute('data-rate'));
+        applyIpvaRate(rate, btn, ipvaBtns.filter(b => b !== btn));
+      });
+    }
+  });
+
+  // Deactivate active states when the user types manually in IPVA field
+  elements.costIpva.addEventListener('input', () => {
+    ipvaBtns.forEach(btn => {
+      if (btn) btn.classList.remove('active');
+    });
+  });
+
   // App logo returns home (to Landing Page)
   elements.appLogo.addEventListener('click', (e) => {
     e.preventDefault();
@@ -1093,21 +1117,28 @@ function triggerSmartDefaults() {
   const valorPago = utils.parseCurrency(elements.valorPagoInput.value);
   const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
 
-  // If FIPE has a value, IPVA provision is annual 4% / 12 months
+  // Update IPVA based on active rate button or default to 4%
   if (valorFipe > 0) {
-    const monthlyIpva = simulationService.estimateMonthlyIpva(valorFipe);
+    const activeIpvaBtn = document.querySelector('.rate-btn.active');
+    const ipvaRate = activeIpvaBtn ? parseFloat(activeIpvaBtn.getAttribute('data-rate')) : 0.04;
+    const monthlyIpva = (valorFipe * ipvaRate) / 12;
     elements.costIpva.value = utils.formatCurrency(monthlyIpva);
   }
 
-  // If Paid price has a value, monthly depreciation is 15% annual / 12 months
-  // Skip this default if a custom depreciation scenario (7% or 12%) has been selected
+  // Update Depreciation based on active rate button or default to 9.5%
   const btnDeprecMedia = document.getElementById('btn-deprec-media');
   const btnDeprecAlta = document.getElementById('btn-deprec-alta');
-  const isScenarioActive = (btnDeprecMedia && btnDeprecMedia.classList.contains('active')) ||
-                            (btnDeprecAlta && btnDeprecAlta.classList.contains('active'));
+  const isMediaActive = btnDeprecMedia && btnDeprecMedia.classList.contains('active');
+  const isAltaActive = btnDeprecAlta && btnDeprecAlta.classList.contains('active');
 
-  if (valorPago > 0 && !isScenarioActive) {
-    const monthlyDepr = simulationService.estimateMonthlyDepreciation(valorPago);
+  const baseValue = valorPago > 0 ? valorPago : valorFipe;
+
+  if (baseValue > 0) {
+    let deprecRate = 0.095; // default is 9.5% (average of 7% and 12%)
+    if (isMediaActive) deprecRate = 0.07;
+    else if (isAltaActive) deprecRate = 0.12;
+
+    const monthlyDepr = (baseValue * deprecRate) / 12;
     elements.costDepreciacao.value = utils.formatCurrency(monthlyDepr);
   }
 
@@ -1146,6 +1177,35 @@ function applyDepreciationScenario(annualRate, activeBtn, inactiveBtn) {
   // Toggle active button states
   activeBtn.classList.add('active');
   inactiveBtn.classList.remove('active');
+}
+
+/**
+ * Helper to calculate and apply an IPVA rate scenario to the monthly IPVA input
+ * @param {number} rate (e.g. 0.01, 0.02, 0.03, 0.04)
+ * @param {HTMLButtonElement} activeBtn
+ * @param {HTMLButtonElement[]} otherBtns
+ */
+function applyIpvaRate(rate, activeBtn, otherBtns) {
+  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
+
+  if (valorFipe <= 0) {
+    alert('Por favor, defina o valor do veículo no Passo 2 antes de selecionar uma taxa de IPVA.');
+    return;
+  }
+
+  // Monthly IPVA = (valorFipe * rate) / 12
+  const monthlyIpva = (valorFipe * rate) / 12;
+  
+  elements.costIpva.value = utils.formatCurrency(monthlyIpva);
+  
+  // Update state
+  state.costs.ipvaLicenciamento = monthlyIpva;
+
+  // Toggle active button states
+  activeBtn.classList.add('active');
+  otherBtns.forEach(btn => {
+    if (btn) btn.classList.remove('active');
+  });
 }
 
 /**

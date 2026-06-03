@@ -6,7 +6,7 @@ export const simulationService = {
   // Default configuration values
   DEFAULTS: {
     SIMPLES_NACIONAL_RATE: 0.06, // 6%
-    ANNUAL_DEPRECIATION_RATE: 0.15, // 15%
+    ANNUAL_DEPRECIATION_RATE: 0.095, // 9.5% (Média de 7% e 12%)
     WEEKS_PER_MONTH: 4.3,
     IPVA_ANNUAL_RATE: 0.04 // 4% of FIPE value
   },
