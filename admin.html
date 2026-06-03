@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo | LOCADOR NÔMADE</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔑</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --bg-primary: #080C14;
+      --bg-secondary: #0D1424;
+      --bg-card: rgba(21, 31, 56, 0.5);
+      --border-color: rgba(255, 255, 255, 0.07);
+      --accent-primary: #00F2FE;
+      --accent-secondary: #4FACFE;
+      --accent-gradient: linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%);
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+      --color-danger: #EF4444;
+      --color-success: #10B981;
+      --radius-md: 16px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Background decorative glow */
+    .glow-bg {
+      position: fixed;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.08) 0%, rgba(8, 12, 20, 0) 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* GLASS CARD CONTAINER */
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      width: 100%;
+      max-width: 480px;
+      padding: 40px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+      z-index: 2;
+      position: relative;
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* FORM STYLES */
+    .form-group {
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input[type="password"], input[type="text"] {
+      background: rgba(8, 12, 20, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      color: var(--text-main);
+      font-size: 15px;
+      font-family: var(--font-sans);
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+      background: rgba(8, 12, 20, 0.8);
+    }
+
+    .btn {
+      background: var(--accent-gradient);
+      color: #080C14;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 242, 254, 0.3);
+      filter: brightness(1.05);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .error-msg {
+      color: var(--color-danger);
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 13.5px;
+      margin-bottom: 20px;
+      display: none;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* DASHBOARD WRAPPER */
+    .dashboard-container {
+      display: none;
+      width: 100%;
+      max-width: 1024px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .dashboard-title-group h1 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .dashboard-title-group p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .dashboard-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--text-muted);
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--color-danger);
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: var(--color-danger);
+    }
+
+    /* KPI DASH */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px 30px;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .kpi-val {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--accent-primary);
+    }
+
+    .kpi-icon {
+      background: rgba(0, 242, 254, 0.08);
+      border-radius: 50%;
+      width: 54px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+    }
+
+    /* TABLE SECTION */
+    .table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .table-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .search-wrapper input {
+      padding-left: 40px;
+      font-size: 14px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dark);
+      pointer-events: none;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+
+    th {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    tbody tr {
+      transition: background 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .td-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .td-date {
+      color: var(--text-dark);
+      font-size: 13px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .dashboard-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .search-wrapper {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-bg"></div>
+
+  <!-- LOGIN PANEL -->
+  <div class="glass-card" id="login-panel">
+    <div class="brand-header">
+      <div class="brand-title">Locador Nômade</div>
+      <div class="brand-subtitle">Acesso Restrito Administrador</div>
+    </div>
+
+    <div class="error-msg" id="login-error">Senha incorreta. Tente novamente.</div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="admin-password">Senha do Administrador</label>
+        <input type="password" id="admin-password" placeholder="Digite a senha mestra..." required>
+      </div>
+
+      <button type="submit" class="btn">
+        Entrar no Painel
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- DASHBOARD PANEL -->
+  <div class="dashboard-container" id="dashboard-panel">
+    <div class="dashboard-header">
+      <div class="dashboard-title-group">
+        <h1>Painel de Leads</h1>
+        <p>Acompanhe todos os contatos que simularam ganhos de locação</p>
+      </div>
+
+      <div class="dashboard-actions">
+        <button type="button" class="btn-secondary" id="btn-export">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Exportar Excel (CSV)
+        </button>
+
+        <button type="button" class="btn-secondary btn-logout" id="btn-logout">
+          Sair
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div>
+          <span class="kpi-label">Total de Simuladores Cadastrados (Leads)</span>
+          <span class="kpi-val" id="kpi-total-leads">0</span>
+        </div>
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="table-card">
+      <div class="table-header-row">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="Pesquisar por nome, email ou tel...">
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table id="leads-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Telefone</th>
+              <th>E-mail</th>
+              <th>Data do Cadastro</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+        <div class="empty-state" id="empty-state" style="display: none;">
+          Nenhum cadastro encontrado.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State management
+    let leadsData = [];
+    const elements = {
+      loginPanel: document.getElementById('login-panel'),
+      dashboardPanel: document.getElementById('dashboard-panel'),
+      loginForm: document.getElementById('login-form'),
+      adminPasswordInput: document.getElementById('admin-password'),
+      loginError: document.getElementById('login-error'),
+      kpiTotalLeads: document.getElementById('kpi-total-leads'),
+      leadsTbody: document.getElementById('leads-tbody'),
+      emptyState: document.getElementById('empty-state'),
+      searchInput: document.getElementById('search-input'),
+      btnExport: document.getElementById('btn-export'),
+      btnLogout: document.getElementById('btn-logout')
+    };
+
+    // Auto-login if key is stored in session
+    window.addEventListener('DOMContentLoaded', () => {
+      const storedPass = sessionStorage.getItem('admin_password');
+      if (storedPass) {
+        fetchLeads(storedPass);
+      }
+    });
+
+    // Handle Login Submit
+    elements.loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const password = elements.adminPasswordInput.value.trim();
+      fetchLeads(password);
+    });
+
+    // Log out admin
+    elements.btnLogout.addEventListener('click', () => {
+      sessionStorage.removeItem('admin_password');
+      elements.dashboardPanel.style.display = 'none';
+      elements.loginPanel.style.display = 'block';
+      elements.adminPasswordInput.value = '';
+      document.body.style.justifyContent = 'center';
+    });
+
+    // Live search input filtering
+    elements.searchInput.addEventListener('keyup', () => {
+      const query = elements.searchInput.value.toLowerCase();
+      const filtered = leadsData.filter(user => 
+        (user.nome && user.nome.toLowerCase().includes(query)) ||
+        (user.email && user.email.toLowerCase().includes(query)) ||
+        (user.telefone && user.telefone.toLowerCase().includes(query))
+      );
+      renderTable(filtered);
+    });
+
+    // Export to CSV trigger
+    elements.btnExport.addEventListener('click', () => {
+      if (leadsData.length === 0) {
+        alert('Não há contatos cadastrados para exportação.');
+        return;
+      }
+      exportToCSV(leadsData);
+    });
+
+    // API Call to fetch leads
+    async function fetchLeads(password) {
+      try {
+        const response = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          leadsData = data.users || [];
+          sessionStorage.setItem('admin_password', password);
+          
+          // Switch display
+          elements.loginPanel.style.display = 'none';
+          elements.dashboardPanel.style.display = 'block';
+          elements.loginError.style.display = 'none';
+          document.body.style.justifyContent = 'flex-start';
+          document.body.style.paddingTop = '60px';
+
+          // Populates KPIs & Table
+          elements.kpiTotalLeads.textContent = leadsData.length;
+          renderTable(leadsData);
+        } else {
+          showError(data.error || 'Senha incorreta. Tente novamente.');
+        }
+      } catch (err) {
+        showError('Erro ao conectar ao servidor administrativo.');
+        console.error(err);
+      }
+    }
+
+    function showError(text) {
+      elements.loginError.textContent = text;
+      elements.loginError.style.display = 'block';
+      sessionStorage.removeItem('admin_password');
+    }
+
+    // Render leads inside table body
+    function renderTable(data) {
+      elements.leadsTbody.innerHTML = '';
+      
+      if (data.length === 0) {
+        elements.emptyState.style.display = 'block';
+        return;
+      }
+      
+      elements.emptyState.style.display = 'none';
+
+      data.forEach(user => {
+        const row = document.createElement('tr');
+        
+        // Format ISO Date to Pt-BR locale
+        let formattedDate = 'N/A';
+        if (user.createdAt) {
+          try {
+            const date = new Date(user.createdAt);
+            formattedDate = date.toLocaleString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          } catch(e) {}
+        }
+
+        row.innerHTML = `
+          <td class="td-name">${escapeHTML(user.nome)}</td>
+          <td>${escapeHTML(user.telefone)}</td>
+          <td>${escapeHTML(user.email)}</td>
+          <td class="td-date">${formattedDate}</td>
+        `;
+        
+        elements.leadsTbody.appendChild(row);
+      });
+    }
+
+    // Secure HTML strings to prevent XSS
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    // CSV format builder and downloader
+    function exportToCSV(data) {
+      // Define CSV headers
+      const headers = ['Nome', 'Telefone', 'Email', 'Data de Cadastro'];
+      
+      // Map user details to CSV lines
+      const rows = data.map(user => {
+        let formattedDate = 'N/A';
+        if (user.createdAt) {
+          const date = new Date(user.createdAt);
+          formattedDate = date.toLocaleString('pt-BR');
+        }
+        return [
+          `"${(user.nome || '').replace(/"/g, '""')}"`,
+          `"${(user.telefone || '').replace(/"/g, '""')}"`,
+          `"${(user.email || '').replace(/"/g, '""')}"`,
+          `"${formattedDate}"`
+        ];
+      });
+
+      // Join headers and lines, add UTF-8 BOM so Excel decodes symbols correctly
+      const csvContent = "\uFEFF" + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+      
+      // Build blob element and trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "leads_locador_nomade.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>

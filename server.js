@@ -302,6 +302,34 @@ app.post('/api/login', (req, res) => {
   }
 });
 
+// GET /admin
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// POST /api/admin/users
+app.post('/api/admin/users', (req, res) => {
+  try {
+    const { password } = req.body;
+    const adminPass = process.env.ADMIN_PASSWORD || 'LocadorAdmin2026!';
+    
+    if (password !== adminPass) {
+      return res.status(401).json({ success: false, error: 'Senha de administrador incorreta' });
+    }
+
+    const users = readUsers();
+    // Exclude password field for security
+    const sanitizedUsers = users.map(({ senha, ...rest }) => rest);
+
+    res.json({
+      success: true,
+      users: sanitizedUsers
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Serve frontend SPA index on any other path
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
