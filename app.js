@@ -1034,14 +1034,53 @@ function renderComparisonBanner() {
   elements.fipeComparisonBanner.style.display = 'flex';
   const diffPct = (valorFipe - valorPago) / valorFipe;
 
-  if (diffPct > 0) {
-    elements.comparisonDirection.textContent = 'abaixo';
-    elements.comparisonBadge.className = 'badge-comparison discount';
-    elements.comparisonBadge.textContent = `${utils.formatPercent(diffPct)} de Desconto`;
-  } else {
-    elements.comparisonDirection.textContent = 'acima';
-    elements.comparisonBadge.className = 'badge-comparison premium';
+  const textElement = elements.fipeComparisonBanner.querySelector('.comparison-text');
+  
+  // Reset all state classes
+  elements.fipeComparisonBanner.className = 'comparison-banner';
+  elements.comparisonBadge.className = 'badge-comparison';
+
+  if (diffPct < 0) {
+    // Ágio: Paid more than FIPE
+    textElement.innerHTML = `O valor de aquisição está <span>acima</span> da FIPE.`;
+    elements.fipeComparisonBanner.classList.add('neutral-state');
+    elements.comparisonBadge.classList.add('neutral-badge');
     elements.comparisonBadge.textContent = `${utils.formatPercent(Math.abs(diffPct))} de Ágio`;
+  } else {
+    // Discount / Margin
+    const marginPct = diffPct;
+    
+    if (marginPct >= 0 && marginPct < 0.05) {
+      // 0% a 5% (vermelho)
+      textElement.textContent = "Margem baixa para operacao de aluguel de carros! Chance alta de perca com depreciaçao!";
+      elements.fipeComparisonBanner.classList.add('danger-state');
+      elements.comparisonBadge.classList.add('danger-badge');
+      elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Margem`;
+    } else if (marginPct >= 0.05 && marginPct < 0.10) {
+      // 5% a 9.99% (faixa intermediária padrão)
+      textElement.innerHTML = `O valor de aquisição está <span>abaixo</span> da FIPE.`;
+      elements.fipeComparisonBanner.classList.add('neutral-state');
+      elements.comparisonBadge.classList.add('neutral-badge');
+      elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Desconto`;
+    } else if (marginPct >= 0.10 && marginPct < 0.15) {
+      // 10% a 14.99% (amarelo)
+      textElement.textContent = "Margem de aquisição moderada! Verifique estado do veiculo!";
+      elements.fipeComparisonBanner.classList.add('warning-state');
+      elements.comparisonBadge.classList.add('warning-badge');
+      elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Margem`;
+    } else if (marginPct >= 0.15 && marginPct < 0.25) {
+      // 15% ate 24.99% (verde)
+      textElement.textContent = "Margem favoravel para compra! Risco baixo de assumir depreciação";
+      elements.fipeComparisonBanner.classList.add('success-state');
+      elements.comparisonBadge.classList.add('success-badge');
+      elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Margem`;
+    } else {
+      // >= 25% (verde neon piscando)
+      textElement.textContent = "Margem Excepcional, Altas chances de dobrar o retorno sobre investimento!";
+      elements.fipeComparisonBanner.classList.add('neon-state');
+      elements.comparisonBadge.classList.add('neon-badge');
+      elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Margem`;
+    }
   }
 }
 
