@@ -554,9 +554,15 @@
     /* KPI CARDS GRID */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 16px;
       margin-bottom: 28px;
+    }
+
+    @media (min-width: 1200px) {
+      .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
 
     .kpi-card {
@@ -576,6 +582,16 @@
     .kpi-card.gold {
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.12) 100%);
       border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .kpi-card.cyan {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.08) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+    }
+
+    .kpi-card.purple {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(168, 85, 247, 0.12) 100%);
+      border: 1px solid rgba(139, 92, 246, 0.35);
     }
 
     .kpi-header {
@@ -1183,6 +1199,24 @@
             <div class="kpi-sub" id="kpi-roi-sub">Lucro Líquido: R$ 227.728</div>
           </div>
 
+          <div class="kpi-card cyan">
+            <div class="kpi-header">
+              <span class="kpi-label" style="color: var(--accent-cyan); font-weight: 800;">ROI Mensal Médio</span>
+              <span>📈</span>
+            </div>
+            <div class="kpi-value" id="kpi-roi-month" style="color: var(--accent-cyan);">4,74% a.m.</div>
+            <div class="kpi-sub" id="kpi-roi-month-sub">Média de R$ 9.488 / mês</div>
+          </div>
+
+          <div class="kpi-card purple">
+            <div class="kpi-header">
+              <span class="kpi-label" style="color: #A78BFA; font-weight: 800;">Payback Estimado</span>
+              <span>⏱️</span>
+            </div>
+            <div class="kpi-value" id="kpi-payback" style="color: #A78BFA;">19 Meses</div>
+            <div class="kpi-sub" id="kpi-payback-sub">Recuperação via lucro da operação</div>
+          </div>
+
         </div>
 
         <!-- CHARTS SECTION -->
@@ -1360,6 +1394,10 @@
       kpiEquity: document.getElementById('kpi-equity'),
       kpiRoi: document.getElementById('kpi-roi'),
       kpiRoiSub: document.getElementById('kpi-roi-sub'),
+      kpiRoiMonth: document.getElementById('kpi-roi-month'),
+      kpiRoiMonthSub: document.getElementById('kpi-roi-month-sub'),
+      kpiPayback: document.getElementById('kpi-payback'),
+      kpiPaybackSub: document.getElementById('kpi-payback-sub'),
 
       // DRE
       dreHeaderRow: document.getElementById('dre-header-row'),
@@ -1844,6 +1882,46 @@
       
       elements.kpiRoi.textContent = `${roiPercent.toFixed(1)}%`;
       elements.kpiRoiSub.textContent = `Lucro Líquido: ${formatCurrency(totalNetProfit)}`;
+
+      // 8.1 ROI Mensal Médio
+      const roiMonthly = totalMonths > 0 ? (roiPercent / totalMonths) : 0;
+      const avgMonthlyNetProfit = totalMonths > 0 ? (totalNetProfit / totalMonths) : 0;
+      elements.kpiRoiMonth.textContent = `${roiMonthly.toFixed(2)}% a.m.`;
+      elements.kpiRoiMonthSub.textContent = `Média de ${formatCurrency(avgMonthlyNetProfit)} / mês`;
+
+      // 8.2 Payback Estimado
+      // Calcula em quantos meses o fluxo de lucros da locação recupera 100% do capital investido
+      let cumulativeNetProfit = 0;
+      let paybackMonth = null;
+      for (let i = 0; i < monthData.length; i++) {
+        cumulativeNetProfit += monthData[i].netProfit;
+        if (paybackMonth === null && cumulativeNetProfit >= initialInvestment) {
+          paybackMonth = monthData[i].month;
+          break;
+        }
+      }
+
+      if (initialInvestment <= 0) {
+        elements.kpiPayback.textContent = 'Imediato';
+        elements.kpiPaybackSub.textContent = 'Sem capital inicial próprio';
+      } else if (paybackMonth !== null) {
+        elements.kpiPayback.textContent = `${paybackMonth} ${paybackMonth === 1 ? 'Mês' : 'Meses'}`;
+        if (activeStrategy === 'leverage') {
+          elements.kpiPaybackSub.textContent = `Retorno do lance via lucro da locação`;
+        } else {
+          elements.kpiPaybackSub.textContent = `100% do capital retornado via lucro`;
+        }
+      } else {
+        const avgMonthlyOp = totalMonths > 0 ? (cumulativeNetProfit / totalMonths) : 0;
+        if (avgMonthlyOp > 0) {
+          const estimatedMonths = Math.ceil(initialInvestment / avgMonthlyOp);
+          elements.kpiPayback.textContent = `~${estimatedMonths} Meses`;
+          elements.kpiPaybackSub.textContent = `Estimado pelo fluxo de caixa mensal`;
+        } else {
+          elements.kpiPayback.textContent = 'Na Liquidação';
+          elements.kpiPaybackSub.textContent = 'Recuperação na venda da frota';
+        }
+      }
 
       // 9. RENDER DRE TABLE
       renderDRETable(monthData);
