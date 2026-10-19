@@ -155,18 +155,25 @@ export const fipeService = {
 
       // Map each combination of year + fuel into a single option to emulate original FIPE options
       yearFuels.forEach(yf => {
-        const year = yf.model_year;
-        const isZeroKm = yf.is_zero_km ? ' 0km' : '';
+        const isZeroKm = Boolean(yf.is_zero_km);
+        const yearParam = isZeroKm ? 'zero' : yf.model_year;
+        const displayName = isZeroKm ? '0km' : `${yf.model_year}`;
         yf.fuels.forEach(fuel => {
           mappedYears.push({
-            codigo: `${year}_${fuel.id}`,
-            nome: `${year}${isZeroKm} ${fuel.name}`
+            codigo: `${yearParam}_${fuel.id}`,
+            nome: `${displayName} ${fuel.name}`
           });
         });
       });
 
-      // Sort years in descending order (newest first)
-      mappedYears.sort((a, b) => b.nome.localeCompare(a.nome));
+      // Sort years in descending order (0km first, then newest year first)
+      mappedYears.sort((a, b) => {
+        const aIsZero = a.codigo.startsWith('zero');
+        const bIsZero = b.codigo.startsWith('zero');
+        if (aIsZero) return -1;
+        if (bIsZero) return 1;
+        return b.nome.localeCompare(a.nome);
+      });
 
       cache.years[cacheKey] = mappedYears;
       return mappedYears;
@@ -215,6 +222,7 @@ export const fipeService = {
       let deprecTipo = 'none';
       let deprecMensalNum = 0;
       let deprecTotalNum = 0;
+      let deprecTaxaAnualNum = 0;
       let deprecMesesNum = 0;
 
       if (parseInt(year) <= 2025 && history.length > 0) {
@@ -268,7 +276,6 @@ export const fipeService = {
           }).format(Math.abs(diffPctVal)) + '%';
 
           // Taxa anualizada média baseada no percentual exibido nos últimos X meses (ex: 9,3% em 2 anos = 4,65% ao ano)
-          let deprecTaxaAnualNum = 0;
           const yearsDiff = monthsDiff > 0 ? (monthsDiff / 12) : 2;
           if (diffCents > 0 && yearsDiff > 0) {
             const totalPctRounded = parseFloat(Math.abs(diffPctVal).toFixed(1));
