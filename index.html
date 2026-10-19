@@ -880,7 +880,7 @@
               <div class="vehicle-title-row">
                 <div>
                   <h2 class="text-gradient" id="result-vehicle-name">Fiat Mobi Like 1.0</h2>
-                  <span class="dre-subtitle" id="result-fipe-reference">FIPE: R$ 52.741,00</span>
+                  <span class="vehicle-fipe-subtitle" id="result-fipe-reference">FIPE: R$ 52.741,00</span>
                 </div>
                 <span class="report-purchase-badge" id="report-fipe-margin-badge">Compra 15,25% abaixo da FIPE</span>
               </div>
@@ -926,7 +926,7 @@
           <div class="period-breakdown-grid">
             <!-- 1. Lucro Operacional durante o Período Escolhido -->
             <div class="period-box highlight-profit">
-              <span class="period-box-step" data-apple-tooltip="Soma de todo o dinheiro líquido que pingou no seu bolso ao longo dos meses selecionados na régua.">1. LUCRO OPERACIONAL NO PERÍODO</span>
+              <span class="period-box-step" data-apple-tooltip="Soma de todo o lucro operacional da locação que entra limpo no seu bolso ao longo dos meses selecionados na régua (receita menos custos que saem de fato do bolso).">1. LUCRO OPERACIONAL NO PERÍODO</span>
               <strong class="period-box-value positive" id="period-lucro-operacional">R$ 34.213,32</strong>
               <span class="period-box-sub" id="period-lucro-operacional-sub">
                 Receita menos custos que saem do bolso em 36 meses
@@ -935,7 +935,7 @@
 
             <!-- 2. Depreciação em cima da FIPE nesse Período -->
             <div class="period-box highlight-warning">
-              <span class="period-box-step" data-apple-tooltip="Desvalorização estimada do carro no período, calculada estritamente sobre a FIPE (não sai do caixa mensal).">2. DEPRECIAÇÃO SOBRE A FIPE NO PERÍODO</span>
+              <span class="period-box-step" data-apple-tooltip="Desvalorização acumulada do carro no período, calculada estritamente sobre a cotação oficial da FIPE (desgaste contábil do ativo — não sai do caixa mensal).">2. DEPRECIAÇÃO SOBRE A FIPE NO PERÍODO</span>
               <strong class="period-box-value warning" id="period-depreciacao-fipe">- R$ 12.739,68</strong>
               <span class="period-box-sub" id="period-depreciacao-fipe-sub">
                 R$ 353,88/mês × 36 meses (calculada sobre a FIPE)
@@ -945,7 +945,7 @@
             <!-- 3. Valor de Venda do Veículo (Já descontada a depreciação do período + Editável) -->
             <div class="period-box editable-box">
               <div class="period-box-top-row">
-                <span class="period-box-step" data-apple-tooltip="Preço estimado de venda do veículo ao final do período. Você pode clicar e digitar outro valor livremente se desejar.">3. VALOR DE VENDA DO VEÍCULO (APÓS DEPRECIAÇÃO)</span>
+                <span class="period-box-step" data-apple-tooltip="Preço estimado de revenda ao final do período (FIPE menos depreciação acumulada). Você pode clicar no valor e editar livremente se preferir.">3. VALOR DE VENDA DO VEÍCULO (APÓS DEPRECIAÇÃO)</span>
                 <button type="button" class="btn-reset-inline" id="btn-reset-sale-price" style="display: none;">Restaurar FIPE - Deprec.</button>
               </div>
               <div class="period-editable-input-wrap">
@@ -958,7 +958,7 @@
 
             <!-- 4. Resultado: Caixa Total Acumulado no Período -->
             <div class="period-box highlight-total">
-              <span class="period-box-step" data-apple-tooltip="Todo o dinheiro bruto gerado pela operação (lucro acumulado dos aluguéis + valor resgatado com a venda do veículo).">4. CAIXA TOTAL ACUMULADO NO PERÍODO</span>
+              <span class="period-box-step" data-apple-tooltip="Resultado financeiro acumulado no período: Lucro Operacional em caixa + valor de revenda do veículo (já descontado o capital inicial investido).">4. CAIXA TOTAL ACUMULADO NO PERÍODO</span>
               <strong class="period-box-value cyan" id="period-lucro-mais-venda">R$ 74.214,64</strong>
               <span class="period-box-sub" id="period-lucro-mais-venda-sub">
                 Lucro Operacional + Venda do Veículo • Lucro Líquido Real descontando a entrada

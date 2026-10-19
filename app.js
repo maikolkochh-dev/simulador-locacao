@@ -2731,7 +2731,7 @@ function runCalculationsAndRender(options = {}) {
       elements.kpiRoiLabel.textContent = `LUCRO MENSAL NO BOLSO (100% FINANCIADO • SEM ENTRADA)`;
     }
     if (elements.kpiRoiMensal) {
-      elements.kpiRoiMensal.textContent = utils.formatCurrency(results.lucroOperacionalMensal);
+      elements.kpiRoiMensal.innerHTML = `${utils.formatCurrency(results.lucroOperacionalMensal)}/mês <span class="roi-anual-inline">(${utils.formatCurrency(results.lucroOperacionalMensal * 12)}/ano)</span>`;
     }
     if (elements.kpiRoiAnual) {
       elements.kpiRoiAnual.textContent =
@@ -2763,7 +2763,8 @@ function runCalculationsAndRender(options = {}) {
     }
     if (elements.kpiRoiMensal) {
       const signM = results.roiFluxoMensal >= 0 ? '+' : '';
-      elements.kpiRoiMensal.textContent = `${signM}${utils.formatPercent(results.roiFluxoMensal)} a.m.`;
+      const signA = results.roiFluxoAnual >= 0 ? '+' : '';
+      elements.kpiRoiMensal.innerHTML = `${signM}${utils.formatPercent(results.roiFluxoMensal)} a.m. <span class="roi-anual-inline">(${signA}${utils.formatPercent(results.roiFluxoAnual)} a.a.)</span>`;
     }
     if (elements.kpiRoiAnual) {
       const signA = results.roiFluxoAnual >= 0 ? '+' : '';

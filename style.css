@@ -3664,6 +3664,28 @@ body::before {
   color: #FFFFFF;
 }
 
+/* ==========================================================================
+   DESPOLUIÇÃO VISUAL DA TELA (SUBTÍTULOS APENAS NO HOVER / CLIQUE / IMPRESSO)
+   ========================================================================== */
+.period-box-sub,
+.metric-subtext,
+.dre-title-bar .dre-subtitle {
+  display: none;
+}
+
+.roi-anual-inline {
+  font-size: 0.65em;
+  font-weight: 500;
+  opacity: 0.82;
+  margin-left: 4px;
+}
+
+.vehicle-fipe-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
 /* Hide print-only-footer & print-only-glossary by default on screen */
 .print-only-footer,
 .print-only-glossary {
@@ -3898,6 +3920,7 @@ body::before {
   }
 
   .period-box-sub {
+    display: block !important;
     font-size: 8.5px !important;
     line-height: 1.25 !important;
     color: #64748B !important;
@@ -3987,6 +4010,7 @@ body::before {
   }
 
   .metric-subtext {
+    display: block !important;
     font-size: 8.5px !important;
     line-height: 1.2 !important;
   }
