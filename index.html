@@ -510,6 +510,115 @@
         
         <form id="costs-form">
           <div class="form-grid">
+            <!-- 1. Seleção de Estado (UF) Antes de Tudo -->
+            <div class="form-group full-width uf-selector-section">
+              <label for="cost-uf" class="uf-selector-label">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -3px; margin-right: 4px; color: var(--accent-primary);">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Qual o Estado (UF) de Registro do Veículo?
+              </label>
+              <select id="cost-uf" required>
+                <option value="">Selecione ou digite seu Estado (UF)...</option>
+                <option value="AC">Acre (AC) — IPVA 2,0% | Licenciamento R$ 200,25</option>
+                <option value="AL">Alagoas (AL) — IPVA 3,0% | Licenciamento R$ 36,03</option>
+                <option value="AP">Amapá (AP) — IPVA 3,0% | Licenciamento R$ 128,54</option>
+                <option value="AM">Amazonas (AM) — IPVA 2,0% | Licenciamento R$ 122,88</option>
+                <option value="BA">Bahia (BA) — IPVA 2,5% | Licenciamento R$ 173,50</option>
+                <option value="CE">Ceará (CE) — IPVA 3,0% | Licenciamento R$ 220,46</option>
+                <option value="DF">Distrito Federal (DF) — IPVA 3,0% | Licenciamento R$ 102,00</option>
+                <option value="ES">Espírito Santo (ES) — IPVA 2,0% | Licenciamento R$ 237,04</option>
+                <option value="GO">Goiás (GO) — IPVA 3,75% | Licenciamento R$ 251,25</option>
+                <option value="MA">Maranhão (MA) — IPVA 2,5% | Licenciamento R$ 95,87</option>
+                <option value="MT">Mato Grosso (MT) — IPVA 3,0% | Licenciamento R$ 140,00</option>
+                <option value="MS">Mato Grosso do Sul (MS) — IPVA 3,0% | Licenciamento R$ 235,28</option>
+                <option value="MG">Minas Gerais (MG) — IPVA 4,0% | Licenciamento R$ 35,62</option>
+                <option value="PA">Pará (PA) — IPVA 2,5% | Licenciamento R$ 288,08</option>
+                <option value="PB">Paraíba (PB) — IPVA 2,5% | Licenciamento R$ 206,55</option>
+                <option value="PR">Paraná (PR) — IPVA 3,5% | Licenciamento R$ 90,94</option>
+                <option value="PE">Pernambuco (PE) — IPVA 2,4% | Licenciamento R$ 158,00</option>
+                <option value="PI">Piauí (PI) — IPVA 2,5% | Licenciamento R$ 129,60</option>
+                <option value="RJ">Rio de Janeiro (RJ) — IPVA 4,0% | Licenciamento R$ 293,71</option>
+                <option value="RN">Rio Grande do Norte (RN) — IPVA 3,0% | Licenciamento R$ 90,00</option>
+                <option value="RS">Rio Grande do Sul (RS) — IPVA 3,0% | Licenciamento R$ 109,27</option>
+                <option value="RO">Rondônia (RO) — IPVA 3,0% | Licenciamento R$ 220,41</option>
+                <option value="RR">Roraima (RR) — IPVA 3,0% | Licenciamento R$ 98,47</option>
+                <option value="SC">Santa Catarina (SC) — IPVA 2,0% | Licenciamento R$ 149,37</option>
+                <option value="SP">São Paulo (SP) — IPVA 4,0% | Licenciamento R$ 174,08</option>
+                <option value="SE">Sergipe (SE) — IPVA 2,5% | Licenciamento R$ 207,36</option>
+                <option value="TO">Tocantins (TO) — IPVA 3,5% | Licenciamento R$ 79,63</option>
+              </select>
+
+              <!-- Painel Discriminado: 1. Licenciamento + 2. IPVA + Soma Total + Botão Locadora 1% -->
+              <div id="uf-tax-breakdown-panel" class="uf-tax-breakdown-panel" style="display: none;">
+                <div class="uf-breakdown-header">
+                  <span class="uf-breakdown-title" id="uf-breakdown-state-title">Detalhamento Anual e Mensal (Base 2026)</span>
+                  <span class="uf-breakdown-note" id="uf-breakdown-note">CRLV-e Digital</span>
+                </div>
+
+                <div class="uf-breakdown-grid">
+                  <div class="uf-breakdown-item">
+                    <span class="uf-item-step">1. Taxa de Licenciamento (2026)</span>
+                    <div class="uf-item-values">
+                      <strong id="uf-licenciamento-mensal">R$ 0,00/mês</strong>
+                      <span id="uf-licenciamento-anual">(R$ 0,00 / ano)</span>
+                    </div>
+                  </div>
+
+                  <div class="uf-breakdown-item">
+                    <span class="uf-item-step" id="uf-ipva-step-label">2. IPVA Estadual (0,0% FIPE)</span>
+                    <div class="uf-item-values">
+                      <strong id="uf-ipva-mensal">R$ 0,00/mês</strong>
+                      <span id="uf-ipva-anual">(R$ 0,00 / ano)</span>
+                    </div>
+                  </div>
+
+                  <div class="uf-breakdown-item total-item">
+                    <span class="uf-item-step">Soma Total (Licenciamento + IPVA)</span>
+                    <div class="uf-item-values">
+                      <strong id="uf-total-mensal" class="text-accent">R$ 0,00/mês</strong>
+                      <span id="uf-total-anual">(R$ 0,00 / ano)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Botão Benefício Locadora 1% IPVA -->
+                <div class="locadora-benefit-action">
+                  <button type="button" id="btn-locadora-benefit" class="btn-locadora-benefit" aria-pressed="false">
+                    <span class="locadora-check-indicator" id="locadora-check-icon">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <div class="locadora-btn-text">
+                      <strong>Já sou Locador (CNPJ Locadora) — Aplicar Benefício de 1% no IPVA</strong>
+                      <span>Corrige apenas a alíquota do IPVA para 1% a.a. mantendo a taxa de licenciamento do estado</span>
+                    </div>
+                  </button>
+                </div>
+
+                <!-- Telinha Verde de Economia Anual (CNPJ Locadora vs Valor Cheio) -->
+                <div id="locadora-savings-box" class="locadora-savings-box" style="display: none;">
+                  <div class="savings-icon-badge">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                  </div>
+                  <div class="savings-content">
+                    <div class="savings-title-row">
+                      <span class="savings-label">ECONOMIA ANUAL COM BENEFÍCIO CNPJ LOCADORA (IPVA 1%)</span>
+                      <span class="savings-badge" id="locadora-savings-mensal-badge">+ R$ 0,00/mês no caixa</span>
+                    </div>
+                    <div class="savings-amount" id="locadora-savings-anual">R$ 0,00 / ano de economia</div>
+                    <p class="savings-detail" id="locadora-savings-detail">
+                      Diferença entre quem paga o IPVA cheio no estado e quem paga com desconto de 1% para CNPJ Locadora.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="form-group">
               <label for="cost-rastreador">
                 Rastreador Mensal (R$)
@@ -547,11 +656,11 @@
             
             <div class="form-group">
               <label for="cost-ipva">
-                Provisão IPVA/Licenciamento Mensal (R$)
+                Provisão IPVA + Licenciamento Mensal (R$)
               </label>
               <input type="text" id="cost-ipva" value="R$ 0,00" required>
               <div class="ipva-rates">
-                <button type="button" class="rate-btn" id="btn-ipva-1" data-rate="0.01">1%</button>
+                <button type="button" class="rate-btn" id="btn-ipva-1" data-rate="0.01">1% (Locadora)</button>
                 <button type="button" class="rate-btn" id="btn-ipva-2" data-rate="0.02">2%</button>
                 <button type="button" class="rate-btn" id="btn-ipva-3" data-rate="0.03">3%</button>
                 <button type="button" class="rate-btn active" id="btn-ipva-4" data-rate="0.04">4%</button>

@@ -35,6 +35,9 @@ const state = {
     semanasMes: 4.3
   },
   costs: {
+    uf: '',
+    isLocadoraBenefit: false,
+    customIpvaRate: null,
     rastreador: 50,
     seguro: 200,
     manutencao: 150,
@@ -46,6 +49,39 @@ const state = {
     depreciacaoMensal: 0,
     useFundoReserva: false
   }
+};
+
+// ==========================================================================
+// TABELA OFICIAL 2026: LICENCIAMENTO + ALÍQUOTA IPVA POR ESTADO (UF)
+// ==========================================================================
+const UF_TAX_DATA_2026 = {
+  AC: { nome: 'Acre', licenciamento: 200.25, ipvaRate: 0.02, nota: 'CRLV-e Digital 2026' },
+  AL: { nome: 'Alagoas', licenciamento: 36.03, ipvaRate: 0.03, nota: 'Carro popular: R$ 36,03 (até R$ 155,41 por categoria)' },
+  AP: { nome: 'Amapá', licenciamento: 128.54, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  AM: { nome: 'Amazonas', licenciamento: 122.88, ipvaRate: 0.02, nota: 'Alíquota carro popular 1.0 (2,0%)' },
+  BA: { nome: 'Bahia', licenciamento: 173.50, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
+  CE: { nome: 'Ceará', licenciamento: 220.46, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  DF: { nome: 'Distrito Federal', licenciamento: 102.00, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  ES: { nome: 'Espírito Santo', licenciamento: 237.04, ipvaRate: 0.02, nota: 'Alíquota reduzida ES (2,0%)' },
+  GO: { nome: 'Goiás', licenciamento: 251.25, ipvaRate: 0.0375, nota: 'CRLV-e Digital 2026' },
+  MA: { nome: 'Maranhão', licenciamento: 95.87, ipvaRate: 0.025, nota: 'Licenciamento: R$ 95,87 a R$ 157,33' },
+  MT: { nome: 'Mato Grosso', licenciamento: 140.00, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  MS: { nome: 'Mato Grosso do Sul', licenciamento: 235.28, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  MG: { nome: 'Minas Gerais', licenciamento: 35.62, ipvaRate: 0.04, nota: 'Menor taxa de licenciamento do país (R$ 35,62)' },
+  PA: { nome: 'Pará', licenciamento: 288.08, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
+  PB: { nome: 'Paraíba', licenciamento: 206.55, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
+  PR: { nome: 'Paraná', licenciamento: 90.94, ipvaRate: 0.035, nota: 'Licenciamento: R$ 90,94 a R$ 94,61' },
+  PE: { nome: 'Pernambuco', licenciamento: 158.00, ipvaRate: 0.024, nota: 'Alíquota unificada PE (2,4%)' },
+  PI: { nome: 'Piauí', licenciamento: 129.60, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
+  RJ: { nome: 'Rio de Janeiro', licenciamento: 293.71, ipvaRate: 0.04, nota: 'Maior taxa de licenciamento do país (R$ 293,71)' },
+  RN: { nome: 'Rio Grande do Norte', licenciamento: 90.00, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  RS: { nome: 'Rio Grande do Sul', licenciamento: 109.27, ipvaRate: 0.03, nota: 'Licenciamento: R$ 109,27 a R$ 114,19' },
+  RO: { nome: 'Rondônia', licenciamento: 220.41, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  RR: { nome: 'Roraima', licenciamento: 98.47, ipvaRate: 0.03, nota: 'Licenciamento: R$ 98,47 a R$ 205,25' },
+  SC: { nome: 'Santa Catarina', licenciamento: 149.37, ipvaRate: 0.02, nota: 'Menor alíquota de IPVA do país (2,0%)' },
+  SP: { nome: 'São Paulo', licenciamento: 174.08, ipvaRate: 0.04, nota: 'CRLV-e Digital 2026' },
+  SE: { nome: 'Sergipe', licenciamento: 207.36, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
+  TO: { nome: 'Tocantins', licenciamento: 79.63, ipvaRate: 0.035, nota: 'CRLV-e Digital 2026' }
 };
 
 // ==========================================================================
@@ -123,6 +159,22 @@ const elements = {
 
   // Step 4: Costs
   costsForm: document.getElementById('costs-form'),
+  costUf: document.getElementById('cost-uf'),
+  ufTaxBreakdownPanel: document.getElementById('uf-tax-breakdown-panel'),
+  ufBreakdownStateTitle: document.getElementById('uf-breakdown-state-title'),
+  ufBreakdownNote: document.getElementById('uf-breakdown-note'),
+  ufLicenciamentoMensal: document.getElementById('uf-licenciamento-mensal'),
+  ufLicenciamentoAnual: document.getElementById('uf-licenciamento-anual'),
+  ufIpvaStepLabel: document.getElementById('uf-ipva-step-label'),
+  ufIpvaMensal: document.getElementById('uf-ipva-mensal'),
+  ufIpvaAnual: document.getElementById('uf-ipva-anual'),
+  ufTotalMensal: document.getElementById('uf-total-mensal'),
+  ufTotalAnual: document.getElementById('uf-total-anual'),
+  btnLocadoraBenefit: document.getElementById('btn-locadora-benefit'),
+  locadoraSavingsBox: document.getElementById('locadora-savings-box'),
+  locadoraSavingsMensalBadge: document.getElementById('locadora-savings-mensal-badge'),
+  locadoraSavingsAnual: document.getElementById('locadora-savings-anual'),
+  locadoraSavingsDetail: document.getElementById('locadora-savings-detail'),
   costRastreador: document.getElementById('cost-rastreador'),
   costSeguro: document.getElementById('cost-seguro'),
   costManutencao: document.getElementById('cost-manutencao'),
@@ -332,6 +384,7 @@ function init() {
   makeSelectSearchable('fipe-brand', 'Selecione ou digite a marca...');
   makeSelectSearchable('fipe-model', 'Selecione ou digite o modelo...');
   makeSelectSearchable('fipe-year', 'Selecione ou digite o ano...');
+  makeSelectSearchable('cost-uf', 'Selecione ou digite seu Estado (UF)...');
 
   // Load the Landing Page at first loading
   showLandingPage();
@@ -348,6 +401,103 @@ function updateAutoFinanciado() {
     const financiado = Math.max(0, valorPago - valorEntrada);
     elements.leverageFinanciadoInput.value = financiado > 0 ? utils.formatCurrency(financiado) : 'R$ 0,00';
     state.vehicle.valorFinanciado = financiado;
+  }
+}
+
+/**
+ * Recalculates 2026 Licenciamento + IPVA based on selected UF, FIPE price, and 1% Locadora Benefit
+ */
+function recalculateStateIpvaAndLicenciamento() {
+  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
+  const ufCode = elements.costUf ? elements.costUf.value : '';
+  const ipvaBtns = [
+    document.getElementById('btn-ipva-1'),
+    document.getElementById('btn-ipva-2'),
+    document.getElementById('btn-ipva-3'),
+    document.getElementById('btn-ipva-4')
+  ];
+
+  if (ufCode && UF_TAX_DATA_2026[ufCode]) {
+    const ufData = UF_TAX_DATA_2026[ufCode];
+    state.costs.uf = ufCode;
+
+    const licenciamentoAnual = ufData.licenciamento;
+    const licenciamentoMensal = licenciamentoAnual / 12;
+
+    const fullIpvaRate = ufData.ipvaRate;
+    const effectiveIpvaRate = state.costs.isLocadoraBenefit
+      ? 0.01
+      : (state.costs.customIpvaRate !== null ? state.costs.customIpvaRate : fullIpvaRate);
+
+    const ipvaAnualCheio = valorFipe * fullIpvaRate;
+    const ipvaAnualEfetivo = valorFipe * effectiveIpvaRate;
+    const ipvaMensalEfetivo = ipvaAnualEfetivo / 12;
+
+    const totalAnual = licenciamentoAnual + ipvaAnualEfetivo;
+    const totalMensal = licenciamentoMensal + ipvaMensalEfetivo;
+
+    // Populate main monthly IPVA+Licenciamento field
+    elements.costIpva.value = utils.formatCurrency(totalMensal);
+    state.costs.ipvaLicenciamento = totalMensal;
+
+    // Sync rate buttons highlight
+    ipvaBtns.forEach(btn => {
+      if (!btn) return;
+      const r = parseFloat(btn.getAttribute('data-rate'));
+      if (Math.abs(r - effectiveIpvaRate) < 0.001) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // Populate Discriminated Panel (1. Licenciamento | 2. IPVA | Soma Total)
+    if (elements.ufTaxBreakdownPanel) {
+      elements.ufTaxBreakdownPanel.style.display = 'flex';
+      elements.ufBreakdownStateTitle.textContent = `${ufData.nome} (${ufCode}) — Licenciamento + IPVA 2026`;
+      elements.ufBreakdownNote.textContent = ufData.nota;
+
+      elements.ufLicenciamentoMensal.textContent = `${utils.formatCurrency(licenciamentoMensal)}/mês`;
+      elements.ufLicenciamentoAnual.textContent = `(${utils.formatCurrency(licenciamentoAnual)} / ano)`;
+
+      if (state.costs.isLocadoraBenefit) {
+        elements.ufIpvaStepLabel.textContent = `2. IPVA Benefício Locadora (1,00% FIPE)`;
+      } else {
+        elements.ufIpvaStepLabel.textContent = `2. IPVA Estadual ${ufCode} (${utils.formatPercent(effectiveIpvaRate)} FIPE)`;
+      }
+
+      elements.ufIpvaMensal.textContent = `${utils.formatCurrency(ipvaMensalEfetivo)}/mês`;
+      elements.ufIpvaAnual.textContent = `(${utils.formatCurrency(ipvaAnualEfetivo)} / ano)`;
+
+      elements.ufTotalMensal.textContent = `${utils.formatCurrency(totalMensal)}/mês`;
+      elements.ufTotalAnual.textContent = `(${utils.formatCurrency(totalAnual)} / ano)`;
+    }
+
+    // Populate Green Savings Box when Locadora 1% Benefit is active
+    if (elements.locadoraSavingsBox) {
+      if (state.costs.isLocadoraBenefit) {
+        const economiaAnual = Math.max(0, ipvaAnualCheio - ipvaAnualEfetivo);
+        const economiaMensal = economiaAnual / 12;
+        elements.locadoraSavingsBox.style.display = 'flex';
+        elements.locadoraSavingsMensalBadge.textContent = `+ ${utils.formatCurrency(economiaMensal)}/mês no caixa`;
+        elements.locadoraSavingsAnual.textContent = `${utils.formatCurrency(economiaAnual)} / ano de economia no IPVA`;
+        elements.locadoraSavingsDetail.textContent =
+          `Em ${ufData.nome} (${ufCode}), quem paga o IPVA cheio (${utils.formatPercent(fullIpvaRate)}) desembolsa ${utils.formatCurrency(ipvaAnualCheio)}/ano. Com o desconto de 1% para CNPJ Locadora, você paga apenas ${utils.formatCurrency(ipvaAnualEfetivo)}/ano de IPVA (+ ${utils.formatCurrency(licenciamentoAnual)}/ano de licenciamento).`;
+      } else {
+        elements.locadoraSavingsBox.style.display = 'none';
+      }
+    }
+  } else {
+    // Fallback if UF not yet selected
+    if (elements.ufTaxBreakdownPanel) elements.ufTaxBreakdownPanel.style.display = 'none';
+    if (elements.locadoraSavingsBox) elements.locadoraSavingsBox.style.display = 'none';
+    if (valorFipe > 0) {
+      const activeIpvaBtn = document.querySelector('.rate-btn.active');
+      const ipvaRate = activeIpvaBtn ? parseFloat(activeIpvaBtn.getAttribute('data-rate')) : 0.04;
+      const monthlyIpva = (valorFipe * ipvaRate) / 12;
+      elements.costIpva.value = utils.formatCurrency(monthlyIpva);
+      state.costs.ipvaLicenciamento = monthlyIpva;
+    }
   }
 }
 
@@ -700,6 +850,31 @@ function bindEvents() {
     });
   }
 
+  // Step 4: UF (State) Selector & Locadora 1% Benefit Button
+  if (elements.costUf) {
+    elements.costUf.addEventListener('change', () => {
+      state.costs.customIpvaRate = null;
+      const customSearchInput = elements.costUf.parentElement?.querySelector('.custom-select-search');
+      if (customSearchInput) customSearchInput.style.borderColor = '';
+      recalculateStateIpvaAndLicenciamento();
+    });
+  }
+
+  if (elements.btnLocadoraBenefit) {
+    elements.btnLocadoraBenefit.addEventListener('click', () => {
+      state.costs.isLocadoraBenefit = !state.costs.isLocadoraBenefit;
+      if (state.costs.isLocadoraBenefit) {
+        state.costs.customIpvaRate = null;
+        elements.btnLocadoraBenefit.classList.add('active');
+        elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'true');
+      } else {
+        elements.btnLocadoraBenefit.classList.remove('active');
+        elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'false');
+      }
+      recalculateStateIpvaAndLicenciamento();
+    });
+  }
+
   // Step 4 Costs: Optional Reserve Fund Toggle
   elements.reserveFundToggle.addEventListener('change', (e) => {
     const active = e.target.checked;
@@ -931,6 +1106,18 @@ function validateStep3() {
 
 function validateStep4() {
   let isValid = true;
+
+  // Validate UF selection first
+  if (elements.costUf) {
+    const customSearchInput = elements.costUf.parentElement?.querySelector('.custom-select-search');
+    if (customSearchInput) customSearchInput.style.borderColor = '';
+    if (!elements.costUf.value) {
+      if (customSearchInput) customSearchInput.style.borderColor = 'var(--color-danger)';
+      alert('Por favor, selecione o Estado (UF) de registro do veículo no topo da tela.');
+      isValid = false;
+    }
+  }
+
   const fields = [
     elements.costRastreador,
     elements.costSeguro,
@@ -1018,6 +1205,10 @@ function goToStep(step) {
   if (step === 2 && !state.vehicle.isManual && elements.fipeBrand.options.length <= 1) {
     loadBrands();
   }
+
+  if (step === 4) {
+    recalculateStateIpvaAndLicenciamento();
+  }
 }
 
 /**
@@ -1082,6 +1273,9 @@ function resetSimulationState() {
   }
 
   state.costs = {
+    uf: '',
+    isLocadoraBenefit: false,
+    customIpvaRate: null,
     rastreador: 50,
     seguro: 200,
     manutencao: 150,
@@ -1093,6 +1287,13 @@ function resetSimulationState() {
     depreciacaoMensal: 0,
     useFundoReserva: false
   };
+
+  if (elements.btnLocadoraBenefit) {
+    elements.btnLocadoraBenefit.classList.remove('active');
+    elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'false');
+  }
+  if (elements.ufTaxBreakdownPanel) elements.ufTaxBreakdownPanel.style.display = 'none';
+  if (elements.locadoraSavingsBox) elements.locadoraSavingsBox.style.display = 'none';
 
   elements.fipeManualToggle.checked = false;
   elements.fipeManualToggle.dispatchEvent(new Event('change'));
@@ -1235,13 +1436,8 @@ function triggerSmartDefaults() {
   const valorPago = utils.parseCurrency(elements.valorPagoInput.value);
   const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
 
-  // Update IPVA based on active rate button or default to 4%
-  if (valorFipe > 0) {
-    const activeIpvaBtn = document.querySelector('.rate-btn.active');
-    const ipvaRate = activeIpvaBtn ? parseFloat(activeIpvaBtn.getAttribute('data-rate')) : 0.04;
-    const monthlyIpva = (valorFipe * ipvaRate) / 12;
-    elements.costIpva.value = utils.formatCurrency(monthlyIpva);
-  }
+  // Update IPVA + Licenciamento based on selected UF (or fallback rate)
+  recalculateStateIpvaAndLicenciamento();
 
   // Update Depreciation based on active rate button or default to 9.5%
   const btnDeprecMedia = document.getElementById('btn-deprec-media');
@@ -1311,19 +1507,29 @@ function applyIpvaRate(rate, activeBtn, otherBtns) {
     return;
   }
 
-  // Monthly IPVA = (valorFipe * rate) / 12
-  const monthlyIpva = (valorFipe * rate) / 12;
-  
-  elements.costIpva.value = utils.formatCurrency(monthlyIpva);
-  
-  // Update state
-  state.costs.ipvaLicenciamento = monthlyIpva;
+  if (Math.abs(rate - 0.01) < 0.001) {
+    state.costs.isLocadoraBenefit = true;
+    state.costs.customIpvaRate = null;
+    if (elements.btnLocadoraBenefit) {
+      elements.btnLocadoraBenefit.classList.add('active');
+      elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'true');
+    }
+  } else {
+    state.costs.isLocadoraBenefit = false;
+    state.costs.customIpvaRate = rate;
+    if (elements.btnLocadoraBenefit) {
+      elements.btnLocadoraBenefit.classList.remove('active');
+      elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'false');
+    }
+  }
 
   // Toggle active button states
   activeBtn.classList.add('active');
   otherBtns.forEach(btn => {
     if (btn) btn.classList.remove('active');
   });
+
+  recalculateStateIpvaAndLicenciamento();
 }
 
 /**
