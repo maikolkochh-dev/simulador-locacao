@@ -2561,13 +2561,15 @@ function runCalculationsAndRender(options = {}) {
       `Sugerido (FIPE - Depreciação de ${hSel.meses}m): ${utils.formatCurrency(hSel.valorVeiculoAposDepreciacao)} — edite acima se desejar`;
   }
 
-  // 4. Resultado do Lucro Operacional + Valor de Venda do Veículo
+  // 4. Resultado do Caixa Total Acumulado no Período (Lucro Operacional + Valor de Venda do Veículo)
   if (elements.periodLucroMaisVenda) {
     elements.periodLucroMaisVenda.textContent = utils.formatCurrency(hSel.resultadoOperacionalMaisVenda);
   }
   if (elements.periodLucroMaisVendaSub) {
+    const lucroRealText = utils.formatCurrency(hSel.ganhoLiquidoSobreCapitalInicial);
+    const entradaText = utils.formatCurrency(hSel.capitalInicialDesembolsado);
     elements.periodLucroMaisVendaSub.textContent =
-      `Lucro Operacional (${utils.formatCurrency(hSel.lucroOperacionalAcumulado)}) + Venda do Veículo (${utils.formatCurrency(hSel.valorVendaVeiculo)})`;
+      `Lucro em Caixa (${utils.formatCurrency(hSel.lucroOperacionalAcumulado)}) + Venda (${utils.formatCurrency(hSel.valorVendaVeiculo)}) • Lucro Real: ${lucroRealText} (descontada a entrada de ${entradaText})`;
   }
 
   // 5. Condicional de Financiamento:
@@ -2679,41 +2681,47 @@ function runCalculationsAndRender(options = {}) {
   // =========================================================================
   if (results.semCapitalProprioInicial) {
     if (elements.kpiRoiLabel) {
-      elements.kpiRoiLabel.textContent = `GANHO LÍQUIDO EM ${hSel.meses} MESES (100% FINANCIADO • SEM ENTRADA)`;
+      elements.kpiRoiLabel.textContent = `LUCRO MENSAL NO BOLSO (100% FINANCIADO • SEM ENTRADA)`;
     }
     if (elements.kpiRoiMensal) {
-      elements.kpiRoiMensal.textContent = utils.formatCurrency(hSel.ganhoLiquidoSobreCapitalInicial);
+      elements.kpiRoiMensal.textContent = utils.formatCurrency(results.lucroOperacionalMensal);
     }
     if (elements.kpiRoiAnual) {
       elements.kpiRoiAnual.textContent =
-        `Lucro (${utils.formatCurrency(hSel.lucroOperacionalAcumulado)}) + Venda (${utils.formatCurrency(hSel.valorVendaVeiculo)})${hSel.valorQuitacao > 0 ? ` - Quitação (${utils.formatCurrency(hSel.valorQuitacao)})` : ''} • R$ 0 investido`;
+        `Sem entrada inicial • Lucro de ${utils.formatCurrency(results.lucroOperacionalMensal * 12)}/ano no bolso`;
     }
     if (elements.kpiPayback) elements.kpiPayback.textContent = 'Imediato (R$ 0 entrada)';
     if (elements.kpiPaybackSubtext) {
       elements.kpiPaybackSubtext.textContent = `Financiamento pago pelo próprio fluxo da locação (${results.inputs.qtdParcelas}x)`;
     }
+    const kpiRoiPeriodoLabel = document.getElementById('kpi-roi-periodo-label');
+    if (kpiRoiPeriodoLabel) {
+      kpiRoiPeriodoLabel.textContent = `LUCRO TOTAL COM VENDA DO VEÍCULO (${hSel.meses}M)`;
+    }
     if (elements.kpiRoiPeriodo) {
-      elements.kpiRoiPeriodo.textContent = `${utils.formatCurrency(hSel.ganhoLiquidoSobreCapitalInicial / hSel.meses)}/mês`;
+      elements.kpiRoiPeriodo.textContent = utils.formatCurrency(hSel.ganhoLiquidoSobreCapitalInicial);
     }
     if (elements.kpiRoiPeriodoSub) {
-      elements.kpiRoiPeriodoSub.textContent = `Média mensal líquida (Lucro + Venda do Carro) em ${hSel.meses} meses sem capital inicial`;
+      elements.kpiRoiPeriodoSub.textContent = `Lucro operacional acumulado + venda do carro com R$ 0 de capital inicial desembolsado`;
     }
   } else {
     const capInicialBrl = utils.formatCurrency(hSel.capitalInicialDesembolsado);
     const tipoCap = results.isLeveraged ? `ENTRADA DE ${capInicialBrl}` : `COMPRA DE ${capInicialBrl}`;
 
-    // Card 1: ROI da Operação (Média Mensal e Anual considerando Lucro do Período + Venda - Investimento Inicial)
+    // Card 1: Retorno Mensal no Bolso (Fluxo de Caixa Líquido Real)
     if (elements.kpiRoiLabel) {
-      elements.kpiRoiLabel.textContent = `ROI DA OPERAÇÃO EM ${hSel.meses}M (SOBRE ${tipoCap})`;
+      elements.kpiRoiLabel.textContent = results.isLeveraged
+        ? `RETORNO MENSAL NO BOLSO (SOBRE ${tipoCap})`
+        : `RETORNO MENSAL NO BOLSO (SOBRE ${tipoCap})`;
     }
     if (elements.kpiRoiMensal) {
-      const signM = results.roiMensal >= 0 ? '+' : '';
-      elements.kpiRoiMensal.textContent = `${signM}${utils.formatPercent(results.roiMensal)} a.m.`;
+      const signM = results.roiFluxoMensal >= 0 ? '+' : '';
+      elements.kpiRoiMensal.textContent = `${signM}${utils.formatPercent(results.roiFluxoMensal)} a.m.`;
     }
     if (elements.kpiRoiAnual) {
-      const signA = results.roiAnual >= 0 ? '+' : '';
+      const signA = results.roiFluxoAnual >= 0 ? '+' : '';
       elements.kpiRoiAnual.textContent =
-        `${signA}${utils.formatPercent(results.roiAnual)} ao ano • Retorno total de ${results.roiTotalPeriodo >= 0 ? '+' : ''}${utils.formatPercent(results.roiTotalPeriodo || 0)} em ${hSel.meses}m`;
+        `${signA}${utils.formatPercent(results.roiFluxoAnual)} ao ano • Sobra de ${utils.formatCurrency(results.lucroOperacionalMensal)}/mês`;
     }
 
     // Card 2: Payback do Investimento Inicial
@@ -2724,10 +2732,14 @@ function runCalculationsAndRender(options = {}) {
     }
     if (elements.kpiPaybackSubtext) {
       elements.kpiPaybackSubtext.textContent =
-        `Tempo para recuperar o investimento inicial (${capInicialBrl}) com o lucro mensal`;
+        `Tempo para recuperar o investimento inicial (${capInicialBrl}) com o lucro mensal no bolso`;
     }
 
-    // Card 3: Resultado Líquido Final em R$ e ROI Total no Período (1. Lucro + 2. Venda - 3. Investimento Inicial)
+    // Card 3: Lucro Total com Venda do Veículo no Período
+    const kpiRoiPeriodoLabel = document.getElementById('kpi-roi-periodo-label');
+    if (kpiRoiPeriodoLabel) {
+      kpiRoiPeriodoLabel.textContent = `LUCRO TOTAL COM VENDA DO VEÍCULO (${hSel.meses}M)`;
+    }
     if (elements.kpiRoiPeriodo) {
       const roiTot = hSel.roiTotalPeriodo !== null && hSel.roiTotalPeriodo !== undefined
         ? hSel.roiTotalPeriodo
@@ -2736,9 +2748,10 @@ function runCalculationsAndRender(options = {}) {
       elements.kpiRoiPeriodo.textContent = `${sign}${utils.formatPercent(roiTot)} (${utils.formatCurrency(hSel.ganhoLiquidoSobreCapitalInicial)})`;
     }
     if (elements.kpiRoiPeriodoSub) {
-      const quitacaoPart = hSel.valorQuitacao > 0 ? ` - Quitação (${utils.formatCurrency(hSel.valorQuitacao)})` : '';
+      const cagrText = hSel.cagrAnual !== null ? ` (+${utils.formatPercent(hSel.cagrAnual)} a.a. composto real)` : '';
+      const multText = hSel.multiplicadorPatrimonial !== null ? `Multiplica o capital em ${hSel.multiplicadorPatrimonial.toFixed(1).replace('.', ',')}x${cagrText} • ` : '';
       elements.kpiRoiPeriodoSub.textContent =
-        `Lucro (${utils.formatCurrency(hSel.lucroOperacionalAcumulado)}) + Venda (${utils.formatCurrency(hSel.valorVendaVeiculo)})${quitacaoPart} - Invest. Inicial (${capInicialBrl})`;
+        `${multText}Lucro Líquido Real após quitar financiamento e abater a entrada`;
     }
   }
 
@@ -3266,8 +3279,15 @@ function initAppleDelayedTooltips() {
       }, 120);
     });
 
-    el.addEventListener('mousedown', () => {
-      hideTooltip();
+    // Mobile / Touch or immediate click
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (activeTrigger === el && tooltipEl.classList.contains('visible')) {
+        hideTooltip();
+      } else {
+        if (hoverTimer) clearTimeout(hoverTimer);
+        showTooltip(el);
+      }
     });
   });
 
@@ -3280,15 +3300,29 @@ function initAppleDelayedTooltips() {
   });
 
   tooltipEl.addEventListener('mouseleave', () => {
-    hideTooltip();
+    hideTimer = setTimeout(() => {
+      hideTooltip();
+    }, 150);
   });
 
-  // Dismiss on Escape or scroll (WCAG 1.4.13 Dismissible)
+  // Dismiss on Escape, scroll, or clicking/touching outside
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && activeTrigger) {
       hideTooltip();
     }
   });
+
+  document.addEventListener('click', (e) => {
+    if (activeTrigger && !tooltipEl.contains(e.target) && !e.target.closest('[data-apple-tooltip]')) {
+      hideTooltip();
+    }
+  });
+
+  document.addEventListener('touchstart', (e) => {
+    if (activeTrigger && !tooltipEl.contains(e.target) && !e.target.closest('[data-apple-tooltip]')) {
+      hideTooltip();
+    }
+  }, { passive: true });
 
   window.addEventListener('scroll', () => {
     if (hoverTimer || activeTrigger) {

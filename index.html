@@ -793,6 +793,14 @@
             <p class="page-subtitle" style="margin-bottom: 0;">
               Descontando apenas os custos operacionais que saem de fato do bolso da empresa.
             </p>
+            <div class="tooltip-help-hint no-print">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span><strong>Dica:</strong> No computador, passe o mouse sobre os títulos (> 1s) para ver a explicação. No celular, toque no título para abrir.</span>
+            </div>
           </div>
           <div class="report-meta-badges">
             <span class="report-meta-pill" id="report-generated-date">Data: --/--/----</span>
@@ -879,22 +887,22 @@
 
               <div class="vehicle-mini-kpis">
                 <div class="exec-kpi-card">
-                  <span class="exec-kpi-label">VALOR TABELA FIPE</span>
+                  <span class="exec-kpi-label" data-apple-tooltip="Valor de mercado oficial segundo a Tabela FIPE, utilizado como base obrigatória para cálculo da depreciação.">VALOR TABELA FIPE</span>
                   <strong class="exec-kpi-val" id="exec-kpi-fipe">R$ 52.741,00</strong>
                   <span class="exec-kpi-sub">Base da depreciação</span>
                 </div>
                 <div class="exec-kpi-card">
-                  <span class="exec-kpi-label">VALOR DE COMPRA</span>
+                  <span class="exec-kpi-label" data-apple-tooltip="Preço negociado de compra do veículo (à vista ou valor financiado pelo banco).">VALOR DE COMPRA</span>
                   <strong class="exec-kpi-val" id="exec-kpi-pago">R$ 44.698,00</strong>
                   <span class="exec-kpi-sub" id="exec-kpi-pago-sub">Aquisição</span>
                 </div>
                 <div class="exec-kpi-card highlight-cyan">
-                  <span class="exec-kpi-label">MARGEM NA COMPRA</span>
+                  <span class="exec-kpi-label" data-apple-tooltip="Margem de segurança percentual obtida ao comprar o veículo abaixo da cotação FIPE.">MARGEM NA COMPRA</span>
                   <strong class="exec-kpi-val" id="kpi-fipe-desconto">15,25%</strong>
                   <span class="exec-kpi-sub" id="kpi-fipe-detalhe">Abaixo da FIPE</span>
                 </div>
                 <div class="exec-kpi-card highlight-green">
-                  <span class="exec-kpi-label">LUCRO OPERACIONAL / MÊS</span>
+                  <span class="exec-kpi-label" data-apple-tooltip="Sobra líquida real que entra de fato no seu bolso a cada mês (receita menos despesas operacionais e parcela).">LUCRO OPERACIONAL / MÊS</span>
                   <strong class="exec-kpi-val" id="exec-kpi-caixa-distribuivel">R$ 950,37</strong>
                   <span class="exec-kpi-sub" id="exec-kpi-caixa-dist-sub">Líquido no bolso por mês</span>
                 </div>
@@ -918,7 +926,7 @@
           <div class="period-breakdown-grid">
             <!-- 1. Lucro Operacional durante o Período Escolhido -->
             <div class="period-box highlight-profit">
-              <span class="period-box-step">1. LUCRO OPERACIONAL NO PERÍODO</span>
+              <span class="period-box-step" data-apple-tooltip="Soma de todo o dinheiro líquido que pingou no seu bolso ao longo dos meses selecionados na régua.">1. LUCRO OPERACIONAL NO PERÍODO</span>
               <strong class="period-box-value positive" id="period-lucro-operacional">R$ 34.213,32</strong>
               <span class="period-box-sub" id="period-lucro-operacional-sub">
                 Receita menos custos que saem do bolso em 36 meses
@@ -927,7 +935,7 @@
 
             <!-- 2. Depreciação em cima da FIPE nesse Período -->
             <div class="period-box highlight-warning">
-              <span class="period-box-step">2. DEPRECIAÇÃO SOBRE A FIPE NO PERÍODO</span>
+              <span class="period-box-step" data-apple-tooltip="Desvalorização estimada do carro no período, calculada estritamente sobre a FIPE (não sai do caixa mensal).">2. DEPRECIAÇÃO SOBRE A FIPE NO PERÍODO</span>
               <strong class="period-box-value warning" id="period-depreciacao-fipe">- R$ 12.739,68</strong>
               <span class="period-box-sub" id="period-depreciacao-fipe-sub">
                 R$ 353,88/mês × 36 meses (calculada sobre a FIPE)
@@ -937,7 +945,7 @@
             <!-- 3. Valor de Venda do Veículo (Já descontada a depreciação do período + Editável) -->
             <div class="period-box editable-box">
               <div class="period-box-top-row">
-                <span class="period-box-step">3. VALOR DE VENDA DO VEÍCULO (APÓS DEPRECIAÇÃO)</span>
+                <span class="period-box-step" data-apple-tooltip="Preço estimado de venda do veículo ao final do período. Você pode clicar e digitar outro valor livremente se desejar.">3. VALOR DE VENDA DO VEÍCULO (APÓS DEPRECIAÇÃO)</span>
                 <button type="button" class="btn-reset-inline" id="btn-reset-sale-price" style="display: none;">Restaurar FIPE - Deprec.</button>
               </div>
               <div class="period-editable-input-wrap">
@@ -948,12 +956,12 @@
               </span>
             </div>
 
-            <!-- 4. Resultado: Lucro Operacional + Valor de Venda do Veículo -->
+            <!-- 4. Resultado: Caixa Total Acumulado no Período -->
             <div class="period-box highlight-total">
-              <span class="period-box-step">4. LUCRO OPERACIONAL + VENDA DO VEÍCULO</span>
+              <span class="period-box-step" data-apple-tooltip="Todo o dinheiro bruto gerado pela operação (lucro acumulado dos aluguéis + valor resgatado com a venda do veículo).">4. CAIXA TOTAL ACUMULADO NO PERÍODO</span>
               <strong class="period-box-value cyan" id="period-lucro-mais-venda">R$ 74.214,64</strong>
               <span class="period-box-sub" id="period-lucro-mais-venda-sub">
-                Soma do lucro operacional acumulado + venda do carro no mês 36
+                Lucro Operacional + Venda do Veículo • Lucro Líquido Real descontando a entrada
               </span>
             </div>
           </div>
@@ -1018,7 +1026,7 @@
             <div class="dre-title-bar">
               <div>
                 <span class="report-section-step">CAIXA MENSAL DA EMPRESA</span>
-                <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-top: 2px;">
+                <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-top: 2px;" data-apple-tooltip="Demonstrativo do que entra de receita de locação e do que sai de fato da conta bancária da empresa a cada mês.">
                   Resumo da Operação Mensal (Saídas do Bolso)
                 </h3>
               </div>
@@ -1092,7 +1100,7 @@
               <div class="patrimonial-dre-header">
                 <div>
                   <span class="patrimonial-badge">INFORMATIVO CONTÁBIL • NÃO SAI DO CAIXA MENSAL</span>
-                  <h4>Provisões & Depreciação Mensal sobre a FIPE</h4>
+                  <h4 data-apple-tooltip="Reservas da empresa e depreciação. Não saem em boletos mensais para terceiros, mas acumulam como reserva de segurança e proteção do patrimônio.">Provisões & Depreciação Mensal sobre a FIPE</h4>
                 </div>
               </div>
               <div class="dre-table" style="margin-top: 8px;">
@@ -1111,27 +1119,46 @@
           <!-- Coluna Direita: Marcadores (Payback, ROI, Margem, Ponto de Equilíbrio) -->
           <div class="metrics-panel">
             <div class="metric-card" id="metric-card-roi">
-              <span class="metric-label" id="kpi-roi-label">ROI SOBRE CAPITAL INVESTIDO</span>
+              <span class="metric-label" id="kpi-roi-label" data-apple-tooltip="Percentual que o lucro líquido mensal representa sobre o dinheiro inicial investido (Dividend Yield mensal que entra de fato no seu bolso).">RETORNO MENSAL NO BOLSO (FLUXO)</span>
               <span class="metric-value" id="kpi-roi-mensal">2,18% a.m.</span>
               <span class="metric-subtext" id="kpi-roi-anual">26,16% ao ano</span>
             </div>
 
             <div class="metric-card">
-              <span class="metric-label">PAYBACK DO CAPITAL INVESTIDO</span>
+              <span class="metric-label" data-apple-tooltip="Tempo em meses necessário para recuperar 100% do seu investimento inicial exclusivamente com o lucro operacional que pinga no bolso.">PAYBACK DO CAPITAL INVESTIDO</span>
               <span class="metric-value" id="kpi-payback">15,8 meses</span>
               <span class="metric-subtext" id="kpi-payback-subtext">Tempo para recuperar o capital desembolsado pelo lucro operacional</span>
             </div>
 
             <div class="metric-card">
-              <span class="metric-label">ROI TOTAL NO PERÍODO (LUCRO + VENDA LÍQUIDA)</span>
+              <span class="metric-label" id="kpi-roi-periodo-label" data-apple-tooltip="Lucro líquido total da operação após vender o veículo quitado e quitar débitos, já descontando o que você investiu no início.">LUCRO TOTAL COM VENDA DO VEÍCULO</span>
               <span class="metric-value" id="kpi-roi-periodo" style="color: var(--accent-primary);">+145,2%</span>
               <span class="metric-subtext" id="kpi-roi-periodo-sub">Retorno total no período selecionado sobre o capital investido</span>
             </div>
 
             <div class="metric-card">
-              <span class="metric-label">MARGEM OPERACIONAL LÍQUIDA</span>
+              <span class="metric-label" data-apple-tooltip="Percentual da receita bruta de locação que sobra livre após pagar todos os custos operacionais que saem do bolso.">MARGEM OPERACIONAL LÍQUIDA</span>
               <span class="metric-value" id="kpi-margem">32,50%</span>
               <span class="metric-subtext" id="kpi-breakeven-sub">Ponto de equilíbrio: 2,90 semanas alugadas/mês</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO EXPLICATIVO VISÍVEL APENAS NA IMPRESSÃO DO PDF -->
+        <div class="print-only-glossary">
+          <div class="print-glossary-header">NOTAS EXPLICATIVAS DO RELATÓRIO EXECUTIVO</div>
+          <div class="print-glossary-grid">
+            <div class="print-glossary-item">
+              <strong>Retorno Mensal no Bolso:</strong> Lucro líquido da locação que entra em dinheiro a cada mês, medido sobre o capital próprio investido (entrada ou compra).
+            </div>
+            <div class="print-glossary-item">
+              <strong>Payback:</strong> Tempo em meses necessário para recuperar 100% do investimento inicial exclusivamente com a sobra mensal dos aluguéis.
+            </div>
+            <div class="print-glossary-item">
+              <strong>Lucro Total com Venda:</strong> Lucro líquido final após vender o veículo quitado e pagar o banco, já descontado o capital desembolsado no início.
+            </div>
+            <div class="print-glossary-item">
+              <strong>Depreciação sobre a FIPE:</strong> Desvalorização calculada sobre a cotação oficial do veículo (e nunca sobre o valor pago), sem saída de caixa mensal.
             </div>
           </div>
         </div>

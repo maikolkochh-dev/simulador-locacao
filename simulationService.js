@@ -163,11 +163,17 @@ export const simulationService = {
       const roiTotalPeriodo = capitalInicialDesembolsado > 0
         ? (ganhoLiquidoSobreCapitalInicial / capitalInicialDesembolsado)
         : null;
-      const roiMensalOperacao = (roiTotalPeriodo !== null && meses > 0)
-        ? (roiTotalPeriodo / meses)
+
+      // Retorno Composto Anual e Mensal Real (CAGR) sobre o Capital Próprio
+      const anos = meses / 12;
+      const multiplicadorPatrimonial = capitalInicialDesembolsado > 0
+        ? (resultadoLiquidoAposQuitacao / capitalInicialDesembolsado)
         : null;
-      const roiAnualOperacao = roiMensalOperacao !== null
-        ? (roiMensalOperacao * 12)
+      const cagrAnual = (capitalInicialDesembolsado > 0 && resultadoLiquidoAposQuitacao > 0 && anos > 0)
+        ? (Math.pow(resultadoLiquidoAposQuitacao / capitalInicialDesembolsado, 1 / anos) - 1)
+        : null;
+      const cagrMensal = (capitalInicialDesembolsado > 0 && resultadoLiquidoAposQuitacao > 0 && meses > 0)
+        ? (Math.pow(resultadoLiquidoAposQuitacao / capitalInicialDesembolsado, 1 / meses) - 1)
         : null;
 
       const reservasAcumuladas = this.round2(reservasRetidasMes * meses);
@@ -192,8 +198,9 @@ export const simulationService = {
         ganhoLiquidoSobreCapitalInicial,
         lucroLiquidoSobreCapitalProprio: ganhoLiquidoSobreCapitalInicial,
         roiTotalPeriodo,
-        roiMensalOperacao,
-        roiAnualOperacao,
+        multiplicadorPatrimonial,
+        cagrAnual,
+        cagrMensal,
         reservasAcumuladas
       };
     };
@@ -221,15 +228,19 @@ export const simulationService = {
       ? Math.max(0, saidasBolsoMensais / valorSemanal)
       : 0;
 
-    // ROI da Operação Completa (baseado em: 1. Lucro Operacional no Período + 2. Venda do Veículo - Quitação - 3. Investimento Inicial)
-    const roiTotalPeriodo = horizonteSelecionado.roiTotalPeriodo;
-    const roiMensal = horizonteSelecionado.roiMensalOperacao !== null
-      ? horizonteSelecionado.roiMensalOperacao
-      : (baseCapitalRoi > 0 ? (lucroOperacionalMensal / baseCapitalRoi) : 0);
-    const roiAnual = roiMensal * 12;
-    const roiFluxoMensalPuro = baseCapitalRoi > 0 ? (lucroOperacionalMensal / baseCapitalRoi) : 0;
+    // Retorno do Fluxo de Caixa Mensal (no bolso) sobre o capital investido:
+    const roiFluxoMensal = baseCapitalRoi > 0 ? (lucroOperacionalMensal / baseCapitalRoi) : 0;
+    const roiFluxoAnual = roiFluxoMensal * 12;
 
-    // Payback in months (how many months to recover initial investment)
+    // Retorno Total da Operação no Período (Lucro + Venda do Veículo - Quitação - Entrada):
+    const roiTotalPeriodo = horizonteSelecionado.roiTotalPeriodo;
+    const cagrAnualOperacao = horizonteSelecionado.cagrAnual;
+    const cagrMensalOperacao = horizonteSelecionado.cagrMensal;
+    const multiplicadorPatrimonial = horizonteSelecionado.multiplicadorPatrimonial;
+    const roiMensal = roiFluxoMensal;
+    const roiAnual = roiFluxoAnual;
+
+    // Payback in months (how many months to recover initial investment with monthly operational cash flow)
     const paybackMeses = (lucroOperacionalMensal > 0 && capitalInicialInvestido > 0)
       ? (capitalInicialInvestido / lucroOperacionalMensal)
       : Infinity;
@@ -288,7 +299,12 @@ export const simulationService = {
       semanasEquilibrioMes,
       roiMensal,
       roiAnual,
+      roiFluxoMensal,
+      roiFluxoAnual,
       roiTotalPeriodo,
+      cagrAnualOperacao,
+      cagrMensalOperacao,
+      multiplicadorPatrimonial,
       paybackMeses,
       dscr,
 
