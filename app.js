@@ -21,6 +21,9 @@ const state = {
     yearName: '',
     valorFipe: 0,
     valorPago: 0,
+    historicoDepreciacaoMensal: 0,
+    historicoDepreciacaoTotal: 0,
+    historicoMeses: 0,
     isManual: false,
     isLeveraged: false,
     valorEntrada: 0,
@@ -41,16 +44,19 @@ const state = {
     isIpvaManual: false,
     manualIpvaAnual: 0,
     customIpvaRate: null,
-    rastreador: 50,
-    seguro: 200,
-    manutencao: 150,
-    suporteSistema: 39,
+    isSeguroManual: false,
+    deprecMultiplier: 1,
+    rastreador: 0,
+    seguro: 0,
+    manutencao: 0,
+    manutencaoExtra: 0,
+    suporteSistema: 0,
     contabilidade: 0,
     ipvaLicenciamento: 0,
-    aliquotaImposto: 0.06,
+    aliquotaImposto: 0,
     fundoReserva: 0,
     depreciacaoMensal: 0,
-    useFundoReserva: false
+    useFundoReserva: true
   }
 };
 
@@ -185,12 +191,19 @@ const elements = {
   locadoraSavingsDetail: document.getElementById('locadora-savings-detail'),
   costRastreador: document.getElementById('cost-rastreador'),
   costSeguro: document.getElementById('cost-seguro'),
+  seguroFipeHint: document.getElementById('seguro-fipe-hint'),
   costManutencao: document.getElementById('cost-manutencao'),
+  costManutencaoExtra: document.getElementById('cost-manutencao-extra'),
   costSuporte: document.getElementById('cost-suporte'),
   costContabilidade: document.getElementById('cost-contabilidade'),
   costIpva: document.getElementById('cost-ipva'),
   costTaxRate: document.getElementById('cost-tax-rate'),
   costDepreciacao: document.getElementById('cost-depreciacao'),
+  deprecOriginTag: document.getElementById('deprec-origin-tag'),
+  btnDeprec1x: document.getElementById('btn-deprec-1x'),
+  btnDeprec15x: document.getElementById('btn-deprec-15x'),
+  btnDeprec2x: document.getElementById('btn-deprec-2x'),
+  btnDeprecManual: document.getElementById('btn-deprec-manual'),
   reserveFundToggle: document.getElementById('reserve-fund-toggle'),
   reserveFundInputGroup: document.getElementById('reserve-fund-input-group'),
   costFundoReserva: document.getElementById('cost-fundo-reserva'),
@@ -207,6 +220,7 @@ const elements = {
   dreRastreador: document.getElementById('dre-rastreador'),
   dreSeguro: document.getElementById('dre-seguro'),
   dreManutencao: document.getElementById('dre-manutencao'),
+  dreManutencaoExtra: document.getElementById('dre-manutencao-extra'),
   dreSuporte: document.getElementById('dre-suporte'),
   dreContabilidade: document.getElementById('dre-contabilidade'),
   dreIpva: document.getElementById('dre-ipva'),
@@ -372,6 +386,7 @@ function init() {
   utils.setupCurrencyMask(elements.costRastreador);
   utils.setupCurrencyMask(elements.costSeguro);
   utils.setupCurrencyMask(elements.costManutencao);
+  if (elements.costManutencaoExtra) utils.setupCurrencyMask(elements.costManutencaoExtra);
   utils.setupCurrencyMask(elements.costSuporte);
   utils.setupCurrencyMask(elements.costContabilidade);
   utils.setupCurrencyMask(elements.costIpva);
@@ -864,9 +879,18 @@ function bindEvents() {
     try {
       const priceDetails = await fipeService.getPrice(state.vehicle.brandId, state.vehicle.modelId, yearId);
       if (priceDetails) {
-        // Cache numeric FIPE value in state
+        // Cache numeric FIPE value and historical depreciation in state
         const parsedVal = utils.parseCurrency(priceDetails.Valor);
         state.vehicle.valorFipe = parsedVal;
+        state.vehicle.historicoDepreciacaoMensal = priceDetails.historicoDepreciacaoMensalNum || 0;
+        state.vehicle.historicoDepreciacaoTotal = priceDetails.historicoDepreciacaoTotalNum || 0;
+        state.vehicle.historicoMeses = priceDetails.historicoMeses || 0;
+
+        // Reset auto-calculated Seguro & Depreciação flags when a new vehicle is selected
+        state.costs.isSeguroManual = false;
+        if (state.costs.deprecMultiplier === 'manual') {
+          state.costs.deprecMultiplier = 1;
+        }
         
         // Populate inputs
         elements.valorFipeInput.value = priceDetails.Valor;
@@ -892,8 +916,16 @@ function bindEvents() {
   });
 
   elements.valorFipeInput.addEventListener('blur', () => {
+    state.costs.isSeguroManual = false;
     triggerSmartDefaults();
   });
+
+  // Allow user to edit Seguro manually while preserving 0.34% FIPE initial prefill
+  if (elements.costSeguro) {
+    elements.costSeguro.addEventListener('input', () => {
+      state.costs.isSeguroManual = true;
+    });
+  }
 
   // Operação Alavancada (SIM / NÃO) Toggle & Inputs
   if (elements.btnLeverageSim && elements.btnLeverageNao) {
@@ -1010,93 +1042,42 @@ function bindEvents() {
     });
   }
 
-  // Step 4 Costs: Optional Reserve Fund Toggle
-  elements.reserveFundToggle.addEventListener('change', (e) => {
-    const active = e.target.checked;
-    state.costs.useFundoReserva = active;
-    if (active) {
-      elements.reserveFundInputGroup.style.display = 'block';
-    } else {
-      elements.reserveFundInputGroup.style.display = 'none';
-    }
-  });
-
   // Landing Page Start Triggers
   elements.btnLandingStart.addEventListener('click', startSimulation);
   elements.btnLandingStartBanner.addEventListener('click', startSimulation);
   
-  // Depreciation scenarios buttons click
-  const btnDeprecMedia = document.getElementById('btn-deprec-media');
-  const btnDeprecAlta = document.getElementById('btn-deprec-alta');
-
-  if (btnDeprecMedia && btnDeprecAlta) {
-    btnDeprecMedia.addEventListener('click', () => {
-      applyDepreciationScenario(0.07, btnDeprecMedia, btnDeprecAlta);
-    });
-
-    btnDeprecAlta.addEventListener('click', () => {
-      applyDepreciationScenario(0.12, btnDeprecAlta, btnDeprecMedia);
-    });
-  }
-
-  // Deactivate active states when the user types manually
-  elements.costDepreciacao.addEventListener('input', () => {
-    if (btnDeprecMedia && btnDeprecAlta) {
-      btnDeprecMedia.classList.remove('active');
-      btnDeprecAlta.classList.remove('active');
-    }
-  });
-
-  // IPVA rates buttons click
-  const ipvaBtns = [
-    document.getElementById('btn-ipva-0'),
-    document.getElementById('btn-ipva-1'),
-    document.getElementById('btn-ipva-2'),
-    document.getElementById('btn-ipva-3'),
-    document.getElementById('btn-ipva-4')
+  // Step 4: Depreciation Multiplier Buttons (1x, 1.5x, 2x, Manual) based on Step 2 FIPE History
+  const deprecMultiplierBtns = [
+    elements.btnDeprec1x,
+    elements.btnDeprec15x,
+    elements.btnDeprec2x,
+    elements.btnDeprecManual
   ];
-  const btnIpvaManualRate = document.getElementById('btn-ipva-manual-rate');
 
-  ipvaBtns.forEach(btn => {
-    if (btn) {
-      btn.addEventListener('click', () => {
-        const rate = parseFloat(btn.getAttribute('data-rate'));
-        applyIpvaRate(rate, btn, ipvaBtns.filter(b => b !== btn));
-      });
-    }
-  });
-
-  if (btnIpvaManualRate) {
-    btnIpvaManualRate.addEventListener('click', () => {
-      state.costs.isIpvaManual = true;
-      state.costs.isLocadoraBenefit = false;
-      state.costs.isIpvaIsento = false;
-      state.costs.customIpvaRate = null;
-      recalculateStateIpvaAndLicenciamento();
-      if (elements.ufTaxBreakdownPanel && elements.ufTaxBreakdownPanel.style.display !== 'none' && elements.ipvaManualAnual) {
-        elements.ipvaManualAnual.focus();
-        elements.ipvaManualAnual.select();
+  deprecMultiplierBtns.forEach(btn => {
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const multAttr = btn.getAttribute('data-mult');
+      if (multAttr === 'manual') {
+        state.costs.deprecMultiplier = 'manual';
+        deprecMultiplierBtns.forEach(b => b && b.classList.toggle('active', b === btn));
+        elements.costDepreciacao.focus();
+        elements.costDepreciacao.select();
       } else {
-        elements.costIpva.focus();
-        elements.costIpva.select();
+        const mult = parseFloat(multAttr) || 1;
+        state.costs.deprecMultiplier = mult;
+        deprecMultiplierBtns.forEach(b => b && b.classList.toggle('active', b === btn));
+        recalculateDepreciationFromFirstScreen();
       }
     });
-  }
+  });
 
-  // Sync manual mode when the user types directly in the monthly IPVA + Licenciamento field
-  elements.costIpva.addEventListener('input', () => {
-    const totalTypedMensal = utils.parseCurrency(elements.costIpva.value);
-    const ufCode = elements.costUf ? elements.costUf.value : '';
-    const licMensal = (ufCode && UF_TAX_DATA_2026[ufCode]) ? (UF_TAX_DATA_2026[ufCode].licenciamento / 12) : 0;
-    const ipvaMensalPortion = Math.max(0, totalTypedMensal - licMensal);
-
-    state.costs.isIpvaManual = true;
-    state.costs.isLocadoraBenefit = false;
-    state.costs.isIpvaIsento = false;
-    state.costs.customIpvaRate = null;
-    state.costs.manualIpvaAnual = ipvaMensalPortion * 12;
-
-    recalculateStateIpvaAndLicenciamento({ skipCostIpvaInputSync: true });
+  // Switch to "Manual" automatically when user types directly in Depreciation input
+  elements.costDepreciacao.addEventListener('input', () => {
+    state.costs.deprecMultiplier = 'manual';
+    deprecMultiplierBtns.forEach(b => {
+      if (b) b.classList.toggle('active', b === elements.btnDeprecManual);
+    });
   });
 
   // App logo returns home (to Landing Page)
@@ -1285,39 +1266,20 @@ function validateStep4() {
     elements.costRastreador,
     elements.costSeguro,
     elements.costManutencao,
-    elements.costSuporte,
-    elements.costContabilidade,
-    elements.costIpva,
-    elements.costDepreciacao,
-    elements.costTaxRate
-  ];
+    elements.costManutencaoExtra,
+    elements.costFundoReserva,
+    elements.costDepreciacao
+  ].filter(Boolean);
 
   fields.forEach(f => f.style.borderColor = '');
 
   fields.forEach(field => {
-    if (field === elements.costTaxRate) {
-      const pct = parseFloat(field.value);
-      if (isNaN(pct) || pct < 0 || pct > 100) {
-        field.style.borderColor = 'var(--color-danger)';
-        isValid = false;
-      }
-    } else {
-      const val = utils.parseCurrency(field.value);
-      if (val < 0) {
-        field.style.borderColor = 'var(--color-danger)';
-        isValid = false;
-      }
-    }
-  });
-
-  if (elements.reserveFundToggle.checked) {
-    elements.costFundoReserva.style.borderColor = '';
-    const val = utils.parseCurrency(elements.costFundoReserva.value);
+    const val = utils.parseCurrency(field.value);
     if (val < 0) {
-      elements.costFundoReserva.style.borderColor = 'var(--color-danger)';
+      field.style.borderColor = 'var(--color-danger)';
       isValid = false;
     }
-  }
+  });
 
   return isValid;
 }
@@ -1371,6 +1333,8 @@ function goToStep(step) {
 
   if (step === 4) {
     recalculateStateIpvaAndLicenciamento();
+    recalculateSeguroFromFipe();
+    recalculateDepreciationFromFirstScreen();
   }
 }
 
@@ -1420,6 +1384,9 @@ function resetSimulationState() {
     yearName: '',
     valorFipe: 0,
     valorPago: 0,
+    historicoDepreciacaoMensal: 0,
+    historicoDepreciacaoTotal: 0,
+    historicoMeses: 0,
     isManual: false,
     isLeveraged: false,
     valorEntrada: 0,
@@ -1442,26 +1409,32 @@ function resetSimulationState() {
     isIpvaManual: false,
     manualIpvaAnual: 0,
     customIpvaRate: null,
-    rastreador: 50,
-    seguro: 200,
-    manutencao: 150,
-    suporteSistema: 39,
+    isSeguroManual: false,
+    deprecMultiplier: 1,
+    rastreador: 0,
+    seguro: 0,
+    manutencao: 0,
+    manutencaoExtra: 0,
+    suporteSistema: 0,
     contabilidade: 0,
     ipvaLicenciamento: 0,
-    aliquotaImposto: 0.06,
+    aliquotaImposto: 0,
     fundoReserva: 0,
     depreciacaoMensal: 0,
-    useFundoReserva: false
+    useFundoReserva: true
   };
 
   syncIpvaModeButtons();
   if (elements.ufTaxBreakdownPanel) elements.ufTaxBreakdownPanel.style.display = 'none';
   if (elements.locadoraSavingsBox) elements.locadoraSavingsBox.style.display = 'none';
 
+  const deprecBtns = [elements.btnDeprec1x, elements.btnDeprec15x, elements.btnDeprec2x, elements.btnDeprecManual];
+  deprecBtns.forEach(btn => {
+    if (btn) btn.classList.toggle('active', btn === elements.btnDeprec1x);
+  });
+
   elements.fipeManualToggle.checked = false;
   elements.fipeManualToggle.dispatchEvent(new Event('change'));
-  elements.reserveFundToggle.checked = false;
-  elements.reserveFundToggle.dispatchEvent(new Event('change'));
   
   hideFipePreview();
 }
@@ -1591,108 +1564,74 @@ function renderComparisonBanner() {
 }
 
 /**
+ * Pre-fills 1. Seguro Mensal with 0.34% of the vehicle's FIPE value (editable by the user)
+ */
+function recalculateSeguroFromFipe() {
+  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
+  if (valorFipe <= 0) return;
+
+  const seguroSugerido = valorFipe * 0.0034; // 0,34% sobre a FIPE
+  if (elements.seguroFipeHint) {
+    elements.seguroFipeHint.innerHTML =
+      `Calculado em <strong>0,34% sobre a FIPE</strong> (${utils.formatCurrency(seguroSugerido)}/mês) — caixa editável.`;
+  }
+
+  if (!state.costs.isSeguroManual && elements.costSeguro) {
+    elements.costSeguro.value = utils.formatCurrency(seguroSugerido);
+    state.costs.seguro = seguroSugerido;
+  }
+}
+
+/**
+ * Calculates base monthly depreciation brought from Step 2 (1st vehicle screen)
+ * and applies the chosen multiplier (1x, 1.5x, 2x) unless in 'manual' mode.
+ */
+function recalculateDepreciationFromFirstScreen() {
+  const valorPago = utils.parseCurrency(elements.valorPagoInput.value);
+  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
+  const baseValue = valorFipe > 0 ? valorFipe : valorPago;
+
+  let baseDeprecMensal = 0;
+  if (!state.vehicle.isManual && state.vehicle.historicoDepreciacaoMensal > 0) {
+    baseDeprecMensal = state.vehicle.historicoDepreciacaoMensal;
+    if (elements.deprecOriginTag) {
+      elements.deprecOriginTag.textContent = `Base 1ª Tela (FIPE): ${utils.formatCurrency(baseDeprecMensal)}/mês`;
+    }
+  } else if (baseValue > 0) {
+    // Fallback if manual vehicle, 0km, or vehicle appreciated in last 24m
+    baseDeprecMensal = (baseValue * 0.095) / 12;
+    if (elements.deprecOriginTag) {
+      elements.deprecOriginTag.textContent = `Base Estimada: ${utils.formatCurrency(baseDeprecMensal)}/mês`;
+    }
+  }
+
+  if (state.costs.deprecMultiplier !== 'manual' && baseDeprecMensal > 0) {
+    const mult = Number(state.costs.deprecMultiplier) || 1;
+    const finalDeprecMensal = baseDeprecMensal * mult;
+    elements.costDepreciacao.value = utils.formatCurrency(finalDeprecMensal);
+    state.costs.depreciacaoMensal = finalDeprecMensal;
+  }
+}
+
+/**
  * Triggered automatically on input blur of prices.
- * Dynamically updates IPVA & Depreciation operational inputs based on Vehicle Price metrics,
+ * Dynamically updates IPVA, Seguro (0.34% FIPE) & Depreciation operational inputs based on Vehicle Price metrics,
  * but leaves them editable so the user has the final word.
  */
 function triggerSmartDefaults() {
-  const valorPago = utils.parseCurrency(elements.valorPagoInput.value);
-  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
-
-  // Update IPVA + Licenciamento based on selected UF (or fallback rate)
+  // 1. Update IPVA + Licenciamento based on selected UF
   recalculateStateIpvaAndLicenciamento();
 
-  // Update Depreciation based on active rate button or default to 9.5%
-  const btnDeprecMedia = document.getElementById('btn-deprec-media');
-  const btnDeprecAlta = document.getElementById('btn-deprec-alta');
-  const isMediaActive = btnDeprecMedia && btnDeprecMedia.classList.contains('active');
-  const isAltaActive = btnDeprecAlta && btnDeprecAlta.classList.contains('active');
+  // 2. Pre-fill Seguro Mensal at 0.34% of FIPE (if not manually edited)
+  recalculateSeguroFromFipe();
 
-  const baseValue = valorPago > 0 ? valorPago : valorFipe;
-
-  if (baseValue > 0) {
-    let deprecRate = 0.095; // default is 9.5% (average of 7% and 12%)
-    if (isMediaActive) deprecRate = 0.07;
-    else if (isAltaActive) deprecRate = 0.12;
-
-    const monthlyDepr = (baseValue * deprecRate) / 12;
-    elements.costDepreciacao.value = utils.formatCurrency(monthlyDepr);
-  }
+  // 3. Update Depreciation based on 1st screen historical FIPE depreciation * multiplier (1x, 1.5x, 2x)
+  recalculateDepreciationFromFirstScreen();
 
   // Live recalculate the discount banner on step 2 if FipeCard is rendered
   if (state.currentStep === 2 && !state.vehicle.isManual && state.vehicle.valorFipe > 0) {
     renderComparisonBanner();
   }
-}
-
-/**
- * Helper to calculate and apply a depreciation scenario to the monthly depreciation input
- * @param {number} annualRate (e.g. 0.07 or 0.12)
- * @param {HTMLButtonElement} activeBtn
- * @param {HTMLButtonElement} inactiveBtn
- */
-function applyDepreciationScenario(annualRate, activeBtn, inactiveBtn) {
-  const valorPago = utils.parseCurrency(elements.valorPagoInput.value);
-  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
-  
-  // Use valorPago as primary (capital invested), fallback to valorFipe
-  const baseValue = valorPago > 0 ? valorPago : valorFipe;
-
-  if (baseValue <= 0) {
-    alert('Por favor, defina o valor do veículo no Passo 2 antes de selecionar um cenário de depreciação.');
-    return;
-  }
-
-  // Monthly depreciation = (baseValue * annualRate) / 12
-  const monthlyDeprec = (baseValue * annualRate) / 12;
-  
-  elements.costDepreciacao.value = utils.formatCurrency(monthlyDeprec);
-  
-  // Update state
-  state.costs.depreciacaoMensal = monthlyDeprec;
-
-  // Toggle active button states
-  activeBtn.classList.add('active');
-  inactiveBtn.classList.remove('active');
-}
-
-/**
- * Helper to calculate and apply an IPVA rate scenario to the monthly IPVA input
- * @param {number} rate (e.g. 0, 0.01, 0.02, 0.03, 0.04)
- * @param {HTMLButtonElement} activeBtn
- * @param {HTMLButtonElement[]} otherBtns
- */
-function applyIpvaRate(rate, activeBtn, otherBtns) {
-  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
-
-  if (rate > 0 && valorFipe <= 0) {
-    alert('Por favor, defina o valor do veículo no Passo 2 antes de selecionar uma taxa de IPVA.');
-    return;
-  }
-
-  state.costs.isIpvaManual = false;
-
-  if (Math.abs(rate) < 0.0001) {
-    state.costs.isIpvaIsento = true;
-    state.costs.isLocadoraBenefit = false;
-    state.costs.customIpvaRate = null;
-  } else if (Math.abs(rate - 0.01) < 0.001) {
-    state.costs.isIpvaIsento = false;
-    state.costs.isLocadoraBenefit = true;
-    state.costs.customIpvaRate = null;
-  } else {
-    state.costs.isIpvaIsento = false;
-    state.costs.isLocadoraBenefit = false;
-    state.costs.customIpvaRate = rate;
-  }
-
-  // Toggle active button states
-  activeBtn.classList.add('active');
-  otherBtns.forEach(btn => {
-    if (btn) btn.classList.remove('active');
-  });
-
-  recalculateStateIpvaAndLicenciamento();
 }
 
 /**
@@ -1769,13 +1708,14 @@ function runCalculationsAndRender() {
     rastreador: utils.parseCurrency(elements.costRastreador.value),
     seguro: utils.parseCurrency(elements.costSeguro.value),
     manutencao: utils.parseCurrency(elements.costManutencao.value),
-    suporteSistema: utils.parseCurrency(elements.costSuporte.value),
-    contabilidade: utils.parseCurrency(elements.costContabilidade.value),
+    suporteSistema: elements.costSuporte ? utils.parseCurrency(elements.costSuporte.value) : 0,
+    contabilidade: elements.costContabilidade ? utils.parseCurrency(elements.costContabilidade.value) : 0,
     ipvaLicenciamento: utils.parseCurrency(elements.costIpva.value),
     
-    aliquotaImposto: (parseFloat(elements.costTaxRate.value) || 0) / 100,
+    aliquotaImposto: elements.costTaxRate ? ((parseFloat(elements.costTaxRate.value) || 0) / 100) : 0,
     depreciacaoMensal: utils.parseCurrency(elements.costDepreciacao.value),
-    fundoReserva: elements.reserveFundToggle.checked ? utils.parseCurrency(elements.costFundoReserva.value) : 0
+    fundoReserva: utils.parseCurrency(elements.costFundoReserva.value),
+    manutencaoExtra: elements.costManutencaoExtra ? utils.parseCurrency(elements.costManutencaoExtra.value) : 0
   };
 
   // Compile calculations through the simulation service
@@ -1807,6 +1747,9 @@ function runCalculationsAndRender() {
 
   elements.dreProvisoesTotal.textContent = `R$ -${utils.formatCurrency(results.totalProvisoes).replace('R$', '').trim()}`;
   elements.dreFundoReserva.textContent = `R$ -${utils.formatCurrency(results.fundoReserva).replace('R$', '').trim()}`;
+  if (elements.dreManutencaoExtra) {
+    elements.dreManutencaoExtra.textContent = `R$ -${utils.formatCurrency(results.manutencaoExtra).replace('R$', '').trim()}`;
+  }
   elements.dreDepreciacao.textContent = `R$ -${utils.formatCurrency(results.depreciacaoMensal).replace('R$', '').trim()}`;
 
   // Financing / Leverage rows in DRE

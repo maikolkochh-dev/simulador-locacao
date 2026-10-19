@@ -56,7 +56,7 @@ export const simulationService = {
     
     const receitaLiquidaMensal = receitaBrutaMensal - impostosSimplesNacional;
 
-    // Operational costs
+    // Operational costs (Fixed Cash Outflows)
     const rastreador = Number(data.rastreador) || 0;
     const seguro = Number(data.seguro) || 0;
     const manutencao = Number(data.manutencao) || 0;
@@ -67,8 +67,9 @@ export const simulationService = {
     // Sum of regular operational costs
     const custosOperacionaisRecorrentes = rastreador + seguro + manutencao + suporteSistema + contabilidade + ipvaLicenciamento;
 
-    // Provisions (Reserve and Depreciation)
+    // Variable Provisions (Reserve Fund, Extra Maintenance, and Depreciation)
     const fundoReserva = Number(data.fundoReserva) || 0;
+    const manutencaoExtra = Number(data.manutencaoExtra) || 0;
     
     // Depreciation: automatically calculated if not explicitly provided or overridden
     let depreciacaoMensal = 0;
@@ -81,7 +82,7 @@ export const simulationService = {
       depreciacaoMensal = (valorPago * depreciacaoAnualTaxa) / 12;
     }
 
-    const totalProvisoes = fundoReserva + depreciacaoMensal;
+    const totalProvisoes = fundoReserva + manutencaoExtra + depreciacaoMensal;
 
     // DRE Totals (includes financing installment when leveraged)
     const custosTotaisMensais = impostosSimplesNacional + custosOperacionaisRecorrentes + totalProvisoes + parcelaFinanciamento;
@@ -123,6 +124,7 @@ export const simulationService = {
       isLeveraged,
       descontoSobreFipe,
       fundoReserva,
+      manutencaoExtra,
       depreciacaoMensal,
       analiseRisco,
       
@@ -148,6 +150,7 @@ export const simulationService = {
         ipvaLicenciamento,
         impostosSimplesNacional,
         fundoReserva,
+        manutencaoExtra,
         depreciacaoMensal,
         parcelaFinanciamento
       }

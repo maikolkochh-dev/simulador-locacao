@@ -213,6 +213,9 @@ export const fipeService = {
       let deprecPct = '';
       let deprecText = '';
       let deprecTipo = 'none';
+      let deprecMensalNum = 0;
+      let deprecTotalNum = 0;
+      let deprecMesesNum = 0;
 
       if (parseInt(year) <= 2025 && history.length > 0) {
         // Sort history by year and month descending (newest first)
@@ -248,6 +251,11 @@ export const fipeService = {
           const monthsDiff = Math.abs((newest.year * 12 + newest.month) - (closestItem.year * 12 + closestItem.month));
 
           deprecTipo = diffCents >= 0 ? 'danger' : 'success';
+          deprecMesesNum = monthsDiff;
+          if (diffCents > 0 && monthsDiff > 0) {
+            deprecTotalNum = diffCents / 100;
+            deprecMensalNum = deprecTotalNum / monthsDiff;
+          }
           
           const absDiffFormatted = new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -285,7 +293,10 @@ export const fipeService = {
         historicoDepreciacaoBrl: deprecBrl,
         historicoDepreciacaoPct: deprecPct,
         historicoTexto: deprecText,
-        historicoTipo: deprecTipo
+        historicoTipo: deprecTipo,
+        historicoDepreciacaoMensalNum: deprecMensalNum,
+        historicoDepreciacaoTotalNum: deprecTotalNum,
+        historicoMeses: deprecMesesNum
       };
 
       cache.prices[cacheKey] = mappedResult;
