@@ -138,7 +138,10 @@ export const simulationService = {
 
       // Remaining financing installments at month `meses`
       const parcelasPagasNoPeriodo = isLeveraged && qtdParcelas > 0 ? Math.min(meses, qtdParcelas) : 0;
+      const mesesComParcela = parcelasPagasNoPeriodo;
+      const mesesSemParcela = Math.max(0, meses - parcelasPagasNoPeriodo);
       const parcelasRestantes = isLeveraged && qtdParcelas > 0 ? Math.max(0, qtdParcelas - meses) : 0;
+      const TemFinanciamentoRestante = parcelasRestantes > 0;
       const somaParcelasRestantes = this.round2(parcelasRestantes * parcelaFinanciamento);
 
       // Payoff amount (Valor para Quitação): 0 if no installments remain; otherwise customPayoffAmount or somaParcelasRestantes
@@ -166,13 +169,17 @@ export const simulationService = {
         valorVeiculoAposDepreciacao,
         valorVendaVeiculo,
         parcelasPagasNoPeriodo,
+        mesesComParcela,
+        mesesSemParcela,
         parcelasRestantes,
+        TemFinanciamentoRestante,
         somaParcelasRestantes,
         valorQuitacao,
         resultadoOperacionalMaisVenda,
         resultadoLiquidoAposQuitacao,
         capitalInicialDesembolsado,
         ganhoLiquidoSobreCapitalInicial,
+        lucroLiquidoSobreCapitalProprio: ganhoLiquidoSobreCapitalInicial,
         reservasAcumuladas
       };
     };
@@ -186,10 +193,19 @@ export const simulationService = {
     const baseCapitalRoi = isLeveraged
       ? (valorEntrada > 0 ? valorEntrada : valorPago)
       : valorPago;
+    const capitalProprioInicial = baseCapitalRoi;
     const semCapitalProprioInicial = isLeveraged && valorEntrada <= 0;
 
     const margemOperacionalMensal = receitaBrutaMensal > 0
       ? (lucroOperacionalMensal / receitaBrutaMensal)
+      : 0;
+
+    // Break-even occupancy & weeks/month based on out-of-pocket monthly expenses
+    const ocupacaoEquilibrio = receitaBrutaMensal > 0
+      ? Math.max(0, Math.min(1, saidasBolsoMensais / receitaBrutaMensal))
+      : 0;
+    const semanasEquilibrioMes = valorSemanal > 0
+      ? Math.max(0, saidasBolsoMensais / valorSemanal)
       : 0;
 
     // Monthly ROI based on monthly operational profit in pocket
@@ -213,7 +229,7 @@ export const simulationService = {
     const analiseRisco = this.evaluateRisk({
       caixaDisponivelProjetado: lucroOperacionalMensal,
       dscr,
-      ocupacaoEquilibrio: 0.7,
+      ocupacaoEquilibrio,
       roiMensal,
       roiSobreAtivoMensal: valorPago > 0 ? (lucroOperacionalMensal / valorPago) : 0,
       semCapitalProprioInicial
@@ -230,6 +246,7 @@ export const simulationService = {
       parcelaFinanciamento,
       totalNominalFinanciamento,
       saidasBolsoMensais,
+      saidasCaixaBolsoMensais: saidasBolsoMensais,
       lucroOperacionalMensal,
       lucroOperacionalMensalSemParcela,
 
@@ -247,12 +264,16 @@ export const simulationService = {
       margemInicialVsFipe,
       descontoSobreFipe,
 
-      // Markers (ROI, Payback, Margin)
+      // Markers (ROI, Payback, Margin, Break-even)
       isLeveraged,
       semCapitalProprioInicial,
       baseCapitalRoi,
+      capitalProprioInicial,
       margemOperacionalMensal,
+      margemLucroOperacional: margemOperacionalMensal,
       margemLiquida: margemOperacionalMensal,
+      ocupacaoEquilibrio,
+      semanasEquilibrioMes,
       roiMensal,
       roiAnual,
       roiTotalPeriodo,

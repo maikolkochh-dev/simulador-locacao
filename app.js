@@ -3,8 +3,8 @@
  * Manages state, wizard steps, input formatting masks, and visual outputs.
  */
 
-import { fipeService } from './fipeService.js?v=20261019c';
-import { simulationService } from './simulationService.js?v=20261019c';
+import { fipeService } from './fipeService.js?v=20261019d';
+import { simulationService } from './simulationService.js?v=20261019d';
 
 // ==========================================================================
 // APPLICATION STATE
@@ -364,6 +364,7 @@ const utils = {
    * Sets up real-time typing mask for standard currency input fields
    */
   setupCurrencyMask(input) {
+    if (!input) return;
     input.addEventListener('input', (e) => {
       let value = e.target.value.replace(/\D/g, '');
       if (value === '') {
@@ -394,6 +395,7 @@ const utils = {
    * Cell Phone Input Mask (XX) XXXXX-XXXX
    */
   setupPhoneMask(input) {
+    if (!input) return;
     input.addEventListener('input', (e) => {
       let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
       e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
@@ -897,6 +899,16 @@ function bindEvents() {
     }
   });
 
+  // Prevent accidental native form submissions on wizard steps 2, 3, and 4
+  [elements.vehicleForm, elements.rentalForm, elements.costsForm].forEach(formEl => {
+    if (!formEl) return;
+    formEl.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nextBtn = formEl.querySelector('.btn-next');
+      if (nextBtn) nextBtn.click();
+    });
+  });
+
   // Step Indicators Navigation
   elements.stepIndicators.forEach(ind => {
     ind.addEventListener('click', () => {
@@ -907,7 +919,11 @@ function bindEvents() {
         if (!validateStep(state.currentStep)) return;
       }
       if (step === 5) {
-        runCalculationsAndRender();
+        try {
+          runCalculationsAndRender();
+        } catch (err) {
+          console.error('Erro ao renderizar cálculos da etapa 5:', err);
+        }
       }
       goToStep(step);
     });
@@ -923,12 +939,17 @@ function bindEvents() {
   document.querySelectorAll('.btn-next').forEach(btn => {
     btn.addEventListener('click', () => {
       if (validateStep(state.currentStep)) {
+        const nextStep = state.currentStep + 1;
         if (state.currentStep === 4) {
           state.report.customSalePrice = null;
           state.report.customPayoffAmount = null;
-          runCalculationsAndRender();
+          try {
+            runCalculationsAndRender();
+          } catch (err) {
+            console.error('Erro ao calcular relatório na transição para a etapa 5:', err);
+          }
         }
-        goToStep(state.currentStep + 1);
+        goToStep(nextStep);
       }
     });
   });
@@ -1575,8 +1596,27 @@ function validateStep4() {
   if (elements.costUf) {
     const customSearchInput = elements.costUf.parentElement?.querySelector('.custom-select-search');
     if (customSearchInput) customSearchInput.style.borderColor = '';
+
+    // If user typed a state name or UF code into the search box without clicking the dropdown item, auto-match it
+    if (!elements.costUf.value && customSearchInput && customSearchInput.value.trim()) {
+      const typed = normalizeSearchText(customSearchInput.value);
+      for (const [code, info] of Object.entries(UF_TAX_DATA_2026)) {
+        const normCode = normalizeSearchText(code);
+        const normName = normalizeSearchText(info.nome);
+        if (typed === normCode || typed === normName || normName.startsWith(typed) || typed.includes(normName)) {
+          elements.costUf.value = code;
+          recalculateStateIpvaAndLicenciamento();
+          break;
+        }
+      }
+    }
+
     if (!elements.costUf.value) {
-      if (customSearchInput) customSearchInput.style.borderColor = 'var(--color-danger)';
+      if (customSearchInput) {
+        customSearchInput.style.borderColor = 'var(--color-danger)';
+        customSearchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => customSearchInput.focus(), 200);
+      }
       alert('Por favor, selecione o Estado (UF) de registro do veículo no topo da tela.');
       isValid = false;
     }
@@ -1920,8 +1960,8 @@ function updateTaxPreviewTag() {
     elements.taxPreviewTag.style.display = 'none';
     return;
   }
-  const valorSemanal = utils.parseCurrency(elements.valorSemanalInput.value);
-  const semanasMes = parseFloat(elements.semanasMesInput.value) || 4.3;
+  const valorSemanal = elements.valorSemanalInput ? utils.parseCurrency(elements.valorSemanalInput.value) : 0;
+  const semanasMes = elements.semanasMesInput ? (parseFloat(elements.semanasMesInput.value) || 4.3) : 4.3;
   const receitaBruta = valorSemanal * semanasMes;
   const impostoMensal = receitaBruta * (pct / 100);
   elements.taxPreviewTag.style.display = 'inline-block';
@@ -2112,9 +2152,9 @@ function runCalculationsAndRender(options = {}) {
     valorFinanciado: state.vehicle.isLeveraged ? utils.parseCurrency(elements.leverageFinanciadoInput.value) : 0,
     qtdParcelas: state.vehicle.isLeveraged ? (parseInt(elements.leverageQtdParcelasInput.value, 10) || 0) : 0,
     valorParcela: state.vehicle.isLeveraged ? utils.parseCurrency(elements.leverageValorParcelaInput.value) : 0,
-    valorCaucao: utils.parseCurrency(elements.valorCaucaoInput.value),
-    valorSemanal: utils.parseCurrency(elements.valorSemanalInput.value),
-    semanasMes: parseFloat(elements.semanasMesInput.value) || 4.3,
+    valorCaucao: elements.valorCaucaoInput ? utils.parseCurrency(elements.valorCaucaoInput.value) : 0,
+    valorSemanal: elements.valorSemanalInput ? utils.parseCurrency(elements.valorSemanalInput.value) : 0,
+    semanasMes: elements.semanasMesInput ? (parseFloat(elements.semanasMesInput.value) || 4.3) : 4.3,
     
     rastreador: utils.parseCurrency(elements.costRastreador.value),
     seguro: utils.parseCurrency(elements.costSeguro.value),
@@ -2396,11 +2436,13 @@ function runCalculationsAndRender(options = {}) {
   }
 
   if (elements.kpiMargem) {
-    elements.kpiMargem.textContent = utils.formatPercent(results.margemLucroOperacional);
+    elements.kpiMargem.textContent = utils.formatPercent(results.margemLucroOperacional || 0);
   }
   if (elements.kpiBreakevenSub) {
+    const semEq = Number(results.semanasEquilibrioMes) || 0;
+    const ocupEq = Number(results.ocupacaoEquilibrio) || 0;
     elements.kpiBreakevenSub.textContent =
-      `Ponto de equilíbrio: ${results.semanasEquilibrioMes.toFixed(2).replace('.', ',')} semanas alugadas/mês (${utils.formatPercent(results.ocupacaoEquilibrio)})`;
+      `Ponto de equilíbrio: ${semEq.toFixed(2).replace('.', ',')} semanas alugadas/mês (${utils.formatPercent(ocupEq)})`;
   }
 }
 

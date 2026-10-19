@@ -18,8 +18,16 @@ const DB_FILE = path.join(__dirname, 'users.json');
 app.use(cors());
 app.use(express.json());
 
-// Serve all static frontend files
-app.use(express.static(__dirname));
+// Serve all static frontend files with no-store headers so updates apply immediately
+app.use(express.static(__dirname, {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+}));
 
 // ==========================================
 // ROBUST DATABASE HELPER (JSON STORE)
