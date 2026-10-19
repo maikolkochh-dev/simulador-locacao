@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Módulo PRO Mentoria | LOCADOR NÔMADE - Escala de Frotas 24 Meses</title>
+  <title>Módulo PRO Mentoria | LOCADOR NÔMADE - Escala de Frotas Multi-Períodos</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
   
   <!-- Google Fonts -->
@@ -67,7 +67,7 @@
     }
 
     .container {
-      max-width: 1360px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 24px;
       position: relative;
@@ -266,9 +266,9 @@
       background: rgba(8, 12, 20, 0.6);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      padding: 14px 16px;
+      padding: 13px 16px;
       color: var(--text-main);
-      font-size: 15px;
+      font-size: 14.5px;
       font-family: var(--font-sans);
       width: 100%;
       transition: all 0.2s ease;
@@ -279,6 +279,10 @@
       border-color: var(--accent-cyan);
       box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
       background: rgba(8, 12, 20, 0.9);
+    }
+
+    select.form-input {
+      cursor: pointer;
     }
 
     .btn-primary {
@@ -328,13 +332,74 @@
       color: #34D399;
     }
 
+    /* TOOLTIP POPUP STYLES */
+    .has-tooltip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .tooltip-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(0, 242, 254, 0.3);
+    }
+
+    .has-tooltip:hover .tooltip-icon {
+      background: var(--accent-cyan);
+      color: #080C14;
+      transform: scale(1.1);
+    }
+
+    .tooltip-bubble {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0D1424;
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      color: #E2E8F0;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      line-height: 1.5;
+      width: 320px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+      pointer-events: none;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: normal;
+      text-align: left;
+    }
+
+    .has-tooltip:hover .tooltip-bubble,
+    .has-tooltip:focus .tooltip-bubble {
+      visibility: visible;
+      opacity: 1;
+    }
+
     /* MAIN APP STYLING */
     .pro-dashboard {
       padding: 36px 0 80px 0;
     }
 
     .hero-banner {
-      margin-bottom: 32px;
+      margin-bottom: 28px;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -353,7 +418,7 @@
     .hero-title-group p {
       color: var(--text-muted);
       font-size: 15px;
-      max-width: 650px;
+      max-width: 720px;
     }
 
     /* STRATEGY TABS */
@@ -364,7 +429,7 @@
       padding: 6px;
       border-radius: 16px;
       border: 1px solid var(--border-color);
-      margin-bottom: 30px;
+      margin-bottom: 28px;
       overflow-x: auto;
     }
 
@@ -415,7 +480,7 @@
     /* GRID CONTROLS & KPIS */
     .dashboard-layout {
       display: grid;
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 420px 1fr;
       gap: 28px;
       align-items: start;
       margin-bottom: 36px;
@@ -434,7 +499,7 @@
       font-family: var(--font-display);
       font-size: 17px;
       font-weight: 800;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -467,6 +532,17 @@
       font-size: 15px;
       width: 70px;
       text-align: center;
+    }
+
+    .info-badge-uf {
+      font-size: 11.5px;
+      background: rgba(0, 242, 254, 0.08);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      color: var(--accent-cyan);
+      margin-top: 4px;
+      line-height: 1.35;
     }
 
     /* KPI CARDS GRID */
@@ -548,7 +624,7 @@
       color: #FFFFFF;
     }
 
-    /* FULL 24-MONTH DRE TABLE */
+    /* FULL DRE TABLE */
     .dre-table-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
@@ -561,7 +637,7 @@
     .table-wrapper {
       width: 100%;
       overflow-x: auto;
-      max-height: 580px;
+      max-height: 620px;
     }
 
     table {
@@ -597,7 +673,7 @@
       background: rgba(13, 20, 36, 0.98);
       font-weight: 600;
       z-index: 5;
-      min-width: 220px;
+      min-width: 260px;
       border-right: 1px solid var(--border-color);
     }
 
@@ -717,7 +793,7 @@
     <div class="gate-card">
       <span class="gate-badge">🔒 Acesso Exclusivo &bull; Mentoria</span>
       <h2>Módulo PRO</h2>
-      <p>Simulador Estratégico de Escala de Frotas, Projeção 24 Meses e Alavancagem.</p>
+      <p>Simulador Estratégico de Escala de Frotas, Projeção Multi-Períodos e Alavancagem.</p>
 
       <div class="feedback-box feedback-error" id="gate-error"></div>
       <div class="feedback-box feedback-success" id="gate-success"></div>
@@ -813,7 +889,7 @@
     <!-- Hero / Title -->
     <div class="hero-banner">
       <div class="hero-title-group">
-        <h2>Simulação Executiva de Escala (24 Meses)</h2>
+        <h2 id="main-hero-title">Simulação Executiva de Escala (24 Meses)</h2>
         <p>Projete seu fluxo de caixa real, aquisição progressiva de frotas, DRE mês a mês e alavancagem com consórcio contemplado.</p>
       </div>
     </div>
@@ -840,48 +916,108 @@
           <span>⚙️</span> Parâmetros da Simulação
         </h3>
 
-        <!-- Qtd de Carros Inicial -->
+        <!-- 1. PRAZO DO DRE -->
+        <div class="form-group">
+          <label for="input-horizon">Horizonte de Projeção (Prazo do DRE)</label>
+          <select id="input-horizon" class="form-input">
+            <option value="12">12 Meses (1 Ano)</option>
+            <option value="24" selected>24 Meses (2 Anos - Padrão)</option>
+            <option value="36">36 Meses (3 Anos)</option>
+            <option value="48">48 Meses (4 Anos)</option>
+            <option value="60">60 Meses (5 Anos)</option>
+          </select>
+        </div>
+
+        <!-- 2. QTD DE CARROS INICIAL -->
         <div class="form-group">
           <label>Quantidade de Carros Inicial</label>
           <div class="input-range-wrapper">
-            <input type="range" id="input-cars" class="input-range" min="1" max="20" value="4">
+            <input type="range" id="input-cars" class="input-range" min="1" max="25" value="4">
             <div class="input-number-badge" id="badge-cars">4</div>
           </div>
         </div>
 
-        <!-- Valor do Carro -->
+        <!-- 3. VALOR DE COMPRA (REAL EMPREGADO) -->
         <div class="form-group">
-          <label>Valor Médio de Compra por Carro (R$)</label>
+          <label>Valor de Compra / Empregado por Carro (R$)</label>
           <input type="number" id="input-car-val" class="form-input" value="50000" step="1000">
+          <span style="font-size: 11.5px; color: var(--text-dim);">Capital real desembolsado por veículo</span>
         </div>
 
-        <!-- Aluguel Semanal / Mensal -->
+        <!-- 4. VALOR FIPE DE REFERÊNCIA -->
+        <div class="form-group">
+          <label>Valor de Referência Tabela FIPE (R$)</label>
+          <input type="number" id="input-fipe-val" class="form-input" value="50000" step="1000">
+          <span style="font-size: 11.5px; color: var(--text-dim);">Base oficial para calcular IPVA e Depreciação</span>
+        </div>
+
+        <!-- 5. TAXA DE DEPRECIAÇÃO ANUAL SOBRE A FIPE -->
+        <div class="form-group">
+          <label>Taxa de Depreciação Anual sobre a FIPE (% a.a.)</label>
+          <input type="number" id="input-deprec-rate" class="form-input" value="8.0" step="0.5">
+          <span style="font-size: 11.5px; color: var(--text-dim);">Depreciação composta sobre a FIPE ao final do prazo</span>
+        </div>
+
+        <!-- 6. ALUGUEL MENSAL -->
         <div class="form-group">
           <label>Aluguel Mensal por Carro (R$)</label>
           <input type="number" id="input-rent" class="form-input" value="3000" step="100">
-          <span style="font-size: 11.5px; color: var(--text-dim); margin-top: 2px;" id="rent-sub-label">Equivalente a R$ 700,00 por semana</span>
+          <span style="font-size: 11.5px; color: var(--text-dim);" id="rent-sub-label">Equivalente a R$ 700,00 por semana</span>
         </div>
 
-        <!-- Up Sell / Caução Inicial -->
+        <!-- 7. UP SELL / CAUÇÃO INICIAL COM TOOLTIP -->
         <div class="form-group">
-          <label>Up Sell / Caução Inicial (Mês 1) por Carro</label>
+          <label class="has-tooltip">
+            <span>Up Sell / Caução Inicial (Mês 1) por Carro</span>
+            <span class="tooltip-icon">i</span>
+            <span class="tooltip-bubble">
+              <strong>Como funciona esta linha?</strong><br>
+              Reflete a média do que entra no primeiro mês com o aluguel e o caução de garantia dos veículos. A partir do 2º mês, o sistema projeta automaticamente 10% de receitas adicionais recorrentes sobre a locação (multas ressarcidas, pacotes de upsell de km livre/proteção extra e retenções de caução por quebra contratual).
+            </span>
+          </label>
           <input type="number" id="input-upsell-m1" class="form-input" value="1500" step="100">
         </div>
 
-        <!-- Custos Operacionais Avançados (Colapsável) -->
-        <details style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+        <!-- 8. ESTADO (UF) PARA IPVA E LICENCIAMENTO AUTOMÁTICO -->
+        <div class="form-group">
+          <label for="input-uf">Estado do Veículo (IPVA & Licenciamento)</label>
+          <select id="input-uf" class="form-input">
+            <!-- 27 Estados preenchidos dinamicamente -->
+          </select>
+          <div class="info-badge-uf" id="uf-badge-info">
+            Carregando alíquotas do estado...
+          </div>
+        </div>
+
+        <!-- CUSTOS OPERACIONAIS & TRIBUTOS (COLAPSÁVEL) -->
+        <details open style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
           <summary style="font-size: 12px; font-weight: 700; color: var(--accent-cyan); cursor: pointer; text-transform: uppercase;">
-            Costos Operacionais & Impostos
+            Custos Operacionais, Fundo de Reserva & Tributos
           </summary>
           <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 12px;">
+            
+            <div class="form-group">
+              <label>Fundo de Reserva (R$/carro/mês) &bull; Editável</label>
+              <input type="number" id="input-reserve-fund" class="form-input" value="200" step="50">
+              <span style="font-size: 11.5px; color: var(--text-dim);">Reserva retida mensalmente para emergências (digite 0 se não quiser)</span>
+            </div>
+
+            <div class="form-group">
+              <label>IPVA + Licenciamento Mensal (R$/carro/mês) &bull; Editável</label>
+              <input type="number" id="input-ipva" class="form-input" value="58.33" step="0.01">
+              <span style="font-size: 11.5px; color: var(--text-dim);">Calculado automaticamente pela UF e FIPE, ou ajuste livremente</span>
+            </div>
+
             <div class="form-group">
               <label>Rastreador (R$/carro/mês)</label>
               <input type="number" id="input-tracker" class="form-input" value="60">
             </div>
+
             <div class="form-group">
               <label>Seguro (R$/carro/mês)</label>
               <input type="number" id="input-insurance" class="form-input" value="200">
             </div>
+
             <div class="form-group">
               <label>Manutenção (Mês 1: Revisão / Demais: Recorrente)</label>
               <div style="display: flex; gap: 8px;">
@@ -889,6 +1025,7 @@
                 <input type="number" id="input-maint-rec" class="form-input" value="150" placeholder="Demais">
               </div>
             </div>
+
             <div class="form-group">
               <label>Contabilidade (Mês 1: Abertura / Demais: Mensal)</label>
               <div style="display: flex; gap: 8px;">
@@ -896,18 +1033,12 @@
                 <input type="number" id="input-contab-rec" class="form-input" value="350" placeholder="Demais">
               </div>
             </div>
-            <div class="form-group">
-              <label>IPVA / Licenciamento (R$/carro/mês)</label>
-              <input type="number" id="input-ipva" class="form-input" value="58.33" step="0.01">
-            </div>
+
             <div class="form-group">
               <label>Alíquota Simples Nacional (%)</label>
               <input type="number" id="input-tax" class="form-input" value="6.76" step="0.01">
             </div>
-            <div class="form-group" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
-              <label style="margin-bottom: 0;">Fundo de Reserva (R$ 200/carro)</label>
-              <input type="checkbox" id="input-reserve-fund" checked style="width: 20px; height: 20px; accent-color: var(--accent-cyan);">
-            </div>
+
           </div>
         </details>
 
@@ -947,7 +1078,7 @@
 
           <div class="kpi-card">
             <div class="kpi-header">
-              <span class="kpi-label">Frota Final (24 Meses)</span>
+              <span class="kpi-label" id="kpi-fleet-label">Frota Final (24 Meses)</span>
               <span>🚗</span>
             </div>
             <div class="kpi-value" id="kpi-fleet" style="color: var(--accent-cyan);">4 Carros</div>
@@ -960,16 +1091,16 @@
               <span>💵</span>
             </div>
             <div class="kpi-value" id="kpi-cash" style="color: #34D399;">R$ 258.448</div>
-            <div class="kpi-sub">Saldo em conta no mês 24</div>
+            <div class="kpi-sub" id="kpi-cash-sub">Saldo em conta no final do período</div>
           </div>
 
           <div class="kpi-card">
             <div class="kpi-header">
-              <span class="kpi-label">Venda Frota (-8% a.a.)</span>
+              <span class="kpi-label" id="kpi-liquidation-label">Venda Frota (FIPE - Deprec.)</span>
               <span>🏷️</span>
             </div>
             <div class="kpi-value" id="kpi-liquidation">R$ 169.280</div>
-            <div class="kpi-sub">Depreciação composta de 2 anos</div>
+            <div class="kpi-sub" id="kpi-liquidation-sub">Depreciação sobre a tabela FIPE</div>
           </div>
 
           <div class="kpi-card highlight">
@@ -995,10 +1126,10 @@
         <!-- CHARTS SECTION -->
         <div class="chart-container-card">
           <div class="chart-header">
-            <h3>Evolução Patrimonial ao Longo dos 24 Meses</h3>
+            <h3 id="chart-title">Evolução Patrimonial ao Longo dos 24 Meses</h3>
             <span style="font-size: 12px; color: var(--text-muted);">Projeção Mês a Mês</span>
           </div>
-          <div style="height: 320px; position: relative;">
+          <div style="height: 330px; position: relative;">
             <canvas id="equityChart"></canvas>
           </div>
         </div>
@@ -1011,7 +1142,7 @@
     <div class="dre-table-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800;">
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800;" id="dre-table-title">
             Demonstrativo de Resultados do Exercício (DRE) - 24 Meses
           </h3>
           <p style="font-size: 13px; color: var(--text-muted);">
@@ -1024,8 +1155,8 @@
         <table id="dre-table">
           <thead>
             <tr id="dre-header-row">
-              <th>Linha DRE</th>
-              <!-- Months 1 to 24 generated dynamically -->
+              <th>Linha Demonstrativo (DRE)</th>
+              <!-- Months generated dynamically -->
             </tr>
           </thead>
           <tbody id="dre-tbody">
@@ -1052,6 +1183,39 @@
 
   <!-- JAVASCRIPT ENGINE & FINANCIAL MODEL -->
   <script>
+    // ==========================================================================
+    // TABELA OFICIAL 2026: LICENCIAMENTO + ALÍQUOTA IPVA POR ESTADO (UF)
+    // ==========================================================================
+    const UF_TAX_DATA_2026 = {
+      SP: { nome: 'São Paulo', licenciamento: 174.08, ipvaRate: 0.04, nota: 'Alíquota padrão SP (4,0%)' },
+      RJ: { nome: 'Rio de Janeiro', licenciamento: 293.71, ipvaRate: 0.04, nota: 'Maior taxa de licenciamento do país' },
+      MG: { nome: 'Minas Gerais', licenciamento: 35.62, ipvaRate: 0.04, nota: 'Menor taxa de licenciamento do país' },
+      PR: { nome: 'Paraná', licenciamento: 90.94, ipvaRate: 0.019, nota: 'Alíquota reduzida PR 2026 (1,9%)' },
+      SC: { nome: 'Santa Catarina', licenciamento: 149.37, ipvaRate: 0.02, nota: 'Alíquota SC (2,0%)' },
+      RS: { nome: 'Rio Grande do Sul', licenciamento: 109.27, ipvaRate: 0.03, nota: 'Alíquota RS (3,0%)' },
+      ES: { nome: 'Espírito Santo', licenciamento: 237.04, ipvaRate: 0.02, nota: 'Alíquota reduzida ES (2,0%)' },
+      GO: { nome: 'Goiás', licenciamento: 251.25, ipvaRate: 0.03, nota: 'Alíquota GO 1.0 (3,0%)' },
+      DF: { nome: 'Distrito Federal', licenciamento: 102.00, ipvaRate: 0.03, nota: 'Alíquota DF (3,0%)' },
+      BA: { nome: 'Bahia', licenciamento: 173.50, ipvaRate: 0.025, nota: 'Alíquota BA (2,5%)' },
+      CE: { nome: 'Ceará', licenciamento: 220.46, ipvaRate: 0.025, nota: 'Alíquota CE até 100cv (2,5%)' },
+      PE: { nome: 'Pernambuco', licenciamento: 158.00, ipvaRate: 0.024, nota: 'Alíquota PE (2,4%)' },
+      AC: { nome: 'Acre', licenciamento: 200.25, ipvaRate: 0.02, nota: 'Alíquota AC (2,0%)' },
+      AL: { nome: 'Alagoas', licenciamento: 36.03, ipvaRate: 0.0275, nota: 'Alíquota AL (2,75%)' },
+      AP: { nome: 'Amapá', licenciamento: 128.54, ipvaRate: 0.03, nota: 'Alíquota AP (3,0%)' },
+      AM: { nome: 'Amazonas', licenciamento: 122.88, ipvaRate: 0.02, nota: 'Alíquota AM (2,0%)' },
+      MA: { nome: 'Maranhão', licenciamento: 95.87, ipvaRate: 0.025, nota: 'Alíquota MA (2,5%)' },
+      MT: { nome: 'Mato Grosso', licenciamento: 140.00, ipvaRate: 0.02, nota: 'Alíquota MT 1.0 (2,0%)' },
+      MS: { nome: 'Mato Grosso do Sul', licenciamento: 235.28, ipvaRate: 0.03, nota: 'Alíquota MS (3,0%)' },
+      PA: { nome: 'Pará', licenciamento: 288.08, ipvaRate: 0.025, nota: 'Alíquota PA (2,5%)' },
+      PB: { nome: 'Paraíba', licenciamento: 206.55, ipvaRate: 0.025, nota: 'Alíquota PB (2,5%)' },
+      PI: { nome: 'Piauí', licenciamento: 129.60, ipvaRate: 0.025, nota: 'Alíquota PI (2,5%)' },
+      RN: { nome: 'Rio Grande do Norte', licenciamento: 90.00, ipvaRate: 0.03, nota: 'Alíquota RN (3,0%)' },
+      RO: { nome: 'Rondônia', licenciamento: 220.41, ipvaRate: 0.03, nota: 'Alíquota RO (3,0%)' },
+      RR: { nome: 'Roraima', licenciamento: 98.47, ipvaRate: 0.03, nota: 'Alíquota RR (3,0%)' },
+      SE: { nome: 'Sergipe', licenciamento: 207.36, ipvaRate: 0.025, nota: 'Alíquota SE (2,5%)' },
+      TO: { nome: 'Tocantins', licenciamento: 79.63, ipvaRate: 0.025, nota: 'Alíquota TO (2,5%)' }
+    };
+
     // State
     let activeStrategy = 'cashflow'; // 'cashflow', 'snowball', 'leverage'
     let currentStudent = null;
@@ -1078,22 +1242,33 @@
       tabSnowball: document.getElementById('tab-snowball'),
       tabLeverage: document.getElementById('tab-leverage'),
 
+      // Dynamic Headers
+      mainHeroTitle: document.getElementById('main-hero-title'),
+      chartTitle: document.getElementById('chart-title'),
+      dreTableTitle: document.getElementById('dre-table-title'),
+
       // Inputs
+      inputHorizon: document.getElementById('input-horizon'),
       inputCars: document.getElementById('input-cars'),
       badgeCars: document.getElementById('badge-cars'),
       inputCarVal: document.getElementById('input-car-val'),
+      inputFipeVal: document.getElementById('input-fipe-val'),
+      inputDeprecRate: document.getElementById('input-deprec-rate'),
       inputRent: document.getElementById('input-rent'),
       rentSubLabel: document.getElementById('rent-sub-label'),
       inputUpsellM1: document.getElementById('input-upsell-m1'),
+      inputUf: document.getElementById('input-uf'),
+      ufBadgeInfo: document.getElementById('uf-badge-info'),
+      inputIpva: document.getElementById('input-ipva'),
+      inputReserveFund: document.getElementById('input-reserve-fund'),
       inputTracker: document.getElementById('input-tracker'),
       inputInsurance: document.getElementById('input-insurance'),
       inputMaintM1: document.getElementById('input-maint-m1'),
       inputMaintRec: document.getElementById('input-maint-rec'),
       inputContabM1: document.getElementById('input-contab-m1'),
       inputContabRec: document.getElementById('input-contab-rec'),
-      inputIpva: document.getElementById('input-ipva'),
       inputTax: document.getElementById('input-tax'),
-      inputReserveFund: document.getElementById('input-reserve-fund'),
+      
       consorcioOptions: document.getElementById('consorcio-options'),
       inputConsLance: document.getElementById('input-cons-lance'),
       inputConsRate: document.getElementById('input-cons-rate'),
@@ -1103,9 +1278,13 @@
       kpiInvest: document.getElementById('kpi-invest'),
       kpiInvestSub: document.getElementById('kpi-invest-sub'),
       kpiFleet: document.getElementById('kpi-fleet'),
+      kpiFleetLabel: document.getElementById('kpi-fleet-label'),
       kpiFleetSub: document.getElementById('kpi-fleet-sub'),
       kpiCash: document.getElementById('kpi-cash'),
+      kpiCashSub: document.getElementById('kpi-cash-sub'),
       kpiLiquidation: document.getElementById('kpi-liquidation'),
+      kpiLiquidationLabel: document.getElementById('kpi-liquidation-label'),
+      kpiLiquidationSub: document.getElementById('kpi-liquidation-sub'),
       kpiEquity: document.getElementById('kpi-equity'),
       kpiRoi: document.getElementById('kpi-roi'),
       kpiRoiSub: document.getElementById('kpi-roi-sub'),
@@ -1119,6 +1298,8 @@
     // INITIALIZATION & AUTHENTICATION
     // ==========================================
     window.addEventListener('DOMContentLoaded', () => {
+      populateUfDropdown();
+
       // Check if student already authenticated
       const savedStudent = localStorage.getItem('pro_student');
       if (savedStudent) {
@@ -1131,9 +1312,20 @@
       }
 
       setupEvents();
-      buildDREHeader();
+      updateUfTax();
       recalculate();
     });
+
+    function populateUfDropdown() {
+      elements.inputUf.innerHTML = '';
+      for (const [sigla, data] of Object.entries(UF_TAX_DATA_2026)) {
+        const opt = document.createElement('option');
+        opt.value = sigla;
+        opt.textContent = `${sigla} - ${data.nome}`;
+        if (sigla === 'SP') opt.selected = true;
+        elements.inputUf.appendChild(opt);
+      }
+    }
 
     function setupEvents() {
       // Gate Events
@@ -1165,25 +1357,53 @@
         recalculate();
       });
 
+      // Horizon change
+      elements.inputHorizon.addEventListener('change', () => {
+        recalculate();
+      });
+
+      // UF change: recalculate IPVA/Licenciamento
+      elements.inputUf.addEventListener('change', () => {
+        updateUfTax();
+        recalculate();
+      });
+
+      // When FIPE changes, update IPVA
+      elements.inputFipeVal.addEventListener('input', () => {
+        updateUfTax();
+        recalculate();
+      });
+
       // Input changes
       const inputs = [
-        elements.inputCarVal, elements.inputRent, elements.inputUpsellM1,
+        elements.inputCarVal, elements.inputDeprecRate, elements.inputRent, 
+        elements.inputUpsellM1, elements.inputIpva, elements.inputReserveFund,
         elements.inputTracker, elements.inputInsurance, elements.inputMaintM1,
         elements.inputMaintRec, elements.inputContabM1, elements.inputContabRec,
-        elements.inputIpva, elements.inputTax, elements.inputReserveFund,
-        elements.inputConsLance, elements.inputConsRate, elements.inputConsRefund
+        elements.inputTax, elements.inputConsLance, elements.inputConsRate, elements.inputConsRefund
       ];
 
       inputs.forEach(inp => {
         inp.addEventListener('input', () => {
           if (inp === elements.inputRent) {
             const rentVal = parseFloat(elements.inputRent.value) || 0;
-            const weekVal = (rentVal / 4.2857).toFixed(0);
             elements.rentSubLabel.textContent = `Equivalente a R$ ${formatMoney(rentVal / 4.2857)} por semana`;
           }
           recalculate();
         });
       });
+    }
+
+    function updateUfTax() {
+      const uf = elements.inputUf.value || 'SP';
+      const ufData = UF_TAX_DATA_2026[uf] || UF_TAX_DATA_2026.SP;
+      const fipeVal = parseFloat(elements.inputFipeVal.value) || 50000;
+
+      const ipvaAnual = fipeVal * ufData.ipvaRate;
+      const mensalIpvaELicenc = (ipvaAnual + ufData.licenciamento) / 12;
+
+      elements.inputIpva.value = mensalIpvaELicenc.toFixed(2);
+      elements.ufBadgeInfo.textContent = `${uf}: Alíquota IPVA ${(ufData.ipvaRate * 100).toFixed(1)}% (R$ ${formatMoney(ipvaAnual)}/ano) + Licenc. R$ ${formatMoney(ufData.licenciamento)} = R$ ${formatMoney(mensalIpvaELicenc)}/mês/carro`;
     }
 
     async function handleRequestCode() {
@@ -1289,9 +1509,9 @@
       recalculate();
     }
 
-    function buildDREHeader() {
+    function buildDREHeader(totalMonths) {
       elements.dreHeaderRow.innerHTML = '<th>Linha Demonstrativo (DRE)</th>';
-      for (let m = 1; m <= 24; m++) {
+      for (let m = 1; m <= totalMonths; m++) {
         const th = document.createElement('th');
         th.textContent = `Mês ${m}`;
         elements.dreHeaderRow.appendChild(th);
@@ -1299,11 +1519,17 @@
     }
 
     // ==========================================
-    // CALCULATION ENGINE (REPLICATING THE SPREADSHEET)
+    // CALCULATION ENGINE
     // ==========================================
     function recalculate() {
+      const totalMonths = parseInt(elements.inputHorizon.value) || 24;
       const initialCars = parseInt(elements.inputCars.value) || 1;
-      const carVal = parseFloat(elements.inputCarVal.value) || 50000;
+      
+      // Separate Purchase vs FIPE
+      const carPurchaseVal = parseFloat(elements.inputCarVal.value) || 50000;
+      const fipeVal = parseFloat(elements.inputFipeVal.value) || 50000;
+      const annualDeprecRate = (parseFloat(elements.inputDeprecRate.value) || 8.0) / 100;
+
       const monthlyRentPerCar = parseFloat(elements.inputRent.value) || 3000;
       const upsellM1PerCar = parseFloat(elements.inputUpsellM1.value) || 1500;
       
@@ -1315,27 +1541,37 @@
       const contabRec = parseFloat(elements.inputContabRec.value) || 350;
       const ipvaPerCar = parseFloat(elements.inputIpva.value) || 58.33;
       const taxRate = (parseFloat(elements.inputTax.value) || 6.76) / 100;
-      const hasReserveFund = elements.inputReserveFund.checked;
-      const reserveFundPerCar = hasReserveFund ? 200 : 0;
+      const reserveFundPerCar = parseFloat(elements.inputReserveFund.value) || 0;
 
       // Consorcio Params
       const lancePerCard = parseFloat(elements.inputConsLance.value) || 15000;
       const consRate = (parseFloat(elements.inputConsRate.value) || 3.675) / 100;
       const consRefundRate = (parseFloat(elements.inputConsRefund.value) || 6) / 100;
 
-      // Projections for 24 months
+      // Update titles
+      elements.mainHeroTitle.textContent = `Simulação Executiva de Escala (${totalMonths} Meses)`;
+      elements.chartTitle.textContent = `Evolução Patrimonial ao Longo dos ${totalMonths} Meses`;
+      elements.dreTableTitle.textContent = `Demonstrativo de Resultados do Exercício (DRE) - ${totalMonths} Meses`;
+      elements.kpiFleetLabel.textContent = `Frota Final (${totalMonths} Meses)`;
+      elements.kpiCashSub.textContent = `Saldo em conta no mês ${totalMonths}`;
+
+      // Build Headers
+      buildDREHeader(totalMonths);
+
+      // Projections
       const monthData = [];
       let currentFleet = initialCars;
       let accumulatedCash = 0;
 
-      // For Snowball tracking of new car purchases
-      let purchasedCarsCount = 0;
+      // Snowball tracking of new car purchases: array of { monthBought, count }
+      const newPurchasedLots = [];
 
-      for (let m = 1; m <= 24; m++) {
+      for (let m = 1; m <= totalMonths; m++) {
         const isM1 = (m === 1);
         
         // 1. REVENUE
         const grossRent = currentFleet * monthlyRentPerCar;
+        // Mês 1: Caução de entrada. Mês 2+: 10% receitas extras (multas ressarcidas, upsell km, quebras de contrato)
         const grossUpsell = isM1 ? (currentFleet * upsellM1PerCar) : (grossRent * 0.10);
         const totalRevenue = grossRent + grossUpsell;
 
@@ -1355,7 +1591,7 @@
         let costReserve = currentFleet * reserveFundPerCar;
         let costConsorcio = 0;
         if (activeStrategy === 'leverage') {
-          costConsorcio = (carVal * consRate) * initialCars;
+          costConsorcio = (carPurchaseVal * consRate) * initialCars;
         }
         const totalNonOpExpenses = costReserve + costConsorcio;
 
@@ -1368,13 +1604,13 @@
 
         if (activeStrategy === 'snowball') {
           const cashBeforeReinvest = accumulatedCash + netProfit;
-          if (cashBeforeReinvest >= carVal) {
-            newCarsBoughtThisMonth = Math.floor(cashBeforeReinvest / carVal);
-            reinvestment = newCarsBoughtThisMonth * carVal;
+          if (cashBeforeReinvest >= carPurchaseVal) {
+            newCarsBoughtThisMonth = Math.floor(cashBeforeReinvest / carPurchaseVal);
+            reinvestment = newCarsBoughtThisMonth * carPurchaseVal;
+            newPurchasedLots.push({ month: m, count: newCarsBoughtThisMonth });
           }
           accumulatedCash = cashBeforeReinvest - reinvestment;
           currentFleet += newCarsBoughtThisMonth;
-          purchasedCarsCount += newCarsBoughtThisMonth;
         } else {
           accumulatedCash += netProfit;
         }
@@ -1403,32 +1639,46 @@
         });
       }
 
-      // 7. EXECUTIVE METRICS & LIQUIDATION (MONTH 24)
+      // 7. EXECUTIVE METRICS & LIQUIDATION (FIPE - DEPRECIAÇÃO)
+      const horizonYears = totalMonths / 12;
+      // Formula de depreciacao composta anual sobre o valor FIPE
+      const factorDeprecTotal = Math.pow(1 - annualDeprecRate, horizonYears);
+
       let initialInvestment = 0;
       let fleetLiquidationVal = 0;
       let finalFleetCount = initialCars;
       let consorcioRefund = 0;
 
-      const depreciation2Years = 1 - 0.1536; // 8% a.a. after 2 years
-      const depreciation1Year = 1 - 0.08;   // average depreciation for reinvested cars
-
       if (activeStrategy === 'cashflow') {
-        initialInvestment = initialCars * carVal;
-        fleetLiquidationVal = initialCars * carVal * depreciation2Years;
+        initialInvestment = initialCars * carPurchaseVal;
+        // Liquidação é sobre o valor FIPE
+        fleetLiquidationVal = initialCars * fipeVal * factorDeprecTotal;
         finalFleetCount = initialCars;
       } else if (activeStrategy === 'snowball') {
-        initialInvestment = initialCars * carVal;
+        initialInvestment = initialCars * carPurchaseVal;
         finalFleetCount = currentFleet;
-        // Spreadsheet formula: E10*(1-15.36%)+((H6-C6)*(50000)*(1-8%))
-        fleetLiquidationVal = (initialCars * carVal * depreciation2Years) + (purchasedCarsCount * carVal * depreciation1Year);
+        
+        // Initial fleet depreciates full horizon
+        let initialFleetLiq = initialCars * fipeVal * factorDeprecTotal;
+        
+        // Reinvested cars depreciate according to remaining months in fleet
+        let reinvestedLiq = 0;
+        newPurchasedLots.forEach(lot => {
+          const monthsInFleet = totalMonths - lot.month;
+          const yearsInFleet = Math.max(0, monthsInFleet / 12);
+          const factor = Math.pow(1 - annualDeprecRate, yearsInFleet);
+          reinvestedLiq += lot.count * fipeVal * factor;
+        });
+
+        fleetLiquidationVal = initialFleetLiq + reinvestedLiq;
       } else if (activeStrategy === 'leverage') {
         initialInvestment = initialCars * lancePerCard;
-        fleetLiquidationVal = initialCars * carVal * depreciation2Years;
-        consorcioRefund = (carVal * consRefundRate) * initialCars;
+        fleetLiquidationVal = initialCars * fipeVal * factorDeprecTotal;
+        consorcioRefund = (fipeVal * consRefundRate) * initialCars;
         finalFleetCount = initialCars;
       }
 
-      const finalCash = monthData[23].accumulatedCash;
+      const finalCash = monthData[totalMonths - 1].accumulatedCash;
       const accumulatedEquity = finalCash + fleetLiquidationVal + consorcioRefund;
       const totalNetProfit = accumulatedEquity - initialInvestment;
       const roiPercent = (totalNetProfit / initialInvestment) * 100;
@@ -1437,15 +1687,18 @@
       elements.kpiInvest.textContent = formatCurrency(initialInvestment);
       elements.kpiInvestSub.textContent = (activeStrategy === 'leverage') 
         ? `${initialCars} cotas com lance de ${formatCurrency(lancePerCard)}`
-        : `${initialCars} veículos de ${formatCurrency(carVal)}`;
+        : `${initialCars} veículos &bull; R$ ${formatMoney(carPurchaseVal)}/carro`;
 
       elements.kpiFleet.textContent = `${finalFleetCount} Carros`;
       elements.kpiFleetSub.textContent = (activeStrategy === 'snowball')
         ? `Cresceu de ${initialCars} para ${finalFleetCount} veículos`
-        : `Frota mantida nos 24 meses`;
+        : `Frota constante nos ${totalMonths} meses`;
 
       elements.kpiCash.textContent = formatCurrency(finalCash);
       elements.kpiLiquidation.textContent = formatCurrency(fleetLiquidationVal);
+      elements.kpiLiquidationLabel.textContent = `Venda Frota (-${(annualDeprecRate * 100).toFixed(0)}% a.a.)`;
+      elements.kpiLiquidationSub.textContent = `Calculada sobre a FIPE (R$ ${formatMoney(fipeVal)})`;
+
       elements.kpiEquity.textContent = formatCurrency(accumulatedEquity);
       
       elements.kpiRoi.textContent = `${roiPercent.toFixed(1)}%`;
@@ -1455,7 +1708,7 @@
       renderDRETable(monthData);
 
       // 10. RENDER CHART
-      renderEquityChart(monthData, carVal, depreciation2Years);
+      renderEquityChart(monthData, fipeVal, annualDeprecRate);
     }
 
     // ==========================================
@@ -1468,7 +1721,13 @@
         { label: 'Frota de Carros Ativa', key: 'fleet', isInt: true, isHeader: true },
         { label: '(+) Receita Bruta Total', key: 'totalRevenue', isMoney: true, isHighlight: true },
         { label: '    (+) Aluguel de Carros', key: 'grossRent', isMoney: true },
-        { label: '    (+) Up Sell / Caução', key: 'grossUpsell', isMoney: true },
+        { 
+          label: '    (+) Up Sell / Caução', 
+          key: 'grossUpsell', 
+          isMoney: true,
+          hasTooltip: true,
+          tooltipText: 'Reflete o caução no Mês 1 e 10% de receitas adicionais recorrentes nos demais meses (multas de trânsito ressarcidas, taxas de adesão, upsell de km e quebras de contrato).'
+        },
         { label: '(-) Despesas Operacionais', key: 'totalOpExpenses', isMoney: true, isDanger: true },
         { label: '    (-) Rastreador', key: 'costTracker', isMoney: true },
         { label: '    (-) Seguro', key: 'costInsurance', isMoney: true },
@@ -1500,7 +1759,18 @@
         if (cfg.isHighlight) tr.className = 'tr-highlight';
         if (cfg.isAccumulated) tr.className = 'tr-accumulated';
 
-        let html = `<td>${cfg.label}</td>`;
+        let labelHtml = cfg.label;
+        if (cfg.hasTooltip) {
+          labelHtml = `
+            <span class="has-tooltip">
+              <span>${cfg.label}</span>
+              <span class="tooltip-icon">i</span>
+              <span class="tooltip-bubble">${cfg.tooltipText}</span>
+            </span>
+          `;
+        }
+
+        let html = `<td>${labelHtml}</td>`;
         data.forEach(m => {
           const val = m[cfg.key];
           let formattedVal = '';
@@ -1521,10 +1791,16 @@
     // ==========================================
     // CHART.JS VISUAL ENGINE
     // ==========================================
-    function renderEquityChart(monthData, carVal, depRate) {
+    function renderEquityChart(monthData, fipeVal, annualDeprecRate) {
       const labels = monthData.map(m => `Mês ${m.month}`);
       const cashData = monthData.map(m => m.accumulatedCash);
-      const fleetValueData = monthData.map(m => m.fleet * carVal * depRate);
+      
+      const fleetValueData = monthData.map(m => {
+        const years = m.month / 12;
+        const depFactor = Math.pow(1 - annualDeprecRate, years);
+        return m.fleet * fipeVal * depFactor;
+      });
+
       const totalEquityData = monthData.map((m, idx) => cashData[idx] + fleetValueData[idx]);
 
       const ctx = document.getElementById('equityChart').getContext('2d');
@@ -1558,7 +1834,7 @@
               pointRadius: 2
             },
             {
-              label: 'Valor da Frota Ativa (R$)',
+              label: 'Valor da Frota (FIPE c/ Depreciação)',
               data: fleetValueData,
               borderColor: '#F59E0B',
               backgroundColor: 'transparent',
