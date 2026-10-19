@@ -462,10 +462,10 @@
     <!-- TABS NAVIGATION -->
     <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
       <button type="button" id="tab-btn-leads" class="btn-secondary" style="background: rgba(0, 242, 254, 0.15); border-color: var(--accent-primary); color: #FFF; font-weight: 700;">
-        👥 Leads do Simulador Gratuito
+        Leads do Simulador Gratuito
       </button>
       <button type="button" id="tab-btn-students" class="btn-secondary" style="font-weight: 700;">
-        👑 Alunos Mentoria (Módulo PRO)
+        Alunos Mentoria (Módulo PRO)
       </button>
     </div>
 
@@ -542,7 +542,7 @@
       <!-- ADD NEW STUDENT CARD -->
       <div class="table-card" style="margin-bottom: 24px; border-left: 4px solid #34D399;">
         <h3 style="font-size: 16px; margin-bottom: 12px; color: #FFF; display: flex; align-items: center; gap: 8px;">
-          <span>➕</span> Cadastrar / Autorizar Novo Aluno da Mentoria
+          Cadastrar / Autorizar Novo Aluno da Mentoria
         </h3>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
           Ao cadastrar o e-mail, o sistema gera o código de acesso PRO e envia automaticamente para o e-mail do aluno.
@@ -737,7 +737,7 @@
           elements.addStudentFeedback.style.background = 'rgba(52, 211, 153, 0.15)';
           elements.addStudentFeedback.style.border = '1px solid rgba(52, 211, 153, 0.3)';
           elements.addStudentFeedback.style.color = '#34D399';
-          elements.addStudentFeedback.textContent = '✅ Aluno cadastrado e código enviado com sucesso por e-mail!';
+          elements.addStudentFeedback.textContent = 'Aluno cadastrado e código enviado com sucesso por e-mail!';
           elements.newStudentName.value = '';
           elements.newStudentEmail.value = '';
           elements.newStudentPhone.value = '';
@@ -747,7 +747,7 @@
           elements.addStudentFeedback.style.background = 'rgba(239, 68, 68, 0.15)';
           elements.addStudentFeedback.style.border = '1px solid rgba(239, 68, 68, 0.3)';
           elements.addStudentFeedback.style.color = '#EF4444';
-          elements.addStudentFeedback.textContent = '❌ ' + (data.error || 'Erro ao cadastrar aluno.');
+          elements.addStudentFeedback.textContent = data.error || 'Erro ao cadastrar aluno.';
         }
       } catch (err) {
         alert('Erro ao conectar ao servidor para cadastrar aluno.');
@@ -883,18 +883,18 @@
         }
 
         row.innerHTML = `
-          <td class="td-name">👑 ${escapeHTML(std.name)}</td>
+          <td class="td-name">${escapeHTML(std.name)}</td>
           <td>${escapeHTML(std.email)}</td>
           <td>${escapeHTML(std.phone || '-')}</td>
           <td><code style="background: rgba(0, 242, 254, 0.1); color: #00F2FE; padding: 4px 8px; border-radius: 4px; font-weight: 700;">${escapeHTML(std.accessCode || '-')}</code></td>
           <td class="td-date">${formattedDate}</td>
           <td class="td-date">${formattedLastAccess}</td>
           <td style="text-align: right; white-space: nowrap;">
-            <button class="btn-secondary" style="display: inline-flex; padding: 6px 10px; font-size: 11px; margin-right: 6px;" onclick="resendCode('${escapeHTML(std.email)}')">
-              ✉️ Reenviar
+            <button class="btn-secondary" style="display: inline-flex; padding: 6px 12px; font-size: 11px; margin-right: 6px;" onclick="resendCode('${escapeHTML(std.email)}')">
+              Reenviar
             </button>
-            <button class="btn-secondary btn-logout" style="display: inline-flex; padding: 6px 10px; font-size: 11px;" onclick="removeStudent('${escapeHTML(std.email)}')">
-              🗑️ Excluir
+            <button class="btn-secondary btn-logout" style="display: inline-flex; padding: 6px 12px; font-size: 11px;" onclick="removeStudent('${escapeHTML(std.email)}')">
+              Excluir
             </button>
           </td>
         `;

@@ -835,7 +835,7 @@
       <div style="text-align: center; margin-bottom: 16px;">
         <img src="/logo.png" alt="Locador Nômade" style="width: 68px; height: 68px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 25px rgba(245, 158, 11, 0.35); display: inline-block;">
       </div>
-      <span class="gate-badge">🔒 Acesso Exclusivo &bull; Mentoria</span>
+      <span class="gate-badge">Acesso Exclusivo &bull; Mentoria</span>
       <h2>Módulo PRO</h2>
       <p>Simulador Estratégico de Escala de Frotas, Projeção Multi-Períodos e Alavancagem.</p>
 
@@ -913,7 +913,7 @@
         </button>
 
         <div class="student-badge" id="student-header-badge">
-          <div class="avatar-icon">👑</div>
+          <div class="avatar-icon">PRO</div>
           <span id="student-header-name">Aluno Mentoria</span>
           <button id="btn-logout-pro" title="Sair do Módulo PRO" style="background: none; border: none; color: var(--color-danger); cursor: pointer; margin-left: 6px; display: flex;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -941,13 +941,13 @@
     <!-- Strategy Selector Tabs -->
     <div class="strategy-tabs">
       <button type="button" class="tab-btn active" id="tab-cashflow">
-        📈 1. DRE Locadora (Fluxo de Caixa)
+        1. DRE Locadora (Fluxo de Caixa)
       </button>
       <button type="button" class="tab-btn tab-snowball" id="tab-snowball">
-        🚀 2. DRE Reinvestindo (Bola de Neve)
+        2. DRE Reinvestindo (Bola de Neve)
       </button>
       <button type="button" class="tab-btn tab-leverage" id="tab-leverage">
-        ⚡ 3. DRE Alavancagem (Consórcio)
+        3. DRE Alavancagem (Consórcio)
       </button>
     </div>
 
@@ -957,7 +957,7 @@
       <!-- CONTROLS SIDEBAR -->
       <div class="sidebar-card">
         <h3 class="sidebar-title">
-          <span>⚙️</span> Parâmetros da Simulação
+          Parâmetros da Simulação
         </h3>
 
         <!-- ====================================================================
@@ -965,7 +965,7 @@
              ==================================================================== -->
         <div id="consorcio-top-panel" style="display: none; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: var(--radius-sm); padding: 18px; margin-bottom: 22px;">
           <h4 style="font-size: 13.5px; font-weight: 800; color: #C4B5FD; margin-bottom: 12px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
-            <span>⚡</span> 1. Dados da Carta de Consórcio
+            1. Dados da Carta de Consórcio
           </h4>
 
           <!-- Valor da Carta Real -->
@@ -1235,7 +1235,6 @@
           <div class="kpi-card">
             <div class="kpi-header">
               <span class="kpi-label">Investimento Inicial</span>
-              <span>💼</span>
             </div>
             <div class="kpi-value" id="kpi-invest">R$ 200.000</div>
             <div class="kpi-sub" id="kpi-invest-sub">4 veículos &bull; R$ 50.000/carro</div>
@@ -1244,7 +1243,6 @@
           <div class="kpi-card">
             <div class="kpi-header">
               <span class="kpi-label" id="kpi-fleet-label">Frota Final (24 Meses)</span>
-              <span>🚗</span>
             </div>
             <div class="kpi-value" id="kpi-fleet" style="color: var(--accent-cyan);">4 Carros</div>
             <div class="kpi-sub" id="kpi-fleet-sub">Operação padrão</div>
@@ -1253,7 +1251,6 @@
           <div class="kpi-card">
             <div class="kpi-header">
               <span class="kpi-label">Caixa Líquido Acumulado</span>
-              <span>💵</span>
             </div>
             <div class="kpi-value" id="kpi-cash" style="color: #34D399;">R$ 258.448</div>
             <div class="kpi-sub" id="kpi-cash-sub">Saldo em conta no final do período</div>
@@ -1262,7 +1259,6 @@
           <div class="kpi-card">
             <div class="kpi-header">
               <span class="kpi-label" id="kpi-liquidation-label">Venda Frota (FIPE - Deprec.)</span>
-              <span>🏷️</span>
             </div>
             <div class="kpi-value" id="kpi-liquidation">R$ 169.280</div>
             <div class="kpi-sub" id="kpi-liquidation-sub">Depreciação sobre a tabela FIPE</div>
@@ -1271,7 +1267,6 @@
           <div class="kpi-card highlight">
             <div class="kpi-header">
               <span class="kpi-label" style="color: #34D399; font-weight: 800;">Patrimônio Acumulado</span>
-              <span>👑</span>
             </div>
             <div class="kpi-value" id="kpi-equity" style="color: #34D399;">R$ 427.728</div>
             <div class="kpi-sub">Caixa + Valor dos Veículos</div>
@@ -1280,7 +1275,6 @@
           <div class="kpi-card gold">
             <div class="kpi-header">
               <span class="kpi-label" style="color: #FBBF24; font-weight: 800;">Retorno s/ Invest. (ROI)</span>
-              <span>🚀</span>
             </div>
             <div class="kpi-value" id="kpi-roi" style="color: #FBBF24;">113,8%</div>
             <div class="kpi-sub" id="kpi-roi-sub">Lucro Líquido: R$ 227.728</div>
@@ -1289,7 +1283,6 @@
           <div class="kpi-card cyan">
             <div class="kpi-header">
               <span class="kpi-label" style="color: var(--accent-cyan); font-weight: 800;">ROI Mensal Médio</span>
-              <span>📈</span>
             </div>
             <div class="kpi-value" id="kpi-roi-month" style="color: var(--accent-cyan);">4,74% a.m.</div>
             <div class="kpi-sub" id="kpi-roi-month-sub">Média de R$ 9.488 / mês</div>
@@ -1298,7 +1291,6 @@
           <div class="kpi-card purple">
             <div class="kpi-header">
               <span class="kpi-label" style="color: #A78BFA; font-weight: 800;">Payback Estimado</span>
-              <span>⏱️</span>
             </div>
             <div class="kpi-value" id="kpi-payback" style="color: #A78BFA;">19 Meses</div>
             <div class="kpi-sub" id="kpi-payback-sub">Recuperação via lucro da operação</div>
@@ -1352,7 +1344,7 @@
     <!-- ATHOS FLEET FOOTER PROMO -->
     <div class="athos-promo-banner">
       <div class="athos-info">
-        <h3>🚀 Gerencie sua Frota com o Sistema Oficial Athos Fleet</h3>
+        <h3>Gerencie sua Frota com o Sistema Oficial Athos Fleet</h3>
         <p>
           Monitore contratos de locação, manutenções preventivas, cobranças automatizadas e relatórios DRE em tempo real. Teste gratuito por 7 dias para alunos da mentoria.
         </p>

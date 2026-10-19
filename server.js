@@ -251,7 +251,7 @@ async function sendProStudentCodeEmail(studentEmail, studentName, accessCode) {
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER || '"LOCADOR NÔMADE PRO" <adm@locadornomade.com>',
       to: studentEmail,
-      subject: `🔑 Seu Código de Acesso PRO: ${accessCode} - Mentoria LOCADOR NÔMADE`,
+      subject: `Seu Código de Acesso PRO: ${accessCode} - Mentoria LOCADOR NÔMADE`,
       html: emailHtml
     };
 
@@ -409,7 +409,7 @@ async function sendWelcomeEmail(userEmail, userName) {
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER || '"LOCADOR NÔMADE" <noreply@locadornomade.com.br>',
       to: userEmail,
-      subject: '🚗 Conta Criada com Sucesso - LOCADOR NÔMADE',
+      subject: 'Conta Criada com Sucesso - LOCADOR NÔMADE',
       html: emailHtml
     };
 
@@ -422,7 +422,7 @@ async function sendWelcomeEmail(userEmail, userName) {
     // Ethereal provides a direct preview link
     const previewUrl = nodemailer.getTestMessageUrl(info);
     console.log(`LINK DE PREVISÃO DO E-MAIL (CLIQUE PARA VER):`);
-    console.log(`👉 ${previewUrl}`);
+    console.log(`[PREVIEW URL]: ${previewUrl}`);
     console.log(`======================================================\n`);
 
     return previewUrl;
