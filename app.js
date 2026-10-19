@@ -23,6 +23,7 @@ const state = {
     valorPago: 0,
     historicoDepreciacaoMensal: 0,
     historicoDepreciacaoTotal: 0,
+    historicoDepreciacaoTaxaAnual: 0,
     historicoMeses: 0,
     isManual: false,
     isLeveraged: false,
@@ -1301,6 +1302,7 @@ function bindEvents() {
         state.vehicle.valorFipe = parsedVal;
         state.vehicle.historicoDepreciacaoMensal = priceDetails.historicoDepreciacaoMensalNum || 0;
         state.vehicle.historicoDepreciacaoTotal = priceDetails.historicoDepreciacaoTotalNum || 0;
+        state.vehicle.historicoDepreciacaoTaxaAnual = priceDetails.historicoTaxaAnualNum || 0;
         state.vehicle.historicoMeses = priceDetails.historicoMeses || 0;
 
         // Reset auto-calculated Caução (2.7% FIPE), Seguro (0.34% FIPE) & Depreciação flags when a new vehicle is selected
@@ -1982,6 +1984,7 @@ function resetSimulationState() {
     valorPago: 0,
     historicoDepreciacaoMensal: 0,
     historicoDepreciacaoTotal: 0,
+    historicoDepreciacaoTaxaAnual: 0,
     historicoMeses: 0,
     isManual: false,
     isLeveraged: false,
@@ -2275,11 +2278,9 @@ function updateManualDepreciationPercentageUI() {
 
 function updateHistoricoDeprecBtnLabel() {
   if (!elements.btnDeprecHistorico) return;
-  const valorFipe = state.vehicle.valorFipe || utils.parseCurrency(elements.valorFipeInput.value) || 0;
-  const histMensal = state.vehicle.historicoDepreciacaoMensal || 0;
-  if (histMensal > 0 && valorFipe > 0) {
-    const annualRate = (histMensal * 12) / valorFipe;
-    elements.btnDeprecHistorico.textContent = `Média 2 Anos (${utils.formatPercent(annualRate)})`;
+  const rate = state.vehicle.historicoDepreciacaoTaxaAnual || 0;
+  if (rate > 0) {
+    elements.btnDeprecHistorico.textContent = `Média 2 Anos (${utils.formatPercent(rate)})`;
   } else {
     elements.btnDeprecHistorico.textContent = 'Média 2 Anos FIPE';
   }
@@ -2287,8 +2288,8 @@ function updateHistoricoDeprecBtnLabel() {
 
 function applyHistoricoDepreciationUI() {
   const valorFipe = utils.parseCurrency(elements.valorFipeInput.value) || state.vehicle.valorFipe || 0;
-  const histMensal = state.vehicle.historicoDepreciacaoMensal || 0;
-  const annualRate = valorFipe > 0 ? (histMensal * 12) / valorFipe : 0;
+  const rate = state.vehicle.historicoDepreciacaoTaxaAnual || 0;
+  const deprecMensal = (valorFipe * rate) / 12;
 
   if (elements.btnDeprecHistorico) elements.btnDeprecHistorico.classList.add('active');
   if (elements.btnDeprec5pct) elements.btnDeprec5pct.classList.remove('active');
@@ -2298,12 +2299,12 @@ function applyHistoricoDepreciationUI() {
     elements.btnDeprecManual.textContent = 'Manual';
   }
 
-  elements.costDepreciacao.value = utils.formatCurrency(histMensal);
-  state.costs.depreciacaoMensal = histMensal;
+  elements.costDepreciacao.value = utils.formatCurrency(deprecMensal);
+  state.costs.depreciacaoMensal = deprecMensal;
 
   if (elements.deprecOriginTag) {
-    if (histMensal > 0) {
-      elements.deprecOriginTag.textContent = `Média 2 Anos FIPE: ${utils.formatPercent(annualRate)} ao ano (${utils.formatCurrency(histMensal)}/mês)`;
+    if (rate > 0) {
+      elements.deprecOriginTag.textContent = `Média 2 Anos FIPE: ${utils.formatPercent(rate)} ao ano (${utils.formatCurrency(deprecMensal)}/mês)`;
     } else {
       elements.deprecOriginTag.textContent = `Média 2 Anos FIPE: 0,00% ao ano (sem desvalorização apurada)`;
     }

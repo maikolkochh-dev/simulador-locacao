@@ -267,6 +267,14 @@ export const fipeService = {
             maximumFractionDigits: 1
           }).format(Math.abs(diffPctVal)) + '%';
 
+          // Taxa anualizada média baseada no percentual exibido nos últimos X meses (ex: 9,3% em 2 anos = 4,65% ao ano)
+          let deprecTaxaAnualNum = 0;
+          const yearsDiff = monthsDiff > 0 ? (monthsDiff / 12) : 2;
+          if (diffCents > 0 && yearsDiff > 0) {
+            const totalPctRounded = parseFloat(Math.abs(diffPctVal).toFixed(1));
+            deprecTaxaAnualNum = (totalPctRounded / yearsDiff) / 100;
+          }
+
           if (diffCents >= 0) {
             deprecBrl = absDiffFormatted;
             deprecPct = pctFormatted;
@@ -296,6 +304,7 @@ export const fipeService = {
         historicoTipo: deprecTipo,
         historicoDepreciacaoMensalNum: deprecMensalNum,
         historicoDepreciacaoTotalNum: deprecTotalNum,
+        historicoTaxaAnualNum: deprecTaxaAnualNum,
         historicoMeses: deprecMesesNum
       };
 
