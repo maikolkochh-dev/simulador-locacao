@@ -3,8 +3,8 @@
  * Manages state, wizard steps, input formatting masks, and visual outputs.
  */
 
-import { fipeService } from './fipeService.js?v=20261019d';
-import { simulationService } from './simulationService.js?v=20261019d';
+import { fipeService } from './fipeService.js?v=20261019g';
+import { simulationService } from './simulationService.js?v=20261019g';
 
 // ==========================================================================
 // APPLICATION STATE
@@ -216,6 +216,7 @@ const elements = {
   costDepreciacao: document.getElementById('cost-depreciacao'),
   deprecOriginTag: document.getElementById('deprec-origin-tag'),
   deprecHelperText: document.getElementById('deprec-helper-text'),
+  btnDeprecHistorico: document.getElementById('btn-deprec-historico'),
   btnDeprec5pct: document.getElementById('btn-deprec-5pct'),
   btnDeprec10pct: document.getElementById('btn-deprec-10pct'),
   btnDeprecManual: document.getElementById('btn-deprec-manual'),
@@ -1480,8 +1481,9 @@ function bindEvents() {
   elements.btnLandingStart.addEventListener('click', startSimulation);
   elements.btnLandingStartBanner.addEventListener('click', startSimulation);
 
-  // Step 4: Depreciation Buttons (5% ao ano, 10% ao ano, Manual)
+  // Step 4: Depreciation Buttons (Média 2 Anos FIPE, 5% ao ano, 10% ao ano, Manual)
   const allDeprecBtns = [
+    elements.btnDeprecHistorico,
     elements.btnDeprec5pct,
     elements.btnDeprec10pct,
     elements.btnDeprecManual
@@ -1500,6 +1502,13 @@ function bindEvents() {
         updateManualDepreciationPercentageUI();
         elements.costDepreciacao.focus();
         elements.costDepreciacao.select();
+      } else if (multAttr === 'historico') {
+        state.costs.deprecMultiplier = 'historico';
+        state.costs.deprecFipeAnnualRate = null;
+        if (elements.btnDeprecManual) {
+          elements.btnDeprecManual.textContent = 'Manual';
+        }
+        applyHistoricoDepreciationUI();
       } else if (rateFipeAttr) {
         const rate = parseFloat(rateFipeAttr) || 0.05;
         state.costs.deprecMultiplier = 'rate-fipe';
@@ -2037,6 +2046,7 @@ function resetSimulationState() {
   if (elements.taxPreviewTag) elements.taxPreviewTag.style.display = 'none';
 
   const deprecBtns = [
+    elements.btnDeprecHistorico,
     elements.btnDeprec5pct,
     elements.btnDeprec10pct,
     elements.btnDeprecManual
@@ -2046,6 +2056,9 @@ function resetSimulationState() {
   });
   if (elements.btnDeprecManual) {
     elements.btnDeprecManual.textContent = 'Manual';
+  }
+  if (elements.btnDeprecHistorico) {
+    elements.btnDeprecHistorico.textContent = 'Média 2 Anos FIPE';
   }
 
   elements.fipeManualToggle.checked = false;
@@ -2260,16 +2273,60 @@ function updateManualDepreciationPercentageUI() {
   }
 }
 
+function updateHistoricoDeprecBtnLabel() {
+  if (!elements.btnDeprecHistorico) return;
+  const valorFipe = state.vehicle.valorFipe || utils.parseCurrency(elements.valorFipeInput.value) || 0;
+  const histMensal = state.vehicle.historicoDepreciacaoMensal || 0;
+  if (histMensal > 0 && valorFipe > 0) {
+    const annualRate = (histMensal * 12) / valorFipe;
+    elements.btnDeprecHistorico.textContent = `Média 2 Anos (${utils.formatPercent(annualRate)})`;
+  } else {
+    elements.btnDeprecHistorico.textContent = 'Média 2 Anos FIPE';
+  }
+}
+
+function applyHistoricoDepreciationUI() {
+  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value) || state.vehicle.valorFipe || 0;
+  const histMensal = state.vehicle.historicoDepreciacaoMensal || 0;
+  const annualRate = valorFipe > 0 ? (histMensal * 12) / valorFipe : 0;
+
+  if (elements.btnDeprecHistorico) elements.btnDeprecHistorico.classList.add('active');
+  if (elements.btnDeprec5pct) elements.btnDeprec5pct.classList.remove('active');
+  if (elements.btnDeprec10pct) elements.btnDeprec10pct.classList.remove('active');
+  if (elements.btnDeprecManual) {
+    elements.btnDeprecManual.classList.remove('active');
+    elements.btnDeprecManual.textContent = 'Manual';
+  }
+
+  elements.costDepreciacao.value = utils.formatCurrency(histMensal);
+  state.costs.depreciacaoMensal = histMensal;
+
+  if (elements.deprecOriginTag) {
+    if (histMensal > 0) {
+      elements.deprecOriginTag.textContent = `Média 2 Anos FIPE: ${utils.formatPercent(annualRate)} ao ano (${utils.formatCurrency(histMensal)}/mês)`;
+    } else {
+      elements.deprecOriginTag.textContent = `Média 2 Anos FIPE: 0,00% ao ano (sem desvalorização apurada)`;
+    }
+  }
+}
+
 /**
  * MANDATORY RULE: Depreciation is ALWAYS calculated over the vehicle's FIPE value (`valorFipe`),
  * NEVER over the purchase price paid (`valorPago`).
- * Supports 3 modes: 5% ao ano, 10% ao ano, or Manual (showing live % over FIPE).
+ * Supports modes: Média 2 Anos FIPE, 5% ao ano, 10% ao ano, or Manual (showing live % over FIPE).
  */
 function recalculateDepreciationFromFirstScreen() {
+  updateHistoricoDeprecBtnLabel();
+
   const valorFipe = utils.parseCurrency(elements.valorFipeInput.value) || state.vehicle.valorFipe || 0;
 
   if (state.costs.deprecMultiplier === 'manual') {
     updateManualDepreciationPercentageUI();
+    return;
+  }
+
+  if (state.costs.deprecMultiplier === 'historico') {
+    applyHistoricoDepreciationUI();
     return;
   }
 
@@ -2278,6 +2335,9 @@ function recalculateDepreciationFromFirstScreen() {
 
   if (elements.btnDeprecManual) {
     elements.btnDeprecManual.textContent = 'Manual';
+  }
+  if (elements.btnDeprecHistorico) {
+    elements.btnDeprecHistorico.classList.remove('active');
   }
   if (elements.btnDeprec5pct && elements.btnDeprec10pct) {
     elements.btnDeprec5pct.classList.toggle('active', Math.abs(rate - 0.05) < 0.001);
@@ -2614,50 +2674,71 @@ function runCalculationsAndRender(options = {}) {
   }
 
   // =========================================================================
-  // MARCADORES DE RETORNO (ROI, PAYBACK, ROI NO PERÍODO, MARGEM)
+  // MARCADORES DE RETORNO (ROI DA OPERAÇÃO COMPLETA, GANHO LÍQUIDO, PAYBACK, MARGEM)
+  // Fórmula do ROI: (1. Lucro Operacional no Período + 2. Valor de Venda do Veículo - Quitação - 3. Investimento Inicial)
   // =========================================================================
   if (results.semCapitalProprioInicial) {
-    if (elements.kpiRoiLabel) elements.kpiRoiLabel.textContent = 'ROI MENSAL (100% FINANCIADO • SEM ENTRADA)';
-    if (elements.kpiRoiMensal) elements.kpiRoiMensal.textContent = 'Sem Entrada';
+    if (elements.kpiRoiLabel) {
+      elements.kpiRoiLabel.textContent = `GANHO LÍQUIDO EM ${hSel.meses} MESES (100% FINANCIADO • SEM ENTRADA)`;
+    }
+    if (elements.kpiRoiMensal) {
+      elements.kpiRoiMensal.textContent = utils.formatCurrency(hSel.ganhoLiquidoSobreCapitalInicial);
+    }
     if (elements.kpiRoiAnual) {
-      elements.kpiRoiAnual.textContent = `Lucro líquido de ${utils.formatCurrency(results.lucroOperacionalMensal)}/mês sem capital inicial`;
+      elements.kpiRoiAnual.textContent =
+        `Lucro (${utils.formatCurrency(hSel.lucroOperacionalAcumulado)}) + Venda (${utils.formatCurrency(hSel.valorVendaVeiculo)})${hSel.valorQuitacao > 0 ? ` - Quitação (${utils.formatCurrency(hSel.valorQuitacao)})` : ''} • R$ 0 investido`;
     }
     if (elements.kpiPayback) elements.kpiPayback.textContent = 'Imediato (R$ 0 entrada)';
     if (elements.kpiPaybackSubtext) {
       elements.kpiPaybackSubtext.textContent = `Financiamento pago pelo próprio fluxo da locação (${results.inputs.qtdParcelas}x)`;
     }
     if (elements.kpiRoiPeriodo) {
-      elements.kpiRoiPeriodo.textContent = utils.formatCurrency(hSel.resultadoLiquidoAposQuitacao);
+      elements.kpiRoiPeriodo.textContent = `${utils.formatCurrency(hSel.ganhoLiquidoSobreCapitalInicial / hSel.meses)}/mês`;
     }
     if (elements.kpiRoiPeriodoSub) {
-      elements.kpiRoiPeriodoSub.textContent = `Ganho líquido acumulado + venda em ${hSel.meses} meses`;
+      elements.kpiRoiPeriodoSub.textContent = `Média mensal líquida (Lucro + Venda do Carro) em ${hSel.meses} meses sem capital inicial`;
     }
   } else {
-    if (elements.kpiRoiLabel) {
-      elements.kpiRoiLabel.textContent = results.isLeveraged
-        ? `ROI OPERACIONAL (SOBRE ENTRADA DE ${utils.formatCurrency(results.capitalProprioInicial)})`
-        : `ROI OPERACIONAL (SOBRE COMPRA DE ${utils.formatCurrency(results.capitalProprioInicial)})`;
-    }
-    if (elements.kpiRoiMensal) elements.kpiRoiMensal.textContent = `${utils.formatPercent(results.roiMensal)} a.m.`;
-    if (elements.kpiRoiAnual) elements.kpiRoiAnual.textContent = `${utils.formatPercent(results.roiAnual)} ao ano`;
+    const capInicialBrl = utils.formatCurrency(hSel.capitalInicialDesembolsado);
+    const tipoCap = results.isLeveraged ? `ENTRADA DE ${capInicialBrl}` : `COMPRA DE ${capInicialBrl}`;
 
+    // Card 1: ROI da Operação (Média Mensal e Anual considerando Lucro do Período + Venda - Investimento Inicial)
+    if (elements.kpiRoiLabel) {
+      elements.kpiRoiLabel.textContent = `ROI DA OPERAÇÃO EM ${hSel.meses}M (SOBRE ${tipoCap})`;
+    }
+    if (elements.kpiRoiMensal) {
+      const signM = results.roiMensal >= 0 ? '+' : '';
+      elements.kpiRoiMensal.textContent = `${signM}${utils.formatPercent(results.roiMensal)} a.m.`;
+    }
+    if (elements.kpiRoiAnual) {
+      const signA = results.roiAnual >= 0 ? '+' : '';
+      elements.kpiRoiAnual.textContent =
+        `${signA}${utils.formatPercent(results.roiAnual)} ao ano • Retorno total de ${results.roiTotalPeriodo >= 0 ? '+' : ''}${utils.formatPercent(results.roiTotalPeriodo || 0)} em ${hSel.meses}m`;
+    }
+
+    // Card 2: Payback do Investimento Inicial
     if (elements.kpiPayback) {
       elements.kpiPayback.textContent = results.paybackMeses && results.paybackMeses !== Infinity
         ? `${results.paybackMeses.toFixed(1).replace('.', ',')} meses`
-        : 'Indeterminado';
+        : 'Na venda do ativo';
     }
     if (elements.kpiPaybackSubtext) {
       elements.kpiPaybackSubtext.textContent =
-        `Tempo para recuperar ${utils.formatCurrency(results.capitalProprioInicial)} com o lucro operacional mensal`;
+        `Tempo para recuperar o investimento inicial (${capInicialBrl}) com o lucro mensal`;
     }
 
-    if (elements.kpiRoiPeriodo && hSel.roiTotalPeriodo !== null) {
-      const sign = hSel.roiTotalPeriodo >= 0 ? '+' : '';
-      elements.kpiRoiPeriodo.textContent = `${sign}${utils.formatPercent(hSel.roiTotalPeriodo)}`;
+    // Card 3: Resultado Líquido Final em R$ e ROI Total no Período (1. Lucro + 2. Venda - 3. Investimento Inicial)
+    if (elements.kpiRoiPeriodo) {
+      const roiTot = hSel.roiTotalPeriodo !== null && hSel.roiTotalPeriodo !== undefined
+        ? hSel.roiTotalPeriodo
+        : (results.roiTotalPeriodo || 0);
+      const sign = roiTot >= 0 ? '+' : '';
+      elements.kpiRoiPeriodo.textContent = `${sign}${utils.formatPercent(roiTot)} (${utils.formatCurrency(hSel.ganhoLiquidoSobreCapitalInicial)})`;
     }
     if (elements.kpiRoiPeriodoSub) {
+      const quitacaoPart = hSel.valorQuitacao > 0 ? ` - Quitação (${utils.formatCurrency(hSel.valorQuitacao)})` : '';
       elements.kpiRoiPeriodoSub.textContent =
-        `Lucro líquido sobre o capital investido (${utils.formatCurrency(hSel.lucroLiquidoSobreCapitalProprio)}) em ${hSel.meses} meses`;
+        `Lucro (${utils.formatCurrency(hSel.lucroOperacionalAcumulado)}) + Venda (${utils.formatCurrency(hSel.valorVendaVeiculo)})${quitacaoPart} - Invest. Inicial (${capInicialBrl})`;
     }
   }
 

@@ -159,6 +159,17 @@ export const simulationService = {
       const capitalInicialDesembolsado = isLeveraged ? valorEntrada : valorPago;
       const ganhoLiquidoSobreCapitalInicial = this.round2(resultadoLiquidoAposQuitacao - capitalInicialDesembolsado);
 
+      // ROI Total da Operação no Período = (Lucro Operacional + Venda do Veículo - Quitação - Investimento Inicial) / Investimento Inicial
+      const roiTotalPeriodo = capitalInicialDesembolsado > 0
+        ? (ganhoLiquidoSobreCapitalInicial / capitalInicialDesembolsado)
+        : null;
+      const roiMensalOperacao = (roiTotalPeriodo !== null && meses > 0)
+        ? (roiTotalPeriodo / meses)
+        : null;
+      const roiAnualOperacao = roiMensalOperacao !== null
+        ? (roiMensalOperacao * 12)
+        : null;
+
       const reservasAcumuladas = this.round2(reservasRetidasMes * meses);
 
       return {
@@ -180,6 +191,9 @@ export const simulationService = {
         capitalInicialDesembolsado,
         ganhoLiquidoSobreCapitalInicial,
         lucroLiquidoSobreCapitalProprio: ganhoLiquidoSobreCapitalInicial,
+        roiTotalPeriodo,
+        roiMensalOperacao,
+        roiAnualOperacao,
         reservasAcumuladas
       };
     };
@@ -189,11 +203,10 @@ export const simulationService = {
 
     // 9. Key Markers (Payback, ROI, Margem) based on out-of-pocket operational cash flow & selected horizon
     // Reference capital for ROI & Payback:
-    // If cash purchase: valorPago. If leveraged with entrada > 0: valorEntrada. If 100% financed (entrada = 0): valorPago as asset base reference.
-    const baseCapitalRoi = isLeveraged
-      ? (valorEntrada > 0 ? valorEntrada : valorPago)
-      : valorPago;
-    const capitalProprioInicial = baseCapitalRoi;
+    // If cash purchase: valorPago. If leveraged with entrada > 0: valorEntrada.
+    const capitalInicialInvestido = isLeveraged ? valorEntrada : valorPago;
+    const baseCapitalRoi = capitalInicialInvestido > 0 ? capitalInicialInvestido : valorPago;
+    const capitalProprioInicial = capitalInicialInvestido;
     const semCapitalProprioInicial = isLeveraged && valorEntrada <= 0;
 
     const margemOperacionalMensal = receitaBrutaMensal > 0
@@ -208,18 +221,17 @@ export const simulationService = {
       ? Math.max(0, saidasBolsoMensais / valorSemanal)
       : 0;
 
-    // Monthly ROI based on monthly operational profit in pocket
-    const roiMensal = baseCapitalRoi > 0 ? (lucroOperacionalMensal / baseCapitalRoi) : 0;
+    // ROI da Operação Completa (baseado em: 1. Lucro Operacional no Período + 2. Venda do Veículo - Quitação - 3. Investimento Inicial)
+    const roiTotalPeriodo = horizonteSelecionado.roiTotalPeriodo;
+    const roiMensal = horizonteSelecionado.roiMensalOperacao !== null
+      ? horizonteSelecionado.roiMensalOperacao
+      : (baseCapitalRoi > 0 ? (lucroOperacionalMensal / baseCapitalRoi) : 0);
     const roiAnual = roiMensal * 12;
+    const roiFluxoMensalPuro = baseCapitalRoi > 0 ? (lucroOperacionalMensal / baseCapitalRoi) : 0;
 
-    // Total ROI in the selected period (including vehicle sale - payoff - initial capital)
-    const roiTotalPeriodo = baseCapitalRoi > 0
-      ? ((horizonteSelecionado.resultadoLiquidoAposQuitacao - (isLeveraged ? valorEntrada : valorPago)) / baseCapitalRoi)
-      : 0;
-
-    // Payback in months
-    const paybackMeses = (lucroOperacionalMensal > 0 && baseCapitalRoi > 0)
-      ? (baseCapitalRoi / lucroOperacionalMensal)
+    // Payback in months (how many months to recover initial investment)
+    const paybackMeses = (lucroOperacionalMensal > 0 && capitalInicialInvestido > 0)
+      ? (capitalInicialInvestido / lucroOperacionalMensal)
       : Infinity;
 
     const dscr = parcelaFinanciamento > 0
