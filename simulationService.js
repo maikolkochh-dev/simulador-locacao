@@ -45,10 +45,12 @@ export const simulationService = {
       : 1.0;
 
     // Projection horizon & exit parameters
-    const prazoMeses = Number(data.prazoMeses) || (Number(data.qtdParcelas) > 0 ? Number(data.qtdParcelas) : 48);
-    const descontoRevendaFipePct = typeof data.descontoRevendaFipePct !== 'undefined'
-      ? Math.max(0, Math.min(1, Number(data.descontoRevendaFipePct)))
-      : 0;
+    const prazoMeses = Number(data.prazoAnaliseMeses) || Number(data.prazoMeses) || (Number(data.qtdParcelas) > 0 ? Number(data.qtdParcelas) : 48);
+    const descontoRevendaFipePct = typeof data.desagioVendaFipe !== 'undefined'
+      ? Math.max(0, Math.min(1, Number(data.desagioVendaFipe)))
+      : (typeof data.descontoRevendaFipePct !== 'undefined'
+        ? Math.max(0, Math.min(1, Number(data.descontoRevendaFipePct)))
+        : 0);
 
     // 1. Purchase vs. FIPE Patrimonial Margin
     const margemInicialVsFipe = this.round2(valorFipe - valorPago);
@@ -107,6 +109,7 @@ export const simulationService = {
     const saidasCaixaERetencoesMes = this.round2(
       impostosSimplesNacional + custosOperacionaisRecorrentes + parcelaFinanciamento + reservasRetidasMes
     );
+    const saidasCaixaTotaisMensais = saidasCaixaERetencoesMes;
 
     // 7. Depreciation — MANDATORY RULE: ALWAYS calculated over FIPE (valorFipe), NEVER over valorPago
     const baseFipeDepreciacao = valorFipe > 0 ? valorFipe : valorPago;
@@ -159,8 +162,10 @@ export const simulationService = {
     // 10. Capital Base, ROI & Payback (Strict handling when 100% Financed / Entrada = 0)
     const semCapitalProprioInicial = isLeveraged && valorEntrada <= 0;
     const capitalInvestido = isLeveraged ? valorEntrada : valorPago;
+    const capitalProprioInicial = capitalInvestido;
 
     const margemCaixa = receitaBrutaMensal > 0 ? (caixaDisponivelProjetado / receitaBrutaMensal) : 0;
+    const margemCaixaDisponivel = margemCaixa;
     const margemLiquida = margemCaixa;
     const margemEconomica = receitaBrutaMensal > 0 ? (resultadoEconomicoMensal / receitaBrutaMensal) : 0;
 
@@ -188,13 +193,20 @@ export const simulationService = {
       return {
         ocupacaoPct: Math.round(ocup * 100),
         ocupacaoFactor: ocup,
+        taxaOcupacao: ocup,
+        semanasAlugadasMes: ocup * semanasMes,
         receitaMensal: recMes,
+        receitaBrutaMensal: recMes,
         impostosMensal: impMes,
         caixaOperacionalAntesDivida: cxOpAntesDivida,
         parcelaFinanciamento,
         caixaAposDivida: cxAposDivida,
+        caixaAposServicoDivida: cxAposDivida,
         reservaRetida: reservasRetidasMes,
+        reservasRetidasMes,
         caixaDistribuivel: cxDistribuivel,
+        caixaDisponivelProjetado: cxDistribuivel,
+        caixaAcumulado48m: this.round2(cxDistribuivel * 48),
         dscr: dscrCenario
       };
     });
@@ -222,21 +234,31 @@ export const simulationService = {
       // Nominal remaining installments (note: nominal sum, not discounted present value)
       const parcelasRestantes = isLeveraged && qtdParcelas > 0 ? Math.max(0, qtdParcelas - meses) : 0;
       const saldoNominalParcelasRestantes = this.round2(parcelasRestantes * parcelaFinanciamento);
+      const patrimonioLiquidoVeiculo = this.round2(Math.max(0, valorBrutoRevenda - saldoNominalParcelasRestantes));
+      const riquezaTotalGerada = this.round2(caixaDistribuivelAcumulado + reservasAcumuladas + patrimonioLiquidoVeiculo);
 
       return {
         meses,
+        anos: meses / 12,
         caixaDistribuivelAcumulado,
         reservasAcumuladas,
         fipeProjetada,
+        valorFipeProjetado: fipeProjetada,
         depreciacaoAcumuladaFipe,
         valorBrutoRevenda,
+        valorVendaProjetado: valorBrutoRevenda,
         diferencaRevendaVsValorPago,
+        ganhoOuPerdaSobreValorPago: diferencaRevendaVsValorPago,
         parcelasRestantes,
-        saldoNominalParcelasRestantes
+        saldoNominalParcelasRestantes,
+        saldoDevedorEstimado: saldoNominalParcelasRestantes,
+        patrimonioLiquidoVeiculo,
+        riquezaTotalGerada
       };
     });
 
     const projecaoPrazoSelecionado = horizontes.find(h => h.meses === prazoMeses) || horizontes[3];
+    const horizonteSelecionado = projecaoPrazoSelecionado;
 
     // 13. Risk Analysis Scoring (incorporating Cash Flow, DSCR, and Occupancy Break-even)
     const analiseRisco = this.evaluateRisk({
@@ -267,6 +289,7 @@ export const simulationService = {
       reservasRetidasMes,
       caixaDisponivelProjetado,
       saidasCaixaERetencoesMes,
+      saidasCaixaTotaisMensais,
 
       // Depreciation (ALWAYS over FIPE) & Economic/Patrimonial Statement
       baseFipeDepreciacao,
@@ -287,9 +310,11 @@ export const simulationService = {
       ocupacaoEquilibrio,
       semanasEquilibrioMes,
       capitalInvestido,
+      capitalProprioInicial,
       semCapitalProprioInicial,
       isLeveraged,
       margemCaixa,
+      margemCaixaDisponivel,
       margemLiquida,
       margemEconomica,
       roiMensal,
@@ -302,6 +327,7 @@ export const simulationService = {
       cenariosOcupacao,
       horizontes,
       projecaoPrazoSelecionado,
+      horizonteSelecionado,
       analiseRisco,
 
       // Legacy aliases
@@ -319,7 +345,9 @@ export const simulationService = {
         taxaOcupacao,
         taxaAdimplencia,
         prazoMeses,
+        prazoAnaliseMeses: prazoMeses,
         descontoRevendaFipePct,
+        desagioVendaFipe: descontoRevendaFipePct,
         isLeveraged,
         valorEntrada,
         valorFinanciado,

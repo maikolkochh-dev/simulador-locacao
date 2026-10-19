@@ -3,8 +3,8 @@
  * Manages state, wizard steps, input formatting masks, and visual outputs.
  */
 
-import { fipeService } from './fipeService.js';
-import { simulationService } from './simulationService.js';
+import { fipeService } from './fipeService.js?v=20261019b';
+import { simulationService } from './simulationService.js?v=20261019b';
 
 // ==========================================================================
 // APPLICATION STATE
@@ -1623,6 +1623,8 @@ function goToStep(step) {
     recalculateDepreciationFromFirstScreen();
     updateTaxPreviewTag();
   }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /**
