@@ -37,6 +37,9 @@ const state = {
   costs: {
     uf: '',
     isLocadoraBenefit: false,
+    isIpvaIsento: false,
+    isIpvaManual: false,
+    manualIpvaAnual: 0,
     customIpvaRate: null,
     rastreador: 50,
     seguro: 200,
@@ -171,6 +174,11 @@ const elements = {
   ufTotalMensal: document.getElementById('uf-total-mensal'),
   ufTotalAnual: document.getElementById('uf-total-anual'),
   btnLocadoraBenefit: document.getElementById('btn-locadora-benefit'),
+  btnIpvaIsento: document.getElementById('btn-ipva-isento'),
+  btnIpvaManual: document.getElementById('btn-ipva-manual'),
+  ipvaManualBox: document.getElementById('ipva-manual-box'),
+  ipvaManualAnual: document.getElementById('ipva-manual-anual'),
+  ipvaManualMensal: document.getElementById('ipva-manual-mensal'),
   locadoraSavingsBox: document.getElementById('locadora-savings-box'),
   locadoraSavingsMensalBadge: document.getElementById('locadora-savings-mensal-badge'),
   locadoraSavingsAnual: document.getElementById('locadora-savings-anual'),
@@ -367,6 +375,8 @@ function init() {
   utils.setupCurrencyMask(elements.costSuporte);
   utils.setupCurrencyMask(elements.costContabilidade);
   utils.setupCurrencyMask(elements.costIpva);
+  if (elements.ipvaManualAnual) utils.setupCurrencyMask(elements.ipvaManualAnual);
+  if (elements.ipvaManualMensal) utils.setupCurrencyMask(elements.ipvaManualMensal);
   utils.setupCurrencyMask(elements.costDepreciacao);
   utils.setupCurrencyMask(elements.costFundoReserva);
 
@@ -405,17 +415,42 @@ function updateAutoFinanciado() {
 }
 
 /**
- * Recalculates 2026 Licenciamento + IPVA based on selected UF, FIPE price, and 1% Locadora Benefit
+ * Syncs the active UI state of the 3 IPVA mode buttons (1% Locadora, Isento, Manual)
  */
-function recalculateStateIpvaAndLicenciamento() {
+function syncIpvaModeButtons() {
+  if (elements.btnLocadoraBenefit) {
+    elements.btnLocadoraBenefit.classList.toggle('active', Boolean(state.costs.isLocadoraBenefit));
+    elements.btnLocadoraBenefit.setAttribute('aria-pressed', state.costs.isLocadoraBenefit ? 'true' : 'false');
+  }
+  if (elements.btnIpvaIsento) {
+    elements.btnIpvaIsento.classList.toggle('active', Boolean(state.costs.isIpvaIsento));
+    elements.btnIpvaIsento.setAttribute('aria-pressed', state.costs.isIpvaIsento ? 'true' : 'false');
+  }
+  if (elements.btnIpvaManual) {
+    elements.btnIpvaManual.classList.toggle('active', Boolean(state.costs.isIpvaManual));
+    elements.btnIpvaManual.setAttribute('aria-pressed', state.costs.isIpvaManual ? 'true' : 'false');
+  }
+  if (elements.ipvaManualBox) {
+    elements.ipvaManualBox.style.display = state.costs.isIpvaManual ? 'flex' : 'none';
+  }
+}
+
+/**
+ * Recalculates 2026 Licenciamento + IPVA based on selected UF, FIPE price, 1% Locadora Benefit, Isento, or Manual IPVA
+ */
+function recalculateStateIpvaAndLicenciamento(options = {}) {
   const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
   const ufCode = elements.costUf ? elements.costUf.value : '';
   const ipvaBtns = [
+    document.getElementById('btn-ipva-0'),
     document.getElementById('btn-ipva-1'),
     document.getElementById('btn-ipva-2'),
     document.getElementById('btn-ipva-3'),
     document.getElementById('btn-ipva-4')
   ];
+  const btnIpvaManualRate = document.getElementById('btn-ipva-manual-rate');
+
+  syncIpvaModeButtons();
 
   if (ufCode && UF_TAX_DATA_2026[ufCode]) {
     const ufData = UF_TAX_DATA_2026[ufCode];
@@ -425,31 +460,60 @@ function recalculateStateIpvaAndLicenciamento() {
     const licenciamentoMensal = licenciamentoAnual / 12;
 
     const fullIpvaRate = ufData.ipvaRate;
-    const effectiveIpvaRate = state.costs.isLocadoraBenefit
-      ? 0.01
-      : (state.costs.customIpvaRate !== null ? state.costs.customIpvaRate : fullIpvaRate);
-
     const ipvaAnualCheio = valorFipe * fullIpvaRate;
-    const ipvaAnualEfetivo = valorFipe * effectiveIpvaRate;
-    const ipvaMensalEfetivo = ipvaAnualEfetivo / 12;
+
+    let effectiveIpvaRate = fullIpvaRate;
+    let ipvaAnualEfetivo = 0;
+    let ipvaMensalEfetivo = 0;
+
+    if (state.costs.isIpvaIsento) {
+      effectiveIpvaRate = 0;
+      ipvaAnualEfetivo = 0;
+      ipvaMensalEfetivo = 0;
+    } else if (state.costs.isIpvaManual) {
+      effectiveIpvaRate = null;
+      ipvaAnualEfetivo = Math.max(0, state.costs.manualIpvaAnual || 0);
+      ipvaMensalEfetivo = ipvaAnualEfetivo / 12;
+
+      if (!options.skipManualInputsSync) {
+        if (elements.ipvaManualAnual) elements.ipvaManualAnual.value = utils.formatCurrency(ipvaAnualEfetivo);
+        if (elements.ipvaManualMensal) elements.ipvaManualMensal.value = utils.formatCurrency(ipvaMensalEfetivo);
+      }
+    } else {
+      effectiveIpvaRate = state.costs.isLocadoraBenefit
+        ? 0.01
+        : (state.costs.customIpvaRate !== null ? state.costs.customIpvaRate : fullIpvaRate);
+      ipvaAnualEfetivo = valorFipe * effectiveIpvaRate;
+      ipvaMensalEfetivo = ipvaAnualEfetivo / 12;
+
+      // Pre-populate manualIpvaAnual so switching to Manual starts with current value
+      state.costs.manualIpvaAnual = ipvaAnualEfetivo;
+      if (elements.ipvaManualAnual) elements.ipvaManualAnual.value = utils.formatCurrency(ipvaAnualEfetivo);
+      if (elements.ipvaManualMensal) elements.ipvaManualMensal.value = utils.formatCurrency(ipvaMensalEfetivo);
+    }
 
     const totalAnual = licenciamentoAnual + ipvaAnualEfetivo;
     const totalMensal = licenciamentoMensal + ipvaMensalEfetivo;
 
     // Populate main monthly IPVA+Licenciamento field
-    elements.costIpva.value = utils.formatCurrency(totalMensal);
+    if (!options.skipCostIpvaInputSync) {
+      elements.costIpva.value = utils.formatCurrency(totalMensal);
+    }
     state.costs.ipvaLicenciamento = totalMensal;
 
     // Sync rate buttons highlight
     ipvaBtns.forEach(btn => {
       if (!btn) return;
       const r = parseFloat(btn.getAttribute('data-rate'));
-      if (Math.abs(r - effectiveIpvaRate) < 0.001) {
+      if (!state.costs.isIpvaManual && effectiveIpvaRate !== null && Math.abs(r - effectiveIpvaRate) < 0.001) {
         btn.classList.add('active');
       } else {
         btn.classList.remove('active');
       }
     });
+    if (btnIpvaManualRate) {
+      btnIpvaManualRate.classList.toggle('active', Boolean(state.costs.isIpvaManual));
+    }
 
     // Populate Discriminated Panel (1. Licenciamento | 2. IPVA | Soma Total)
     if (elements.ufTaxBreakdownPanel) {
@@ -460,7 +524,11 @@ function recalculateStateIpvaAndLicenciamento() {
       elements.ufLicenciamentoMensal.textContent = `${utils.formatCurrency(licenciamentoMensal)}/mês`;
       elements.ufLicenciamentoAnual.textContent = `(${utils.formatCurrency(licenciamentoAnual)} / ano)`;
 
-      if (state.costs.isLocadoraBenefit) {
+      if (state.costs.isIpvaIsento) {
+        elements.ufIpvaStepLabel.textContent = `2. IPVA Estadual (ISENTO — R$ 0,00)`;
+      } else if (state.costs.isIpvaManual) {
+        elements.ufIpvaStepLabel.textContent = `2. IPVA Manual / Anual Informado`;
+      } else if (state.costs.isLocadoraBenefit) {
         elements.ufIpvaStepLabel.textContent = `2. IPVA Benefício Locadora (1,00% FIPE)`;
       } else {
         elements.ufIpvaStepLabel.textContent = `2. IPVA Estadual ${ufCode} (${utils.formatPercent(effectiveIpvaRate)} FIPE)`;
@@ -491,9 +559,20 @@ function recalculateStateIpvaAndLicenciamento() {
     // Fallback if UF not yet selected
     if (elements.ufTaxBreakdownPanel) elements.ufTaxBreakdownPanel.style.display = 'none';
     if (elements.locadoraSavingsBox) elements.locadoraSavingsBox.style.display = 'none';
-    if (valorFipe > 0) {
+    if (state.costs.isIpvaIsento) {
+      elements.costIpva.value = 'R$ 0,00';
+      state.costs.ipvaLicenciamento = 0;
+    } else if (state.costs.isIpvaManual) {
+      const monthlyManual = (state.costs.manualIpvaAnual || 0) / 12;
+      if (!options.skipCostIpvaInputSync) {
+        elements.costIpva.value = utils.formatCurrency(monthlyManual);
+      }
+      state.costs.ipvaLicenciamento = monthlyManual;
+    } else if (valorFipe > 0) {
       const activeIpvaBtn = document.querySelector('.rate-btn.active');
-      const ipvaRate = activeIpvaBtn ? parseFloat(activeIpvaBtn.getAttribute('data-rate')) : 0.04;
+      const ipvaRate = activeIpvaBtn && activeIpvaBtn.hasAttribute('data-rate')
+        ? parseFloat(activeIpvaBtn.getAttribute('data-rate'))
+        : 0.04;
       const monthlyIpva = (valorFipe * ipvaRate) / 12;
       elements.costIpva.value = utils.formatCurrency(monthlyIpva);
       state.costs.ipvaLicenciamento = monthlyIpva;
@@ -850,7 +929,7 @@ function bindEvents() {
     });
   }
 
-  // Step 4: UF (State) Selector & Locadora 1% Benefit Button
+  // Step 4: UF (State) Selector & IPVA Mode Buttons (1% Locadora, Isento 0%, Manual/Anual)
   if (elements.costUf) {
     elements.costUf.addEventListener('change', () => {
       state.costs.customIpvaRate = null;
@@ -864,14 +943,70 @@ function bindEvents() {
     elements.btnLocadoraBenefit.addEventListener('click', () => {
       state.costs.isLocadoraBenefit = !state.costs.isLocadoraBenefit;
       if (state.costs.isLocadoraBenefit) {
+        state.costs.isIpvaIsento = false;
+        state.costs.isIpvaManual = false;
         state.costs.customIpvaRate = null;
-        elements.btnLocadoraBenefit.classList.add('active');
-        elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'true');
-      } else {
-        elements.btnLocadoraBenefit.classList.remove('active');
-        elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'false');
       }
       recalculateStateIpvaAndLicenciamento();
+    });
+  }
+
+  if (elements.btnIpvaIsento) {
+    elements.btnIpvaIsento.addEventListener('click', () => {
+      state.costs.isIpvaIsento = !state.costs.isIpvaIsento;
+      if (state.costs.isIpvaIsento) {
+        state.costs.isLocadoraBenefit = false;
+        state.costs.isIpvaManual = false;
+        state.costs.customIpvaRate = null;
+      }
+      recalculateStateIpvaAndLicenciamento();
+    });
+  }
+
+  if (elements.btnIpvaManual) {
+    elements.btnIpvaManual.addEventListener('click', () => {
+      state.costs.isIpvaManual = !state.costs.isIpvaManual;
+      if (state.costs.isIpvaManual) {
+        state.costs.isLocadoraBenefit = false;
+        state.costs.isIpvaIsento = false;
+        state.costs.customIpvaRate = null;
+      }
+      recalculateStateIpvaAndLicenciamento();
+      if (state.costs.isIpvaManual && elements.ipvaManualAnual) {
+        setTimeout(() => {
+          elements.ipvaManualAnual.focus();
+          elements.ipvaManualAnual.select();
+        }, 50);
+      }
+    });
+  }
+
+  if (elements.ipvaManualAnual) {
+    elements.ipvaManualAnual.addEventListener('input', () => {
+      const anual = utils.parseCurrency(elements.ipvaManualAnual.value);
+      state.costs.isIpvaManual = true;
+      state.costs.isLocadoraBenefit = false;
+      state.costs.isIpvaIsento = false;
+      state.costs.manualIpvaAnual = anual;
+      if (elements.ipvaManualMensal) {
+        elements.ipvaManualMensal.value = utils.formatCurrency(anual / 12);
+      }
+      recalculateStateIpvaAndLicenciamento({ skipManualInputsSync: true });
+    });
+  }
+
+  if (elements.ipvaManualMensal) {
+    elements.ipvaManualMensal.addEventListener('input', () => {
+      const mensal = utils.parseCurrency(elements.ipvaManualMensal.value);
+      const anual = mensal * 12;
+      state.costs.isIpvaManual = true;
+      state.costs.isLocadoraBenefit = false;
+      state.costs.isIpvaIsento = false;
+      state.costs.manualIpvaAnual = anual;
+      if (elements.ipvaManualAnual) {
+        elements.ipvaManualAnual.value = utils.formatCurrency(anual);
+      }
+      recalculateStateIpvaAndLicenciamento({ skipManualInputsSync: true });
     });
   }
 
@@ -914,11 +1049,13 @@ function bindEvents() {
 
   // IPVA rates buttons click
   const ipvaBtns = [
+    document.getElementById('btn-ipva-0'),
     document.getElementById('btn-ipva-1'),
     document.getElementById('btn-ipva-2'),
     document.getElementById('btn-ipva-3'),
     document.getElementById('btn-ipva-4')
   ];
+  const btnIpvaManualRate = document.getElementById('btn-ipva-manual-rate');
 
   ipvaBtns.forEach(btn => {
     if (btn) {
@@ -929,11 +1066,37 @@ function bindEvents() {
     }
   });
 
-  // Deactivate active states when the user types manually in IPVA field
-  elements.costIpva.addEventListener('input', () => {
-    ipvaBtns.forEach(btn => {
-      if (btn) btn.classList.remove('active');
+  if (btnIpvaManualRate) {
+    btnIpvaManualRate.addEventListener('click', () => {
+      state.costs.isIpvaManual = true;
+      state.costs.isLocadoraBenefit = false;
+      state.costs.isIpvaIsento = false;
+      state.costs.customIpvaRate = null;
+      recalculateStateIpvaAndLicenciamento();
+      if (elements.ufTaxBreakdownPanel && elements.ufTaxBreakdownPanel.style.display !== 'none' && elements.ipvaManualAnual) {
+        elements.ipvaManualAnual.focus();
+        elements.ipvaManualAnual.select();
+      } else {
+        elements.costIpva.focus();
+        elements.costIpva.select();
+      }
     });
+  }
+
+  // Sync manual mode when the user types directly in the monthly IPVA + Licenciamento field
+  elements.costIpva.addEventListener('input', () => {
+    const totalTypedMensal = utils.parseCurrency(elements.costIpva.value);
+    const ufCode = elements.costUf ? elements.costUf.value : '';
+    const licMensal = (ufCode && UF_TAX_DATA_2026[ufCode]) ? (UF_TAX_DATA_2026[ufCode].licenciamento / 12) : 0;
+    const ipvaMensalPortion = Math.max(0, totalTypedMensal - licMensal);
+
+    state.costs.isIpvaManual = true;
+    state.costs.isLocadoraBenefit = false;
+    state.costs.isIpvaIsento = false;
+    state.costs.customIpvaRate = null;
+    state.costs.manualIpvaAnual = ipvaMensalPortion * 12;
+
+    recalculateStateIpvaAndLicenciamento({ skipCostIpvaInputSync: true });
   });
 
   // App logo returns home (to Landing Page)
@@ -1275,6 +1438,9 @@ function resetSimulationState() {
   state.costs = {
     uf: '',
     isLocadoraBenefit: false,
+    isIpvaIsento: false,
+    isIpvaManual: false,
+    manualIpvaAnual: 0,
     customIpvaRate: null,
     rastreador: 50,
     seguro: 200,
@@ -1288,10 +1454,7 @@ function resetSimulationState() {
     useFundoReserva: false
   };
 
-  if (elements.btnLocadoraBenefit) {
-    elements.btnLocadoraBenefit.classList.remove('active');
-    elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'false');
-  }
+  syncIpvaModeButtons();
   if (elements.ufTaxBreakdownPanel) elements.ufTaxBreakdownPanel.style.display = 'none';
   if (elements.locadoraSavingsBox) elements.locadoraSavingsBox.style.display = 'none';
 
@@ -1495,32 +1658,32 @@ function applyDepreciationScenario(annualRate, activeBtn, inactiveBtn) {
 
 /**
  * Helper to calculate and apply an IPVA rate scenario to the monthly IPVA input
- * @param {number} rate (e.g. 0.01, 0.02, 0.03, 0.04)
+ * @param {number} rate (e.g. 0, 0.01, 0.02, 0.03, 0.04)
  * @param {HTMLButtonElement} activeBtn
  * @param {HTMLButtonElement[]} otherBtns
  */
 function applyIpvaRate(rate, activeBtn, otherBtns) {
   const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
 
-  if (valorFipe <= 0) {
+  if (rate > 0 && valorFipe <= 0) {
     alert('Por favor, defina o valor do veículo no Passo 2 antes de selecionar uma taxa de IPVA.');
     return;
   }
 
-  if (Math.abs(rate - 0.01) < 0.001) {
+  state.costs.isIpvaManual = false;
+
+  if (Math.abs(rate) < 0.0001) {
+    state.costs.isIpvaIsento = true;
+    state.costs.isLocadoraBenefit = false;
+    state.costs.customIpvaRate = null;
+  } else if (Math.abs(rate - 0.01) < 0.001) {
+    state.costs.isIpvaIsento = false;
     state.costs.isLocadoraBenefit = true;
     state.costs.customIpvaRate = null;
-    if (elements.btnLocadoraBenefit) {
-      elements.btnLocadoraBenefit.classList.add('active');
-      elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'true');
-    }
   } else {
+    state.costs.isIpvaIsento = false;
     state.costs.isLocadoraBenefit = false;
     state.costs.customIpvaRate = rate;
-    if (elements.btnLocadoraBenefit) {
-      elements.btnLocadoraBenefit.classList.remove('active');
-      elements.btnLocadoraBenefit.setAttribute('aria-pressed', 'false');
-    }
   }
 
   // Toggle active button states

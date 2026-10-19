@@ -598,6 +598,50 @@
                   </button>
                 </div>
 
+                <!-- Botões Adicionais: Veículo Isento de IPVA (0%) ou Valor Manual/Anual do IPVA -->
+                <div class="ipva-custom-mode-actions">
+                  <button type="button" id="btn-ipva-isento" class="btn-ipva-mode" aria-pressed="false">
+                    <span class="locadora-check-indicator">
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <div class="locadora-btn-text">
+                      <strong>Veículo Isento de IPVA (R$ 0,00)</strong>
+                      <span>Zera o IPVA no cálculo e mantém apenas a Taxa de Licenciamento anual do estado</span>
+                    </div>
+                  </button>
+
+                  <button type="button" id="btn-ipva-manual" class="btn-ipva-mode" aria-pressed="false">
+                    <span class="locadora-check-indicator">
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <div class="locadora-btn-text">
+                      <strong>Digitar Valor do IPVA Manual / Anual</strong>
+                      <span>Informe manualmente o valor anual ou mensal do IPVA do seu veículo</span>
+                    </div>
+                  </button>
+                </div>
+
+                <!-- Caixa para digitar o Valor Manual do IPVA (Anual ou Mensal) -->
+                <div id="ipva-manual-box" class="ipva-manual-box" style="display: none;">
+                  <div class="ipva-manual-grid">
+                    <div class="form-group">
+                      <label for="ipva-manual-anual">Valor do IPVA Anual (R$ / ano)</label>
+                      <input type="text" id="ipva-manual-anual" placeholder="Ex: R$ 1.200,00" value="R$ 0,00">
+                    </div>
+                    <div class="form-group">
+                      <label for="ipva-manual-mensal">Valor do IPVA Mensal (R$ / mês)</label>
+                      <input type="text" id="ipva-manual-mensal" placeholder="Ex: R$ 100,00" value="R$ 0,00">
+                    </div>
+                  </div>
+                  <span class="ipva-manual-hint">
+                    * O sistema divide o IPVA anual por 12 automaticamente e soma à Taxa de Licenciamento mensal do estado selecionado.
+                  </span>
+                </div>
+
                 <!-- Telinha Verde de Economia Anual (CNPJ Locadora vs Valor Cheio) -->
                 <div id="locadora-savings-box" class="locadora-savings-box" style="display: none;">
                   <div class="savings-icon-badge">
@@ -660,10 +704,12 @@
               </label>
               <input type="text" id="cost-ipva" value="R$ 0,00" required>
               <div class="ipva-rates">
+                <button type="button" class="rate-btn" id="btn-ipva-0" data-rate="0">Isento (0%)</button>
                 <button type="button" class="rate-btn" id="btn-ipva-1" data-rate="0.01">1% (Locadora)</button>
                 <button type="button" class="rate-btn" id="btn-ipva-2" data-rate="0.02">2%</button>
                 <button type="button" class="rate-btn" id="btn-ipva-3" data-rate="0.03">3%</button>
                 <button type="button" class="rate-btn active" id="btn-ipva-4" data-rate="0.04">4%</button>
+                <button type="button" class="rate-btn" id="btn-ipva-manual-rate">Manual</button>
               </div>
             </div>
             
