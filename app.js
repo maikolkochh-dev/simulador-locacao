@@ -56,21 +56,21 @@ const state = {
 // ==========================================================================
 const UF_TAX_DATA_2026 = {
   AC: { nome: 'Acre', licenciamento: 200.25, ipvaRate: 0.02, nota: 'CRLV-e Digital 2026' },
-  AL: { nome: 'Alagoas', licenciamento: 36.03, ipvaRate: 0.03, nota: 'Carro popular: R$ 36,03 (até R$ 155,41 por categoria)' },
+  AL: { nome: 'Alagoas', licenciamento: 36.03, ipvaRate: 0.0275, nota: 'Carro popular: R$ 36,03 (até R$ 155,41 por categoria)' },
   AP: { nome: 'Amapá', licenciamento: 128.54, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
   AM: { nome: 'Amazonas', licenciamento: 122.88, ipvaRate: 0.02, nota: 'Alíquota carro popular 1.0 (2,0%)' },
   BA: { nome: 'Bahia', licenciamento: 173.50, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
-  CE: { nome: 'Ceará', licenciamento: 220.46, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  CE: { nome: 'Ceará', licenciamento: 220.46, ipvaRate: 0.025, nota: 'Alíquota carro popular até 100cv (2,5%)' },
   DF: { nome: 'Distrito Federal', licenciamento: 102.00, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
   ES: { nome: 'Espírito Santo', licenciamento: 237.04, ipvaRate: 0.02, nota: 'Alíquota reduzida ES (2,0%)' },
-  GO: { nome: 'Goiás', licenciamento: 251.25, ipvaRate: 0.0375, nota: 'CRLV-e Digital 2026' },
+  GO: { nome: 'Goiás', licenciamento: 251.25, ipvaRate: 0.03, nota: 'Alíquota carro popular 1.0 (3,0%)' },
   MA: { nome: 'Maranhão', licenciamento: 95.87, ipvaRate: 0.025, nota: 'Licenciamento: R$ 95,87 a R$ 157,33' },
-  MT: { nome: 'Mato Grosso', licenciamento: 140.00, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
+  MT: { nome: 'Mato Grosso', licenciamento: 140.00, ipvaRate: 0.02, nota: 'Alíquota carro popular 1.0 (2,0%)' },
   MS: { nome: 'Mato Grosso do Sul', licenciamento: 235.28, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
   MG: { nome: 'Minas Gerais', licenciamento: 35.62, ipvaRate: 0.04, nota: 'Menor taxa de licenciamento do país (R$ 35,62)' },
   PA: { nome: 'Pará', licenciamento: 288.08, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
   PB: { nome: 'Paraíba', licenciamento: 206.55, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
-  PR: { nome: 'Paraná', licenciamento: 90.94, ipvaRate: 0.035, nota: 'Licenciamento: R$ 90,94 a R$ 94,61' },
+  PR: { nome: 'Paraná', licenciamento: 90.94, ipvaRate: 0.019, nota: 'Alíquota reduzida PR 2026 (1,9%) | Licenc.: R$ 90,94 a R$ 94,61' },
   PE: { nome: 'Pernambuco', licenciamento: 158.00, ipvaRate: 0.024, nota: 'Alíquota unificada PE (2,4%)' },
   PI: { nome: 'Piauí', licenciamento: 129.60, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
   RJ: { nome: 'Rio de Janeiro', licenciamento: 293.71, ipvaRate: 0.04, nota: 'Maior taxa de licenciamento do país (R$ 293,71)' },
@@ -78,10 +78,10 @@ const UF_TAX_DATA_2026 = {
   RS: { nome: 'Rio Grande do Sul', licenciamento: 109.27, ipvaRate: 0.03, nota: 'Licenciamento: R$ 109,27 a R$ 114,19' },
   RO: { nome: 'Rondônia', licenciamento: 220.41, ipvaRate: 0.03, nota: 'CRLV-e Digital 2026' },
   RR: { nome: 'Roraima', licenciamento: 98.47, ipvaRate: 0.03, nota: 'Licenciamento: R$ 98,47 a R$ 205,25' },
-  SC: { nome: 'Santa Catarina', licenciamento: 149.37, ipvaRate: 0.02, nota: 'Menor alíquota de IPVA do país (2,0%)' },
+  SC: { nome: 'Santa Catarina', licenciamento: 149.37, ipvaRate: 0.02, nota: 'CRLV-e Digital 2026 (IPVA 2,0%)' },
   SP: { nome: 'São Paulo', licenciamento: 174.08, ipvaRate: 0.04, nota: 'CRLV-e Digital 2026' },
   SE: { nome: 'Sergipe', licenciamento: 207.36, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' },
-  TO: { nome: 'Tocantins', licenciamento: 79.63, ipvaRate: 0.035, nota: 'CRLV-e Digital 2026' }
+  TO: { nome: 'Tocantins', licenciamento: 79.63, ipvaRate: 0.025, nota: 'CRLV-e Digital 2026' }
 };
 
 // ==========================================================================
@@ -1826,6 +1826,14 @@ function showEmailToast(previewUrl) {
  * with native keyboard navigation, real-time filtering, and reactive MutationObserver
  * syncing.
  */
+function normalizeSearchText(str) {
+  return String(str || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
 function makeSelectSearchable(selectId, placeholderText) {
   const select = document.getElementById(selectId);
   if (!select) return;
@@ -1865,6 +1873,7 @@ function makeSelectSearchable(selectId, placeholderText) {
 
   let highlightedIndex = -1;
   let items = [];
+  let isUserTyping = false;
 
   // 2. Helper to populate and update custom dropdown list items from select options
   function updateDropdownItems() {
@@ -1894,7 +1903,9 @@ function makeSelectSearchable(selectId, placeholderText) {
         input.value = opt.textContent;
       }
 
-      item.addEventListener('click', () => {
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Prevent blur before selection completes
+        isUserTyping = false;
         selectOption(opt.value, opt.textContent);
       });
 
@@ -1910,6 +1921,7 @@ function makeSelectSearchable(selectId, placeholderText) {
 
   // 3. Selection handler
   function selectOption(value, text) {
+    isUserTyping = false;
     select.value = value;
     input.value = text;
     
@@ -1922,14 +1934,14 @@ function makeSelectSearchable(selectId, placeholderText) {
       }
     });
 
-    closeDropdown();
+    closeDropdown(false);
 
     // Fire the native change event so app.js picks it up!
     select.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   // 4. Dropdown visibility controls
-  function openDropdown() {
+  function openDropdown(selectText = false) {
     if (select.disabled) return;
     
     // Close other custom dropdowns
@@ -1940,20 +1952,43 @@ function makeSelectSearchable(selectId, placeholderText) {
       if (d !== dropdown) d.style.display = 'none';
     });
 
+    const wasClosed = dropdown.style.display === 'none';
     container.classList.add('open');
     dropdown.style.display = 'block';
-    
-    // Highlight currently selected item
-    highlightedIndex = items.findIndex(item => item.classList.contains('selected'));
-    updateHighlight();
 
-    // Scroll selected into view
-    if (highlightedIndex >= 0) {
-      items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+    if (wasClosed && !isUserTyping) {
+      // Show all options when first opening the dropdown
+      items.forEach(item => {
+        item.style.display = 'flex';
+      });
+      const existingNoResults = dropdown.querySelector('.custom-select-no-results');
+      if (existingNoResults) existingNoResults.remove();
+
+      // Highlight currently selected item
+      highlightedIndex = items.findIndex(item => item.classList.contains('selected'));
+      updateHighlight();
+
+      if (highlightedIndex >= 0) {
+        items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    if (selectText && input.value && !isUserTyping) {
+      setTimeout(() => input.select(), 0);
     }
   }
 
-  function closeDropdown() {
+  function closeDropdown(commitTypedMatch = true) {
+    if (commitTypedMatch && isUserTyping) {
+      const currentHighlighted = items[highlightedIndex];
+      if (currentHighlighted && currentHighlighted.style.display !== 'none') {
+        isUserTyping = false;
+        selectOption(currentHighlighted.dataset.value, currentHighlighted.textContent);
+        return;
+      }
+    }
+
+    isUserTyping = false;
     container.classList.remove('open');
     dropdown.style.display = 'none';
     highlightedIndex = -1;
@@ -1978,20 +2013,58 @@ function makeSelectSearchable(selectId, placeholderText) {
     });
   }
 
-  // 5. Local filtering logic
+  // 5. Local filtering logic (accent-insensitive + smart ranking)
   function filterItems() {
-    const text = input.value.toLowerCase().trim();
+    const query = normalizeSearchText(input.value);
     let visibleCount = 0;
+    let bestIndex = -1;
+    let bestScore = -1;
 
-    items.forEach((item) => {
-      const itemText = item.textContent.toLowerCase();
-      if (itemText.includes(text)) {
+    items.forEach((item, idx) => {
+      if (!query) {
         item.style.display = 'flex';
         visibleCount++;
+        if (item.classList.contains('selected') && bestIndex === -1) {
+          bestIndex = idx;
+        }
+        return;
+      }
+
+      const rawText = item.textContent || '';
+      const primaryPart = rawText.split('—')[0] || rawText;
+      const normPrimary = normalizeSearchText(primaryPart);
+      const normFull = normalizeSearchText(rawText);
+      const normVal = normalizeSearchText(item.dataset.value || '');
+      // Extract state/item name before parentheses if present, e.g. "Sao Paulo (SP)" -> "sao paulo"
+      const normNameOnly = normalizeSearchText(primaryPart.split('(')[0] || primaryPart);
+
+      let score = 0;
+      if (normVal === query || normNameOnly === query || normPrimary === query) {
+        score = 100; // Exact code or name match (e.g. "sp", "sao paulo", "parana")
+      } else if (normNameOnly.startsWith(query) || normPrimary.startsWith(query)) {
+        score = 80; // Starts with query (e.g. "sao", "par")
+      } else if (normPrimary.split(/[\s()-]+/).some(word => word.startsWith(query))) {
+        score = 60; // Word starts with query (e.g. "paulo", "sul", "grosso")
+      } else if (query.length > 2 && normPrimary.includes(query)) {
+        score = 40; // Substring match in primary label (only for 3+ chars so "sp" won't match "E[sp]irito Santo")
+      } else if (query.length > 2 && normFull.includes(query)) {
+        score = 20; // Substring match in secondary info
+      }
+
+      if (score > 0) {
+        item.style.display = 'flex';
+        visibleCount++;
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = idx;
+        }
       } else {
         item.style.display = 'none';
       }
     });
+
+    highlightedIndex = bestIndex;
+    updateHighlight();
 
     // Handle no results dynamically during search
     const existingNoResults = dropdown.querySelector('.custom-select-no-results');
@@ -2006,12 +2079,13 @@ function makeSelectSearchable(selectId, placeholderText) {
   }
 
   // 6. Register Event Listeners
-  input.addEventListener('focus', openDropdown);
-  input.addEventListener('click', openDropdown);
+  input.addEventListener('focus', () => openDropdown(true));
+  input.addEventListener('click', () => openDropdown(true));
   
   input.addEventListener('input', () => {
+    isUserTyping = true;
     if (dropdown.style.display === 'none') {
-      openDropdown();
+      openDropdown(false);
     }
     filterItems();
   });
@@ -2020,7 +2094,7 @@ function makeSelectSearchable(selectId, placeholderText) {
   input.addEventListener('keydown', (e) => {
     if (dropdown.style.display === 'none') {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter') {
-        openDropdown();
+        openDropdown(false);
         e.preventDefault();
       }
       return;
@@ -2058,21 +2132,21 @@ function makeSelectSearchable(selectId, placeholderText) {
       if (currentHighlighted && currentHighlighted.style.display !== 'none') {
         selectOption(currentHighlighted.dataset.value, currentHighlighted.textContent);
       } else if (visibleItems.length > 0) {
-        // Default to first visible if none highlighted
         selectOption(visibleItems[0].dataset.value, visibleItems[0].textContent);
       }
     } else if (e.key === 'Escape') {
       e.preventDefault();
-      closeDropdown();
+      isUserTyping = false;
+      closeDropdown(false);
     } else if (e.key === 'Tab') {
-      closeDropdown();
+      closeDropdown(true);
     }
   });
 
-  // Blur sync
+  // Blur / outside click sync
   document.addEventListener('click', (e) => {
     if (!container.contains(e.target)) {
-      closeDropdown();
+      closeDropdown(true);
     }
   });
 
@@ -2089,6 +2163,7 @@ function makeSelectSearchable(selectId, placeholderText) {
   if (form) {
     form.addEventListener('reset', () => {
       setTimeout(() => {
+        isUserTyping = false;
         input.value = '';
         input.disabled = select.disabled;
         updateDropdownItems();
