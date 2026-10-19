@@ -67,7 +67,7 @@
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1420px;
       margin: 0 auto;
       padding: 0 24px;
       position: relative;
@@ -281,6 +281,12 @@
       background: rgba(8, 12, 20, 0.9);
     }
 
+    .form-input:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
     select.form-input {
       cursor: pointer;
     }
@@ -480,7 +486,7 @@
     /* GRID CONTROLS & KPIS */
     .dashboard-layout {
       display: grid;
-      grid-template-columns: 420px 1fr;
+      grid-template-columns: 440px 1fr;
       gap: 28px;
       align-items: start;
       margin-bottom: 36px;
@@ -916,6 +922,81 @@
           <span>⚙️</span> Parâmetros da Simulação
         </h3>
 
+        <!-- ====================================================================
+             BLOCO EXCLUSIVO DO CONSÓRCIO NO TOPO (VISÍVEL APENAS NA ABA 3)
+             ==================================================================== -->
+        <div id="consorcio-top-panel" style="display: none; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: var(--radius-sm); padding: 18px; margin-bottom: 22px;">
+          <h4 style="font-size: 13.5px; font-weight: 800; color: #C4B5FD; margin-bottom: 12px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+            <span>⚡</span> 1. Dados da Carta de Consórcio
+          </h4>
+
+          <!-- Valor da Carta Real -->
+          <div class="form-group">
+            <label>Valor da Carta de Crédito (R$)</label>
+            <input type="number" id="input-cons-credit-val" class="form-input" value="50000" step="1000">
+            <span style="font-size: 11px; color: var(--text-dim);">Informe o valor real da carta contratada</span>
+          </div>
+
+          <!-- Prazo Total da Carta -->
+          <div class="form-group">
+            <label>Prazo Total da Carta de Consórcio (Meses)</label>
+            <input type="number" id="input-cons-term" class="form-input" value="60" min="12" max="120" step="12">
+            <span style="font-size: 11px; color: var(--text-dim);">Número total de parcelas (ex: 36, 48, 60, 72, 80)</span>
+          </div>
+
+          <!-- Checkbox Usar Médias de Mercado -->
+          <div style="background: rgba(8, 12, 20, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; text-transform: none; font-size: 12px; color: #E2E8F0; margin-bottom: 0;">
+              <input type="checkbox" id="input-cons-use-defaults" checked style="width: 18px; height: 18px; accent-color: var(--accent-purple); cursor: pointer;">
+              <span>Usar médias de mercado (15% Taxa de Adm + 5% Fundo de Reserva)</span>
+            </label>
+          </div>
+
+          <!-- Taxas (Adm e Fundo de Reserva) -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Taxa Adm (%)</label>
+              <input type="number" id="input-cons-adm-rate" class="form-input" value="15.0" step="0.5" disabled>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Fundo Reserva (%)</label>
+              <input type="number" id="input-cons-fund-rate" class="form-input" value="5.0" step="0.5" disabled>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: #A78BFA; display: block; margin-bottom: 14px; line-height: 1.35;">
+            *O Fundo de Reserva é acumulado e <strong>volta para você no encerramento/quitação do grupo</strong>, entrando como crédito no patrimônio final!
+          </span>
+
+          <!-- Dados do Lance -->
+          <div class="form-group">
+            <label>Valor do Lance Ofertado por Carta (R$)</label>
+            <input type="number" id="input-cons-lance-val" class="form-input" value="15000" step="1000">
+            <div id="cons-lance-badge" style="font-size: 11.5px; padding: 7px 10px; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 6px; color: #DDD; margin-top: 5px;">
+              Lance de R$ 15.000,00 representa 30,0% da carta
+            </div>
+          </div>
+
+          <!-- Resumo Transparente do Cálculo da Parcela -->
+          <div id="cons-calc-summary" style="background: rgba(8, 12, 20, 0.8); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 12px; font-size: 12px; line-height: 1.5; color: #CBD5E1;">
+            <div style="display: flex; justify-content: space-between;">
+              <span>Custo Total c/ Taxas:</span>
+              <strong id="cons-summary-total">R$ 60.000,00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: #F87171;">
+              <span>(-) Lance Abatido:</span>
+              <strong id="cons-summary-lance">- R$ 15.000,00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08);">
+              <span>(=) Saldo Residual a Pagar:</span>
+              <strong id="cons-summary-residual">R$ 45.000,00</strong>
+            </div>
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(139, 92, 246, 0.25); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; color: #C4B5FD;">Parcela Mensal:</span>
+              <span style="font-size: 14.5px; font-weight: 900; color: #A78BFA;" id="cons-summary-installment">R$ 750,00 / mês</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 1. PRAZO DO DRE -->
         <div class="form-group">
           <label for="input-horizon">Horizonte de Projeção (Prazo do DRE)</label>
@@ -930,7 +1011,7 @@
 
         <!-- 2. QTD DE CARROS INICIAL -->
         <div class="form-group">
-          <label>Quantidade de Carros Inicial</label>
+          <label id="label-cars">Quantidade de Carros / Cotas</label>
           <div class="input-range-wrapper">
             <input type="range" id="input-cars" class="input-range" min="1" max="25" value="4">
             <div class="input-number-badge" id="badge-cars">4</div>
@@ -938,7 +1019,7 @@
         </div>
 
         <!-- 3. VALOR DE COMPRA (REAL EMPREGADO) -->
-        <div class="form-group">
+        <div class="form-group" id="group-car-val">
           <label>Valor de Compra / Empregado por Carro (R$)</label>
           <input type="number" id="input-car-val" class="form-input" value="50000" step="1000">
           <span style="font-size: 11.5px; color: var(--text-dim);">Capital real desembolsado por veículo</span>
@@ -1042,25 +1123,6 @@
           </div>
         </details>
 
-        <!-- Consórcio Options (aparece apenas na aba 3) -->
-        <div id="consorcio-options" style="display: none; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-          <h4 style="font-size: 13px; color: var(--accent-purple); margin-bottom: 10px; text-transform: uppercase;">
-            Parâmetros do Consórcio
-          </h4>
-          <div class="form-group">
-            <label>Investimento / Lance por Carta (30%)</label>
-            <input type="number" id="input-cons-lance" class="form-input" value="15000">
-          </div>
-          <div class="form-group">
-            <label>Parcela Mensal do Consórcio (% por carta)</label>
-            <input type="number" id="input-cons-rate" class="form-input" value="3.675" step="0.001">
-          </div>
-          <div class="form-group">
-            <label>Fundo de Reserva Consórcio Retornado (%)</label>
-            <input type="number" id="input-cons-refund" class="form-input" value="6">
-          </div>
-        </div>
-
       </div>
 
       <!-- KPIS & RESULTS -->
@@ -1073,7 +1135,7 @@
               <span>💼</span>
             </div>
             <div class="kpi-value" id="kpi-invest">R$ 200.000</div>
-            <div class="kpi-sub" id="kpi-invest-sub">4 veículos de R$ 50.000</div>
+            <div class="kpi-sub" id="kpi-invest-sub">4 veículos &bull; R$ 50.000/carro</div>
           </div>
 
           <div class="kpi-card">
@@ -1251,6 +1313,7 @@
       inputHorizon: document.getElementById('input-horizon'),
       inputCars: document.getElementById('input-cars'),
       badgeCars: document.getElementById('badge-cars'),
+      groupCarVal: document.getElementById('group-car-val'),
       inputCarVal: document.getElementById('input-car-val'),
       inputFipeVal: document.getElementById('input-fipe-val'),
       inputDeprecRate: document.getElementById('input-deprec-rate'),
@@ -1269,10 +1332,19 @@
       inputContabRec: document.getElementById('input-contab-rec'),
       inputTax: document.getElementById('input-tax'),
       
-      consorcioOptions: document.getElementById('consorcio-options'),
-      inputConsLance: document.getElementById('input-cons-lance'),
-      inputConsRate: document.getElementById('input-cons-rate'),
-      inputConsRefund: document.getElementById('input-cons-refund'),
+      // Consórcio Top Panel
+      consorcioTopPanel: document.getElementById('consorcio-top-panel'),
+      inputConsCreditVal: document.getElementById('input-cons-credit-val'),
+      inputConsTerm: document.getElementById('input-cons-term'),
+      inputConsUseDefaults: document.getElementById('input-cons-use-defaults'),
+      inputConsAdmRate: document.getElementById('input-cons-adm-rate'),
+      inputConsFundRate: document.getElementById('input-cons-fund-rate'),
+      inputConsLanceVal: document.getElementById('input-cons-lance-val'),
+      consLanceBadge: document.getElementById('cons-lance-badge'),
+      consSummaryTotal: document.getElementById('cons-summary-total'),
+      consSummaryLance: document.getElementById('cons-summary-lance'),
+      consSummaryResidual: document.getElementById('cons-summary-residual'),
+      consSummaryInstallment: document.getElementById('cons-summary-installment'),
 
       // KPIs
       kpiInvest: document.getElementById('kpi-invest'),
@@ -1374,13 +1446,39 @@
         recalculate();
       });
 
+      // Consorcio default checkbox toggle
+      elements.inputConsUseDefaults.addEventListener('change', () => {
+        if (elements.inputConsUseDefaults.checked) {
+          elements.inputConsAdmRate.value = '15.0';
+          elements.inputConsFundRate.value = '5.0';
+          elements.inputConsAdmRate.disabled = true;
+          elements.inputConsFundRate.disabled = true;
+        } else {
+          elements.inputConsAdmRate.disabled = false;
+          elements.inputConsFundRate.disabled = false;
+        }
+        recalculate();
+      });
+
+      // When Credit Val changes in Consorcio, update FIPE and Purchase Val for user convenience
+      elements.inputConsCreditVal.addEventListener('input', () => {
+        const val = elements.inputConsCreditVal.value;
+        if (activeStrategy === 'leverage') {
+          elements.inputCarVal.value = val;
+          elements.inputFipeVal.value = val;
+          updateUfTax();
+        }
+        recalculate();
+      });
+
       // Input changes
       const inputs = [
         elements.inputCarVal, elements.inputDeprecRate, elements.inputRent, 
         elements.inputUpsellM1, elements.inputIpva, elements.inputReserveFund,
         elements.inputTracker, elements.inputInsurance, elements.inputMaintM1,
         elements.inputMaintRec, elements.inputContabM1, elements.inputContabRec,
-        elements.inputTax, elements.inputConsLance, elements.inputConsRate, elements.inputConsRefund
+        elements.inputTax, elements.inputConsTerm, elements.inputConsAdmRate,
+        elements.inputConsFundRate, elements.inputConsLanceVal
       ];
 
       inputs.forEach(inp => {
@@ -1504,7 +1602,13 @@
       elements.tabSnowball.classList.toggle('active', strategy === 'snowball');
       elements.tabLeverage.classList.toggle('active', strategy === 'leverage');
 
-      elements.consorcioOptions.style.display = (strategy === 'leverage') ? 'block' : 'none';
+      if (strategy === 'leverage') {
+        elements.consorcioTopPanel.style.display = 'block';
+        elements.groupCarVal.style.display = 'none'; // in consorcio, initial purchase is defined by the lance!
+      } else {
+        elements.consorcioTopPanel.style.display = 'none';
+        elements.groupCarVal.style.display = 'flex';
+      }
 
       recalculate();
     }
@@ -1543,10 +1647,26 @@
       const taxRate = (parseFloat(elements.inputTax.value) || 6.76) / 100;
       const reserveFundPerCar = parseFloat(elements.inputReserveFund.value) || 0;
 
-      // Consorcio Params
-      const lancePerCard = parseFloat(elements.inputConsLance.value) || 15000;
-      const consRate = (parseFloat(elements.inputConsRate.value) || 3.675) / 100;
-      const consRefundRate = (parseFloat(elements.inputConsRefund.value) || 6) / 100;
+      // Consórcio Dynamic Parameters
+      const consCreditVal = parseFloat(elements.inputConsCreditVal.value) || 50000;
+      const consTermMonths = parseInt(elements.inputConsTerm.value) || 60;
+      const consAdmRate = (parseFloat(elements.inputConsAdmRate.value) || 15.0) / 100;
+      const consFundRate = (parseFloat(elements.inputConsFundRate.value) || 5.0) / 100;
+      const consLanceVal = parseFloat(elements.inputConsLanceVal.value) || 15000;
+
+      // Consórcio Installment Calculation:
+      // Total com taxas = Carta * (1 + Adm + Fundo)
+      const consTotalCost = consCreditVal * (1 + consAdmRate + consFundRate);
+      const consResidualDebt = Math.max(0, consTotalCost - consLanceVal);
+      const consMonthlyInstallment = consTermMonths > 0 ? (consResidualDebt / consTermMonths) : 0;
+      const consLancePct = consCreditVal > 0 ? ((consLanceVal / consCreditVal) * 100) : 0;
+
+      // Update Consórcio Panel UI
+      elements.consLanceBadge.textContent = `Lance de R$ ${formatMoney(consLanceVal)} representa ${consLancePct.toFixed(1)}% da carta de R$ ${formatMoney(consCreditVal)}`;
+      elements.consSummaryTotal.textContent = formatCurrency(consTotalCost);
+      elements.consSummaryLance.textContent = `- ${formatCurrency(consLanceVal)}`;
+      elements.consSummaryResidual.textContent = formatCurrency(consResidualDebt);
+      elements.consSummaryInstallment.textContent = `${formatCurrency(consMonthlyInstallment)} / mês / carro`;
 
       // Update titles
       elements.mainHeroTitle.textContent = `Simulação Executiva de Escala (${totalMonths} Meses)`;
@@ -1591,7 +1711,8 @@
         let costReserve = currentFleet * reserveFundPerCar;
         let costConsorcio = 0;
         if (activeStrategy === 'leverage') {
-          costConsorcio = (carPurchaseVal * consRate) * initialCars;
+          // Parcela mensal exata do consórcio calculada dinamicamente
+          costConsorcio = consMonthlyInstallment * initialCars;
         }
         const totalNonOpExpenses = costReserve + costConsorcio;
 
@@ -1641,27 +1762,24 @@
 
       // 7. EXECUTIVE METRICS & LIQUIDATION (FIPE - DEPRECIAÇÃO)
       const horizonYears = totalMonths / 12;
-      // Formula de depreciacao composta anual sobre o valor FIPE
       const factorDeprecTotal = Math.pow(1 - annualDeprecRate, horizonYears);
 
       let initialInvestment = 0;
       let fleetLiquidationVal = 0;
       let finalFleetCount = initialCars;
+      let consorcioDebtToPayoff = 0;
       let consorcioRefund = 0;
 
       if (activeStrategy === 'cashflow') {
         initialInvestment = initialCars * carPurchaseVal;
-        // Liquidação é sobre o valor FIPE
         fleetLiquidationVal = initialCars * fipeVal * factorDeprecTotal;
         finalFleetCount = initialCars;
       } else if (activeStrategy === 'snowball') {
         initialInvestment = initialCars * carPurchaseVal;
         finalFleetCount = currentFleet;
         
-        // Initial fleet depreciates full horizon
         let initialFleetLiq = initialCars * fipeVal * factorDeprecTotal;
         
-        // Reinvested cars depreciate according to remaining months in fleet
         let reinvestedLiq = 0;
         newPurchasedLots.forEach(lot => {
           const monthsInFleet = totalMonths - lot.month;
@@ -1672,21 +1790,34 @@
 
         fleetLiquidationVal = initialFleetLiq + reinvestedLiq;
       } else if (activeStrategy === 'leverage') {
-        initialInvestment = initialCars * lancePerCard;
+        // Na Alavancagem, o investimento inicial próprio é o valor do Lance
+        initialInvestment = initialCars * consLanceVal;
         fleetLiquidationVal = initialCars * fipeVal * factorDeprecTotal;
-        consorcioRefund = (fipeVal * consRefundRate) * initialCars;
         finalFleetCount = initialCars;
+
+        // Fundo de Reserva devolvido: valor da carta * taxa do fundo * qtd de carros
+        consorcioRefund = (consCreditVal * consFundRate) * initialCars;
+
+        // Quitação do consórcio se a simulação for menor que o prazo da carta
+        if (totalMonths < consTermMonths) {
+          const remainingMonths = consTermMonths - totalMonths;
+          consorcioDebtToPayoff = remainingMonths * consMonthlyInstallment * initialCars;
+        } else {
+          consorcioDebtToPayoff = 0; // Carta 100% quitada mês a mês
+        }
       }
 
       const finalCash = monthData[totalMonths - 1].accumulatedCash;
-      const accumulatedEquity = finalCash + fleetLiquidationVal + consorcioRefund;
+      // Patrimônio Consolidado = Caixa + Venda Frota - Saldo Quitação Consórcio + Fundo Reserva Consórcio Retornado
+      const netLiquidationGain = Math.max(0, fleetLiquidationVal - consorcioDebtToPayoff);
+      const accumulatedEquity = finalCash + netLiquidationGain + consorcioRefund;
       const totalNetProfit = accumulatedEquity - initialInvestment;
-      const roiPercent = (totalNetProfit / initialInvestment) * 100;
+      const roiPercent = initialInvestment > 0 ? ((totalNetProfit / initialInvestment) * 100) : 0;
 
       // 8. UPDATE KPIS IN UI
       elements.kpiInvest.textContent = formatCurrency(initialInvestment);
       elements.kpiInvestSub.textContent = (activeStrategy === 'leverage') 
-        ? `${initialCars} cotas com lance de ${formatCurrency(lancePerCard)}`
+        ? `${initialCars} cotas &bull; Lance de ${formatCurrency(consLanceVal)}/cota`
         : `${initialCars} veículos &bull; R$ ${formatMoney(carPurchaseVal)}/carro`;
 
       elements.kpiFleet.textContent = `${finalFleetCount} Carros`;
@@ -1695,9 +1826,19 @@
         : `Frota constante nos ${totalMonths} meses`;
 
       elements.kpiCash.textContent = formatCurrency(finalCash);
-      elements.kpiLiquidation.textContent = formatCurrency(fleetLiquidationVal);
-      elements.kpiLiquidationLabel.textContent = `Venda Frota (-${(annualDeprecRate * 100).toFixed(0)}% a.a.)`;
-      elements.kpiLiquidationSub.textContent = `Calculada sobre a FIPE (R$ ${formatMoney(fipeVal)})`;
+      elements.kpiLiquidation.textContent = formatCurrency(netLiquidationGain);
+      
+      if (activeStrategy === 'leverage') {
+        elements.kpiLiquidationLabel.textContent = `Frota Líquida Quitada`;
+        if (consorcioDebtToPayoff > 0) {
+          elements.kpiLiquidationSub.textContent = `Venda FIPE (${formatCurrency(fleetLiquidationVal)}) - Quitação (${formatCurrency(consorcioDebtToPayoff)}) + Fundo Reserva (${formatCurrency(consorcioRefund)})`;
+        } else {
+          elements.kpiLiquidationSub.textContent = `100% quitada no prazo + Fundo de Reserva devolvido (${formatCurrency(consorcioRefund)})`;
+        }
+      } else {
+        elements.kpiLiquidationLabel.textContent = `Venda Frota (-${(annualDeprecRate * 100).toFixed(0)}% a.a.)`;
+        elements.kpiLiquidationSub.textContent = `Depreciação sobre a FIPE (R$ ${formatMoney(fipeVal)})`;
+      }
 
       elements.kpiEquity.textContent = formatCurrency(accumulatedEquity);
       
