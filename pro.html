@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo PRO Mentoria | LOCADOR NÔMADE - Escala de Frotas 24 Meses</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --bg-primary: #080C14;
+      --bg-secondary: #0D1424;
+      --bg-card: rgba(16, 24, 44, 0.65);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #00F2FE;
+      --accent-emerald: #10B981;
+      --accent-gold: #F59E0B;
+      --accent-purple: #8B5CF6;
+      --accent-gradient: linear-gradient(135deg, #00F2FE 0%, #4FACFE 50%, #10B981 100%);
+      --gold-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --color-danger: #EF4444;
+      --color-success: #10B981;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Ambient Lighting */
+    .ambient-glow {
+      position: fixed;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.08) 0%, rgba(16, 185, 129, 0.04) 50%, rgba(8, 12, 20, 0) 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* TOP HEADER */
+    header {
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(8, 12, 20, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 74px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-crown {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #080C14;
+      font-size: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text h1 span {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badge-vip {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #FBBF24;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .student-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 13px;
+    }
+
+    .student-badge .avatar-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .btn-header {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-header:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--text-muted);
+    }
+
+    /* GATE MODAL / AUTHENTICATION */
+    .gate-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 20, 0.94);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .gate-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      border-radius: var(--radius-lg);
+      max-width: 500px;
+      width: 100%;
+      padding: 40px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 242, 254, 0.08);
+      position: relative;
+    }
+
+    .gate-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #FBBF24;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 5px 12px;
+      border-radius: 50px;
+      margin-bottom: 16px;
+    }
+
+    .gate-card h2 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .gate-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-input {
+      background: rgba(8, 12, 20, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      color: var(--text-main);
+      font-size: 15px;
+      font-family: var(--font-sans);
+      width: 100%;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+      background: rgba(8, 12, 20, 0.9);
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: #080C14;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(0, 242, 254, 0.35);
+      filter: brightness(1.05);
+    }
+
+    .feedback-box {
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13.5px;
+      margin-bottom: 20px;
+      display: none;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .feedback-error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #F87171;
+    }
+
+    .feedback-success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34D399;
+    }
+
+    /* MAIN APP STYLING */
+    .pro-dashboard {
+      padding: 36px 0 80px 0;
+    }
+
+    .hero-banner {
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .hero-title-group h2 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .hero-title-group p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 650px;
+    }
+
+    /* STRATEGY TABS */
+    .strategy-tabs {
+      display: flex;
+      gap: 12px;
+      background: rgba(16, 24, 44, 0.5);
+      padding: 6px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 30px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 220px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.active {
+      color: #FFFFFF;
+      background: rgba(0, 242, 254, 0.12);
+      border-color: rgba(0, 242, 254, 0.35);
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.1);
+    }
+
+    .tab-btn.active.tab-snowball {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+    }
+
+    .tab-btn.active.tab-leverage {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.4);
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+    }
+
+    /* GRID CONTROLS & KPIS */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 28px;
+      align-items: start;
+      margin-bottom: 36px;
+    }
+
+    .sidebar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 26px;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+    }
+
+    .sidebar-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #FFFFFF;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .input-range-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .input-range {
+      flex: 1;
+      accent-color: var(--accent-cyan);
+      height: 6px;
+      cursor: pointer;
+    }
+
+    .input-number-badge {
+      background: rgba(8, 12, 20, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-size: 15px;
+      width: 70px;
+      text-align: center;
+    }
+
+    /* KPI CARDS GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card.highlight {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.08) 0%, rgba(16, 185, 129, 0.12) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .kpi-card.gold {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.12) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 6px;
+    }
+
+    /* CHARTS CONTAINER */
+    .chart-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .chart-header h3 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    /* FULL 24-MONTH DRE TABLE */
+    .dre-table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 36px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      max-height: 580px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    th {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      background: rgba(13, 20, 36, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      background: rgba(13, 20, 36, 0.98);
+      font-weight: 600;
+      z-index: 5;
+      min-width: 220px;
+      border-right: 1px solid var(--border-color);
+    }
+
+    th:first-child {
+      z-index: 20;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tr-group-header td {
+      background: rgba(255, 255, 255, 0.03);
+      font-weight: 800;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      font-size: 11.5px;
+      letter-spacing: 0.05em;
+    }
+
+    .tr-highlight td {
+      background: rgba(16, 185, 129, 0.08) !important;
+      font-weight: 800;
+      color: #34D399;
+    }
+
+    .tr-accumulated td {
+      background: rgba(0, 242, 254, 0.08) !important;
+      font-weight: 800;
+      color: #00F2FE;
+    }
+
+    /* ATHOS FLEET PROMO */
+    .athos-promo-banner {
+      background: linear-gradient(135deg, rgba(16, 24, 44, 0.9) 0%, rgba(20, 35, 65, 0.95) 100%);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      border-radius: var(--radius-md);
+      padding: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .athos-info h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+
+    .athos-info p {
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 650px;
+    }
+
+    .btn-athos {
+      background: var(--accent-gradient);
+      color: #042F1A;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      padding: 14px 28px;
+      border-radius: 50px;
+      text-decoration: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-athos:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(0, 242, 254, 0.45);
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      body {
+        background: #FFF !important;
+        color: #000 !important;
+      }
+      .ambient-glow, .gate-overlay, header, .strategy-tabs, .sidebar-card, .btn-header, .athos-promo-banner {
+        display: none !important;
+      }
+      .dashboard-layout {
+        display: block !important;
+      }
+      .kpi-card, .dre-table-card, .chart-container-card {
+        background: #FFF !important;
+        border: 1px solid #CCC !important;
+        color: #000 !important;
+        box-shadow: none !important;
+      }
+      .kpi-value, th, td {
+        color: #000 !important;
+      }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- AUTHENTICATION GATE MODAL -->
+  <div class="gate-overlay" id="gate-overlay">
+    <div class="gate-card">
+      <span class="gate-badge">🔒 Acesso Exclusivo &bull; Mentoria</span>
+      <h2>Módulo PRO</h2>
+      <p>Simulador Estratégico de Escala de Frotas, Projeção 24 Meses e Alavancagem.</p>
+
+      <div class="feedback-box feedback-error" id="gate-error"></div>
+      <div class="feedback-box feedback-success" id="gate-success"></div>
+
+      <!-- STEP 1: SOLICITAR CÓDIGO POR EMAIL -->
+      <div id="step-request">
+        <div class="form-group">
+          <label for="student-email">Seu E-mail de Aluno da Mentoria</label>
+          <input type="email" id="student-email" class="form-input" placeholder="aluno@email.com" required>
+        </div>
+
+        <button type="button" class="btn-primary" id="btn-request-code">
+          <span>Receber Senha por E-mail</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+
+        <p style="margin-top: 20px; margin-bottom: 0; font-size: 12.5px; text-align: center; color: var(--text-dim);">
+          Apenas alunos autorizados da <strong>Mentoria Locador Nômade</strong> possuem acesso liberado.
+        </p>
+      </div>
+
+      <!-- STEP 2: DIGITAR O CÓDIGO DE 6 DÍGITOS -->
+      <div id="step-verify" style="display: none;">
+        <div class="form-group">
+          <label for="student-code">Código de Acesso (6 dígitos)</label>
+          <input type="text" id="student-code" class="form-input" placeholder="Ex: 849201" maxlength="6" style="font-size: 24px; text-align: center; letter-spacing: 6px; font-weight: 800; font-family: monospace;">
+        </div>
+
+        <button type="button" class="btn-primary" id="btn-verify-code">
+          <span>Liberar Acesso PRO</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+
+        <button type="button" id="btn-back-step" style="background: none; border: none; color: var(--text-muted); width: 100%; margin-top: 14px; font-size: 13px; cursor: pointer; text-decoration: underline;">
+          Voltar e trocar e-mail
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container header-content">
+      <a href="/pro" class="brand">
+        <div class="brand-crown">👑</div>
+        <div class="brand-text">
+          <h1>LOCADOR NÔMADE <span>MÓDULO PRO</span></h1>
+        </div>
+        <span class="badge-vip">Mentoria VIP</span>
+      </a>
+
+      <div class="header-actions">
+        <a href="/" class="btn-header" title="Voltar ao simulador básico de 1 carro">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Simulador Básico
+        </a>
+
+        <button type="button" class="btn-header" onclick="window.print()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          Gerar PDF
+        </button>
+
+        <div class="student-badge" id="student-header-badge">
+          <div class="avatar-icon">👑</div>
+          <span id="student-header-name">Aluno Mentoria</span>
+          <button id="btn-logout-pro" title="Sair do Módulo PRO" style="background: none; border: none; color: var(--color-danger); cursor: pointer; margin-left: 6px; display: flex;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP -->
+  <main class="container pro-dashboard">
+    
+    <!-- Hero / Title -->
+    <div class="hero-banner">
+      <div class="hero-title-group">
+        <h2>Simulação Executiva de Escala (24 Meses)</h2>
+        <p>Projete seu fluxo de caixa real, aquisição progressiva de frotas, DRE mês a mês e alavancagem com consórcio contemplado.</p>
+      </div>
+    </div>
+
+    <!-- Strategy Selector Tabs -->
+    <div class="strategy-tabs">
+      <button type="button" class="tab-btn active" id="tab-cashflow">
+        📈 1. DRE Locadora (Fluxo de Caixa)
+      </button>
+      <button type="button" class="tab-btn tab-snowball" id="tab-snowball">
+        🚀 2. DRE Reinvestindo (Bola de Neve)
+      </button>
+      <button type="button" class="tab-btn tab-leverage" id="tab-leverage">
+        ⚡ 3. DRE Alavancagem (Consórcio)
+      </button>
+    </div>
+
+    <!-- Layout: Controls + KPIs -->
+    <div class="dashboard-layout">
+      
+      <!-- CONTROLS SIDEBAR -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-title">
+          <span>⚙️</span> Parâmetros da Simulação
+        </h3>
+
+        <!-- Qtd de Carros Inicial -->
+        <div class="form-group">
+          <label>Quantidade de Carros Inicial</label>
+          <div class="input-range-wrapper">
+            <input type="range" id="input-cars" class="input-range" min="1" max="20" value="4">
+            <div class="input-number-badge" id="badge-cars">4</div>
+          </div>
+        </div>
+
+        <!-- Valor do Carro -->
+        <div class="form-group">
+          <label>Valor Médio de Compra por Carro (R$)</label>
+          <input type="number" id="input-car-val" class="form-input" value="50000" step="1000">
+        </div>
+
+        <!-- Aluguel Semanal / Mensal -->
+        <div class="form-group">
+          <label>Aluguel Mensal por Carro (R$)</label>
+          <input type="number" id="input-rent" class="form-input" value="3000" step="100">
+          <span style="font-size: 11.5px; color: var(--text-dim); margin-top: 2px;" id="rent-sub-label">Equivalente a R$ 700,00 por semana</span>
+        </div>
+
+        <!-- Up Sell / Caução Inicial -->
+        <div class="form-group">
+          <label>Up Sell / Caução Inicial (Mês 1) por Carro</label>
+          <input type="number" id="input-upsell-m1" class="form-input" value="1500" step="100">
+        </div>
+
+        <!-- Custos Operacionais Avançados (Colapsável) -->
+        <details style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+          <summary style="font-size: 12px; font-weight: 700; color: var(--accent-cyan); cursor: pointer; text-transform: uppercase;">
+            Costos Operacionais & Impostos
+          </summary>
+          <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 12px;">
+            <div class="form-group">
+              <label>Rastreador (R$/carro/mês)</label>
+              <input type="number" id="input-tracker" class="form-input" value="60">
+            </div>
+            <div class="form-group">
+              <label>Seguro (R$/carro/mês)</label>
+              <input type="number" id="input-insurance" class="form-input" value="200">
+            </div>
+            <div class="form-group">
+              <label>Manutenção (Mês 1: Revisão / Demais: Recorrente)</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="number" id="input-maint-m1" class="form-input" value="400" placeholder="Mês 1">
+                <input type="number" id="input-maint-rec" class="form-input" value="150" placeholder="Demais">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Contabilidade (Mês 1: Abertura / Demais: Mensal)</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="number" id="input-contab-m1" class="form-input" value="1000" placeholder="Mês 1">
+                <input type="number" id="input-contab-rec" class="form-input" value="350" placeholder="Demais">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>IPVA / Licenciamento (R$/carro/mês)</label>
+              <input type="number" id="input-ipva" class="form-input" value="58.33" step="0.01">
+            </div>
+            <div class="form-group">
+              <label>Alíquota Simples Nacional (%)</label>
+              <input type="number" id="input-tax" class="form-input" value="6.76" step="0.01">
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+              <label style="margin-bottom: 0;">Fundo de Reserva (R$ 200/carro)</label>
+              <input type="checkbox" id="input-reserve-fund" checked style="width: 20px; height: 20px; accent-color: var(--accent-cyan);">
+            </div>
+          </div>
+        </details>
+
+        <!-- Consórcio Options (aparece apenas na aba 3) -->
+        <div id="consorcio-options" style="display: none; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+          <h4 style="font-size: 13px; color: var(--accent-purple); margin-bottom: 10px; text-transform: uppercase;">
+            Parâmetros do Consórcio
+          </h4>
+          <div class="form-group">
+            <label>Investimento / Lance por Carta (30%)</label>
+            <input type="number" id="input-cons-lance" class="form-input" value="15000">
+          </div>
+          <div class="form-group">
+            <label>Parcela Mensal do Consórcio (% por carta)</label>
+            <input type="number" id="input-cons-rate" class="form-input" value="3.675" step="0.001">
+          </div>
+          <div class="form-group">
+            <label>Fundo de Reserva Consórcio Retornado (%)</label>
+            <input type="number" id="input-cons-refund" class="form-input" value="6">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- KPIS & RESULTS -->
+      <div>
+        <div class="kpi-grid">
+          
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Investimento Inicial</span>
+              <span>💼</span>
+            </div>
+            <div class="kpi-value" id="kpi-invest">R$ 200.000</div>
+            <div class="kpi-sub" id="kpi-invest-sub">4 veículos de R$ 50.000</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Frota Final (24 Meses)</span>
+              <span>🚗</span>
+            </div>
+            <div class="kpi-value" id="kpi-fleet" style="color: var(--accent-cyan);">4 Carros</div>
+            <div class="kpi-sub" id="kpi-fleet-sub">Operação padrão</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Caixa Líquido Acumulado</span>
+              <span>💵</span>
+            </div>
+            <div class="kpi-value" id="kpi-cash" style="color: #34D399;">R$ 258.448</div>
+            <div class="kpi-sub">Saldo em conta no mês 24</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Venda Frota (-8% a.a.)</span>
+              <span>🏷️</span>
+            </div>
+            <div class="kpi-value" id="kpi-liquidation">R$ 169.280</div>
+            <div class="kpi-sub">Depreciação composta de 2 anos</div>
+          </div>
+
+          <div class="kpi-card highlight">
+            <div class="kpi-header">
+              <span class="kpi-label" style="color: #34D399; font-weight: 800;">Patrimônio Acumulado</span>
+              <span>👑</span>
+            </div>
+            <div class="kpi-value" id="kpi-equity" style="color: #34D399;">R$ 427.728</div>
+            <div class="kpi-sub">Caixa + Valor dos Veículos</div>
+          </div>
+
+          <div class="kpi-card gold">
+            <div class="kpi-header">
+              <span class="kpi-label" style="color: #FBBF24; font-weight: 800;">Retorno s/ Invest. (ROI)</span>
+              <span>🚀</span>
+            </div>
+            <div class="kpi-value" id="kpi-roi" style="color: #FBBF24;">113,8%</div>
+            <div class="kpi-sub" id="kpi-roi-sub">Lucro Líquido: R$ 227.728</div>
+          </div>
+
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="chart-container-card">
+          <div class="chart-header">
+            <h3>Evolução Patrimonial ao Longo dos 24 Meses</h3>
+            <span style="font-size: 12px; color: var(--text-muted);">Projeção Mês a Mês</span>
+          </div>
+          <div style="height: 320px; position: relative;">
+            <canvas id="equityChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- DRE TABLE SECTION -->
+    <div class="dre-table-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800;">
+            Demonstrativo de Resultados do Exercício (DRE) - 24 Meses
+          </h3>
+          <p style="font-size: 13px; color: var(--text-muted);">
+            Detalhamento mensal completo de Receitas, Custos Operacionais, Tributos, Reinvestimentos e Saldo Final.
+          </p>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table id="dre-table">
+          <thead>
+            <tr id="dre-header-row">
+              <th>Linha DRE</th>
+              <!-- Months 1 to 24 generated dynamically -->
+            </tr>
+          </thead>
+          <tbody id="dre-tbody">
+            <!-- Dynamically populated by JS engine -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ATHOS FLEET FOOTER PROMO -->
+    <div class="athos-promo-banner">
+      <div class="athos-info">
+        <h3>🚀 Gerencie sua Frota com o Sistema Oficial Athos Fleet</h3>
+        <p>
+          Monitore contratos de locação, manutenções preventivas, cobranças automatizadas e relatórios DRE em tempo real. Teste gratuito por 7 dias para alunos da mentoria.
+        </p>
+      </div>
+      <a href="https://athosfleet.com" target="_blank" rel="noopener noreferrer" class="btn-athos">
+        Experimentar 7 Dias Grátis &rarr;
+      </a>
+    </div>
+
+  </main>
+
+  <!-- JAVASCRIPT ENGINE & FINANCIAL MODEL -->
+  <script>
+    // State
+    let activeStrategy = 'cashflow'; // 'cashflow', 'snowball', 'leverage'
+    let currentStudent = null;
+    let equityChartInstance = null;
+
+    // Elements
+    const elements = {
+      gateOverlay: document.getElementById('gate-overlay'),
+      gateError: document.getElementById('gate-error'),
+      gateSuccess: document.getElementById('gate-success'),
+      stepRequest: document.getElementById('step-request'),
+      stepVerify: document.getElementById('step-verify'),
+      studentEmail: document.getElementById('student-email'),
+      studentCode: document.getElementById('student-code'),
+      btnRequestCode: document.getElementById('btn-request-code'),
+      btnVerifyCode: document.getElementById('btn-verify-code'),
+      btnBackStep: document.getElementById('btn-back-step'),
+      studentHeaderBadge: document.getElementById('student-header-badge'),
+      studentHeaderName: document.getElementById('student-header-name'),
+      btnLogoutPro: document.getElementById('btn-logout-pro'),
+
+      // Strategy tabs
+      tabCashflow: document.getElementById('tab-cashflow'),
+      tabSnowball: document.getElementById('tab-snowball'),
+      tabLeverage: document.getElementById('tab-leverage'),
+
+      // Inputs
+      inputCars: document.getElementById('input-cars'),
+      badgeCars: document.getElementById('badge-cars'),
+      inputCarVal: document.getElementById('input-car-val'),
+      inputRent: document.getElementById('input-rent'),
+      rentSubLabel: document.getElementById('rent-sub-label'),
+      inputUpsellM1: document.getElementById('input-upsell-m1'),
+      inputTracker: document.getElementById('input-tracker'),
+      inputInsurance: document.getElementById('input-insurance'),
+      inputMaintM1: document.getElementById('input-maint-m1'),
+      inputMaintRec: document.getElementById('input-maint-rec'),
+      inputContabM1: document.getElementById('input-contab-m1'),
+      inputContabRec: document.getElementById('input-contab-rec'),
+      inputIpva: document.getElementById('input-ipva'),
+      inputTax: document.getElementById('input-tax'),
+      inputReserveFund: document.getElementById('input-reserve-fund'),
+      consorcioOptions: document.getElementById('consorcio-options'),
+      inputConsLance: document.getElementById('input-cons-lance'),
+      inputConsRate: document.getElementById('input-cons-rate'),
+      inputConsRefund: document.getElementById('input-cons-refund'),
+
+      // KPIs
+      kpiInvest: document.getElementById('kpi-invest'),
+      kpiInvestSub: document.getElementById('kpi-invest-sub'),
+      kpiFleet: document.getElementById('kpi-fleet'),
+      kpiFleetSub: document.getElementById('kpi-fleet-sub'),
+      kpiCash: document.getElementById('kpi-cash'),
+      kpiLiquidation: document.getElementById('kpi-liquidation'),
+      kpiEquity: document.getElementById('kpi-equity'),
+      kpiRoi: document.getElementById('kpi-roi'),
+      kpiRoiSub: document.getElementById('kpi-roi-sub'),
+
+      // DRE
+      dreHeaderRow: document.getElementById('dre-header-row'),
+      dreTbody: document.getElementById('dre-tbody')
+    };
+
+    // ==========================================
+    // INITIALIZATION & AUTHENTICATION
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      // Check if student already authenticated
+      const savedStudent = localStorage.getItem('pro_student');
+      if (savedStudent) {
+        try {
+          currentStudent = JSON.parse(savedStudent);
+          unlockProApp();
+        } catch(e) {
+          localStorage.removeItem('pro_student');
+        }
+      }
+
+      setupEvents();
+      buildDREHeader();
+      recalculate();
+    });
+
+    function setupEvents() {
+      // Gate Events
+      elements.btnRequestCode.addEventListener('click', handleRequestCode);
+      elements.btnVerifyCode.addEventListener('click', handleVerifyCode);
+      elements.btnBackStep.addEventListener('click', () => {
+        elements.stepVerify.style.display = 'none';
+        elements.stepRequest.style.display = 'block';
+        elements.gateError.style.display = 'none';
+        elements.gateSuccess.style.display = 'none';
+      });
+
+      elements.btnLogoutPro.addEventListener('click', () => {
+        localStorage.removeItem('pro_student');
+        currentStudent = null;
+        elements.gateOverlay.style.display = 'flex';
+        elements.stepVerify.style.display = 'none';
+        elements.stepRequest.style.display = 'block';
+      });
+
+      // Tabs
+      elements.tabCashflow.addEventListener('click', () => switchStrategy('cashflow'));
+      elements.tabSnowball.addEventListener('click', () => switchStrategy('snowball'));
+      elements.tabLeverage.addEventListener('click', () => switchStrategy('leverage'));
+
+      // Slider sync
+      elements.inputCars.addEventListener('input', () => {
+        elements.badgeCars.textContent = elements.inputCars.value;
+        recalculate();
+      });
+
+      // Input changes
+      const inputs = [
+        elements.inputCarVal, elements.inputRent, elements.inputUpsellM1,
+        elements.inputTracker, elements.inputInsurance, elements.inputMaintM1,
+        elements.inputMaintRec, elements.inputContabM1, elements.inputContabRec,
+        elements.inputIpva, elements.inputTax, elements.inputReserveFund,
+        elements.inputConsLance, elements.inputConsRate, elements.inputConsRefund
+      ];
+
+      inputs.forEach(inp => {
+        inp.addEventListener('input', () => {
+          if (inp === elements.inputRent) {
+            const rentVal = parseFloat(elements.inputRent.value) || 0;
+            const weekVal = (rentVal / 4.2857).toFixed(0);
+            elements.rentSubLabel.textContent = `Equivalente a R$ ${formatMoney(rentVal / 4.2857)} por semana`;
+          }
+          recalculate();
+        });
+      });
+    }
+
+    async function handleRequestCode() {
+      const email = elements.studentEmail.value.trim();
+      if (!email) {
+        showGateError('Por favor, informe seu e-mail de aluno.');
+        return;
+      }
+
+      elements.btnRequestCode.disabled = true;
+      elements.btnRequestCode.innerHTML = '<span>Verificando aluno...</span>';
+      elements.gateError.style.display = 'none';
+      elements.gateSuccess.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/pro/request-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showGateSuccess(data.message || 'Código enviado com sucesso!');
+          elements.stepRequest.style.display = 'none';
+          elements.stepVerify.style.display = 'block';
+          elements.studentCode.focus();
+        } else {
+          showGateError(data.error || 'E-mail não autorizado.');
+        }
+      } catch (err) {
+        showGateError('Erro ao conectar ao servidor. Tente novamente.');
+      } finally {
+        elements.btnRequestCode.disabled = false;
+        elements.btnRequestCode.innerHTML = '<span>Receber Senha por E-mail</span>';
+      }
+    }
+
+    async function handleVerifyCode() {
+      const email = elements.studentEmail.value.trim();
+      const code = elements.studentCode.value.trim();
+
+      if (!code) {
+        showGateError('Digite o código de 6 dígitos enviado por e-mail.');
+        return;
+      }
+
+      elements.btnVerifyCode.disabled = true;
+      elements.btnVerifyCode.innerHTML = '<span>Autenticando...</span>';
+
+      try {
+        const res = await fetch('/api/pro/verify-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          currentStudent = data.student;
+          localStorage.setItem('pro_student', JSON.stringify(data.student));
+          unlockProApp();
+        } else {
+          showGateError(data.error || 'Código incorreto.');
+        }
+      } catch (err) {
+        showGateError('Erro ao autenticar código.');
+      } finally {
+        elements.btnVerifyCode.disabled = false;
+        elements.btnVerifyCode.innerHTML = '<span>Liberar Acesso PRO</span>';
+      }
+    }
+
+    function showGateError(msg) {
+      elements.gateError.textContent = msg;
+      elements.gateError.style.display = 'block';
+      elements.gateSuccess.style.display = 'none';
+    }
+
+    function showGateSuccess(msg) {
+      elements.gateSuccess.textContent = msg;
+      elements.gateSuccess.style.display = 'block';
+      elements.gateError.style.display = 'none';
+    }
+
+    function unlockProApp() {
+      elements.gateOverlay.style.display = 'none';
+      elements.studentHeaderName.textContent = currentStudent.name || currentStudent.email;
+    }
+
+    // ==========================================
+    // STRATEGY TOGGLE
+    // ==========================================
+    function switchStrategy(strategy) {
+      activeStrategy = strategy;
+      
+      elements.tabCashflow.classList.toggle('active', strategy === 'cashflow');
+      elements.tabSnowball.classList.toggle('active', strategy === 'snowball');
+      elements.tabLeverage.classList.toggle('active', strategy === 'leverage');
+
+      elements.consorcioOptions.style.display = (strategy === 'leverage') ? 'block' : 'none';
+
+      recalculate();
+    }
+
+    function buildDREHeader() {
+      elements.dreHeaderRow.innerHTML = '<th>Linha Demonstrativo (DRE)</th>';
+      for (let m = 1; m <= 24; m++) {
+        const th = document.createElement('th');
+        th.textContent = `Mês ${m}`;
+        elements.dreHeaderRow.appendChild(th);
+      }
+    }
+
+    // ==========================================
+    // CALCULATION ENGINE (REPLICATING THE SPREADSHEET)
+    // ==========================================
+    function recalculate() {
+      const initialCars = parseInt(elements.inputCars.value) || 1;
+      const carVal = parseFloat(elements.inputCarVal.value) || 50000;
+      const monthlyRentPerCar = parseFloat(elements.inputRent.value) || 3000;
+      const upsellM1PerCar = parseFloat(elements.inputUpsellM1.value) || 1500;
+      
+      const trackerPerCar = parseFloat(elements.inputTracker.value) || 60;
+      const insurancePerCar = parseFloat(elements.inputInsurance.value) || 200;
+      const maintM1PerCar = parseFloat(elements.inputMaintM1.value) || 400;
+      const maintRecPerCar = parseFloat(elements.inputMaintRec.value) || 150;
+      const contabM1 = parseFloat(elements.inputContabM1.value) || 1000;
+      const contabRec = parseFloat(elements.inputContabRec.value) || 350;
+      const ipvaPerCar = parseFloat(elements.inputIpva.value) || 58.33;
+      const taxRate = (parseFloat(elements.inputTax.value) || 6.76) / 100;
+      const hasReserveFund = elements.inputReserveFund.checked;
+      const reserveFundPerCar = hasReserveFund ? 200 : 0;
+
+      // Consorcio Params
+      const lancePerCard = parseFloat(elements.inputConsLance.value) || 15000;
+      const consRate = (parseFloat(elements.inputConsRate.value) || 3.675) / 100;
+      const consRefundRate = (parseFloat(elements.inputConsRefund.value) || 6) / 100;
+
+      // Projections for 24 months
+      const monthData = [];
+      let currentFleet = initialCars;
+      let accumulatedCash = 0;
+
+      // For Snowball tracking of new car purchases
+      let purchasedCarsCount = 0;
+
+      for (let m = 1; m <= 24; m++) {
+        const isM1 = (m === 1);
+        
+        // 1. REVENUE
+        const grossRent = currentFleet * monthlyRentPerCar;
+        const grossUpsell = isM1 ? (currentFleet * upsellM1PerCar) : (grossRent * 0.10);
+        const totalRevenue = grossRent + grossUpsell;
+
+        // 2. OPERATIONAL EXPENSES
+        const costTracker = currentFleet * trackerPerCar;
+        const costInsurance = currentFleet * insurancePerCar;
+        const costMaint = currentFleet * (isM1 ? maintM1PerCar : maintRecPerCar);
+        const costContab = isM1 ? contabM1 : contabRec;
+        const costIpva = currentFleet * ipvaPerCar;
+        const costTax = totalRevenue * taxRate;
+        const totalOpExpenses = costTracker + costInsurance + costMaint + costContab + costIpva + costTax;
+
+        // 3. OPERATING PROFIT
+        const opProfit = totalRevenue - totalOpExpenses;
+
+        // 4. NON-OPERATIONAL EXPENSES
+        let costReserve = currentFleet * reserveFundPerCar;
+        let costConsorcio = 0;
+        if (activeStrategy === 'leverage') {
+          costConsorcio = (carVal * consRate) * initialCars;
+        }
+        const totalNonOpExpenses = costReserve + costConsorcio;
+
+        // 5. NET PROFIT OF THE MONTH
+        const netProfit = opProfit - totalNonOpExpenses;
+
+        // 6. ACCUMULATION & REINVESTMENT
+        let reinvestment = 0;
+        let newCarsBoughtThisMonth = 0;
+
+        if (activeStrategy === 'snowball') {
+          const cashBeforeReinvest = accumulatedCash + netProfit;
+          if (cashBeforeReinvest >= carVal) {
+            newCarsBoughtThisMonth = Math.floor(cashBeforeReinvest / carVal);
+            reinvestment = newCarsBoughtThisMonth * carVal;
+          }
+          accumulatedCash = cashBeforeReinvest - reinvestment;
+          currentFleet += newCarsBoughtThisMonth;
+          purchasedCarsCount += newCarsBoughtThisMonth;
+        } else {
+          accumulatedCash += netProfit;
+        }
+
+        monthData.push({
+          month: m,
+          fleet: currentFleet,
+          grossRent,
+          grossUpsell,
+          totalRevenue,
+          costTracker,
+          costInsurance,
+          costMaint,
+          costContab,
+          costIpva,
+          costTax,
+          totalOpExpenses,
+          opProfit,
+          costReserve,
+          costConsorcio,
+          totalNonOpExpenses,
+          netProfit,
+          reinvestment,
+          newCarsBought: newCarsBoughtThisMonth,
+          accumulatedCash
+        });
+      }
+
+      // 7. EXECUTIVE METRICS & LIQUIDATION (MONTH 24)
+      let initialInvestment = 0;
+      let fleetLiquidationVal = 0;
+      let finalFleetCount = initialCars;
+      let consorcioRefund = 0;
+
+      const depreciation2Years = 1 - 0.1536; // 8% a.a. after 2 years
+      const depreciation1Year = 1 - 0.08;   // average depreciation for reinvested cars
+
+      if (activeStrategy === 'cashflow') {
+        initialInvestment = initialCars * carVal;
+        fleetLiquidationVal = initialCars * carVal * depreciation2Years;
+        finalFleetCount = initialCars;
+      } else if (activeStrategy === 'snowball') {
+        initialInvestment = initialCars * carVal;
+        finalFleetCount = currentFleet;
+        // Spreadsheet formula: E10*(1-15.36%)+((H6-C6)*(50000)*(1-8%))
+        fleetLiquidationVal = (initialCars * carVal * depreciation2Years) + (purchasedCarsCount * carVal * depreciation1Year);
+      } else if (activeStrategy === 'leverage') {
+        initialInvestment = initialCars * lancePerCard;
+        fleetLiquidationVal = initialCars * carVal * depreciation2Years;
+        consorcioRefund = (carVal * consRefundRate) * initialCars;
+        finalFleetCount = initialCars;
+      }
+
+      const finalCash = monthData[23].accumulatedCash;
+      const accumulatedEquity = finalCash + fleetLiquidationVal + consorcioRefund;
+      const totalNetProfit = accumulatedEquity - initialInvestment;
+      const roiPercent = (totalNetProfit / initialInvestment) * 100;
+
+      // 8. UPDATE KPIS IN UI
+      elements.kpiInvest.textContent = formatCurrency(initialInvestment);
+      elements.kpiInvestSub.textContent = (activeStrategy === 'leverage') 
+        ? `${initialCars} cotas com lance de ${formatCurrency(lancePerCard)}`
+        : `${initialCars} veículos de ${formatCurrency(carVal)}`;
+
+      elements.kpiFleet.textContent = `${finalFleetCount} Carros`;
+      elements.kpiFleetSub.textContent = (activeStrategy === 'snowball')
+        ? `Cresceu de ${initialCars} para ${finalFleetCount} veículos`
+        : `Frota mantida nos 24 meses`;
+
+      elements.kpiCash.textContent = formatCurrency(finalCash);
+      elements.kpiLiquidation.textContent = formatCurrency(fleetLiquidationVal);
+      elements.kpiEquity.textContent = formatCurrency(accumulatedEquity);
+      
+      elements.kpiRoi.textContent = `${roiPercent.toFixed(1)}%`;
+      elements.kpiRoiSub.textContent = `Lucro Líquido: ${formatCurrency(totalNetProfit)}`;
+
+      // 9. RENDER DRE TABLE
+      renderDRETable(monthData);
+
+      // 10. RENDER CHART
+      renderEquityChart(monthData, carVal, depreciation2Years);
+    }
+
+    // ==========================================
+    // RENDER DRE TABLE
+    // ==========================================
+    function renderDRETable(data) {
+      elements.dreTbody.innerHTML = '';
+
+      const rowsConfig = [
+        { label: 'Frota de Carros Ativa', key: 'fleet', isInt: true, isHeader: true },
+        { label: '(+) Receita Bruta Total', key: 'totalRevenue', isMoney: true, isHighlight: true },
+        { label: '    (+) Aluguel de Carros', key: 'grossRent', isMoney: true },
+        { label: '    (+) Up Sell / Caução', key: 'grossUpsell', isMoney: true },
+        { label: '(-) Despesas Operacionais', key: 'totalOpExpenses', isMoney: true, isDanger: true },
+        { label: '    (-) Rastreador', key: 'costTracker', isMoney: true },
+        { label: '    (-) Seguro', key: 'costInsurance', isMoney: true },
+        { label: '    (-) Manutenção', key: 'costMaint', isMoney: true },
+        { label: '    (-) Contabilidade', key: 'costContab', isMoney: true },
+        { label: '    (-) IPVA / Licenciamento', key: 'costIpva', isMoney: true },
+        { label: '    (-) Impostos (Simples Nacional)', key: 'costTax', isMoney: true },
+        { label: '(=) Lucro Operacional', key: 'opProfit', isMoney: true, isHeader: true },
+        { label: '(-) Saídas Não Operacionais', key: 'totalNonOpExpenses', isMoney: true }
+      ];
+
+      if (activeStrategy === 'leverage') {
+        rowsConfig.push({ label: '    (-) Parcela do Consórcio', key: 'costConsorcio', isMoney: true });
+      }
+      rowsConfig.push({ label: '    (-) Fundo de Reserva', key: 'costReserve', isMoney: true });
+
+      rowsConfig.push({ label: '(=) Lucro Líquido Mensal', key: 'netProfit', isMoney: true, isHighlight: true });
+
+      if (activeStrategy === 'snowball') {
+        rowsConfig.push({ label: '(-) Reinvestimento (Compra de Carro)', key: 'reinvestment', isMoney: true, isDanger: true });
+        rowsConfig.push({ label: '    Novos Veículos Adquiridos', key: 'newCarsBought', isInt: true });
+      }
+
+      rowsConfig.push({ label: '(=) Saldo Líquido em Caixa Acumulado', key: 'accumulatedCash', isMoney: true, isAccumulated: true });
+
+      rowsConfig.forEach(cfg => {
+        const tr = document.createElement('tr');
+        if (cfg.isHeader) tr.className = 'tr-group-header';
+        if (cfg.isHighlight) tr.className = 'tr-highlight';
+        if (cfg.isAccumulated) tr.className = 'tr-accumulated';
+
+        let html = `<td>${cfg.label}</td>`;
+        data.forEach(m => {
+          const val = m[cfg.key];
+          let formattedVal = '';
+          if (cfg.isInt) {
+            formattedVal = val.toString();
+          } else if (cfg.isMoney) {
+            formattedVal = formatMoney(val);
+          } else {
+            formattedVal = val;
+          }
+          html += `<td>${formattedVal}</td>`;
+        });
+        tr.innerHTML = html;
+        elements.dreTbody.appendChild(tr);
+      });
+    }
+
+    // ==========================================
+    // CHART.JS VISUAL ENGINE
+    // ==========================================
+    function renderEquityChart(monthData, carVal, depRate) {
+      const labels = monthData.map(m => `Mês ${m.month}`);
+      const cashData = monthData.map(m => m.accumulatedCash);
+      const fleetValueData = monthData.map(m => m.fleet * carVal * depRate);
+      const totalEquityData = monthData.map((m, idx) => cashData[idx] + fleetValueData[idx]);
+
+      const ctx = document.getElementById('equityChart').getContext('2d');
+
+      if (equityChartInstance) {
+        equityChartInstance.destroy();
+      }
+
+      equityChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Patrimônio Total Acumulado (R$)',
+              data: totalEquityData,
+              borderColor: '#10B981',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              fill: true,
+              borderWidth: 3,
+              tension: 0.35,
+              pointRadius: 2
+            },
+            {
+              label: 'Saldo em Caixa Acumulado (R$)',
+              data: cashData,
+              borderColor: '#00F2FE',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              tension: 0.35,
+              pointRadius: 2
+            },
+            {
+              label: 'Valor da Frota Ativa (R$)',
+              data: fleetValueData,
+              borderColor: '#F59E0B',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              tension: 0.35,
+              pointRadius: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#94A3B8',
+                font: { family: 'Inter', size: 12 }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#64748B', font: { family: 'Inter', size: 11 } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#64748B',
+                font: { family: 'Inter', size: 11 },
+                callback: function(val) {
+                  return 'R$ ' + (val / 1000) + 'k';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ==========================================
+    // HELPERS
+    // ==========================================
+    function formatMoney(val) {
+      if (val === undefined || isNaN(val)) return '0,00';
+      return val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatCurrency(val) {
+      if (val === undefined || isNaN(val)) return 'R$ 0,00';
+      return 'R$ ' + formatMoney(val);
+    }
+  </script>
+</body>
+</html>

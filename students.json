@@ -1,0 +1,13 @@
+[
+  {
+    "id": "std_1",
+    "name": "Maikol Koch",
+    "email": "maikolkochh@gmail.com",
+    "phone": "(11) 99999-9999",
+    "status": "ativo",
+    "accessCode": "351316",
+    "createdAt": "2026-10-19T16:55:00.000Z",
+    "lastAccess": "2026-10-19T19:57:24.073Z",
+    "codeGeneratedAt": "2026-10-19T19:57:12.698Z"
+  }
+]

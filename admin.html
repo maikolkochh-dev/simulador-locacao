@@ -429,8 +429,8 @@
   <div class="dashboard-container" id="dashboard-panel">
     <div class="dashboard-header">
       <div class="dashboard-title-group">
-        <h1>Painel de Leads</h1>
-        <p>Acompanhe todos os contatos que simularam ganhos de locação</p>
+        <h1>Painel de Controle</h1>
+        <p>Gerenciamento de Leads do Simulador e Alunos da Mentoria</p>
       </div>
 
       <div class="dashboard-actions">
@@ -440,7 +440,7 @@
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          Exportar Excel (CSV)
+          Exportar CSV
         </button>
 
         <button type="button" class="btn-secondary btn-logout" id="btn-logout">
@@ -454,52 +454,146 @@
       </div>
     </div>
 
-    <!-- KPIs Row -->
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <div>
-          <span class="kpi-label">Total de Simuladores Cadastrados (Leads)</span>
-          <span class="kpi-val" id="kpi-total-leads">0</span>
+    <!-- TABS NAVIGATION -->
+    <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+      <button type="button" id="tab-btn-leads" class="btn-secondary" style="background: rgba(0, 242, 254, 0.15); border-color: var(--accent-primary); color: #FFF; font-weight: 700;">
+        👥 Leads do Simulador Gratuito
+      </button>
+      <button type="button" id="tab-btn-students" class="btn-secondary" style="font-weight: 700;">
+        👑 Alunos Mentoria (Módulo PRO)
+      </button>
+    </div>
+
+    <!-- VIEW 1: LEADS GRATUITOS -->
+    <div id="view-leads">
+      <!-- KPIs Row -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div>
+            <span class="kpi-label">Total de Cadastros (Leads Gratuitos)</span>
+            <span class="kpi-val" id="kpi-total-leads">0</span>
+          </div>
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
         </div>
-        <div class="kpi-icon">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
+      </div>
+
+      <!-- TABLE CARD -->
+      <div class="table-card">
+        <div class="table-header-row">
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="search-input" placeholder="Pesquisar por nome, email ou tel...">
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="leads-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+                <th>Data do Cadastro</th>
+              </tr>
+            </thead>
+            <tbody id="leads-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div class="empty-state" id="empty-state" style="display: none;">
+            Nenhum cadastro encontrado.
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- TABLE CARD -->
-    <div class="table-card">
-      <div class="table-header-row">
-        <div class="search-wrapper">
-          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" id="search-input" placeholder="Pesquisar por nome, email ou tel...">
+    <!-- VIEW 2: ALUNOS DA MENTORIA (PRO) -->
+    <div id="view-students" style="display: none;">
+      <!-- KPIs Row -->
+      <div class="kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div class="kpi-card">
+          <div>
+            <span class="kpi-label">Alunos Autorizados (Módulo PRO)</span>
+            <span class="kpi-val" id="kpi-total-students" style="color: #34D399;">0</span>
+          </div>
+          <div class="kpi-icon" style="background: rgba(52, 211, 153, 0.1); color: #34D399;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+            </svg>
+          </div>
         </div>
       </div>
 
-      <div class="table-container">
-        <table id="leads-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Telefone</th>
-              <th>E-mail</th>
-              <th>Data do Cadastro</th>
-            </tr>
-          </thead>
-          <tbody id="leads-tbody">
-            <!-- Dynamically populated -->
-          </tbody>
-        </table>
-        <div class="empty-state" id="empty-state" style="display: none;">
-          Nenhum cadastro encontrado.
+      <!-- ADD NEW STUDENT CARD -->
+      <div class="table-card" style="margin-bottom: 24px; border-left: 4px solid #34D399;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #FFF; display: flex; align-items: center; gap: 8px;">
+          <span>➕</span> Cadastrar / Autorizar Novo Aluno da Mentoria
+        </h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          Ao cadastrar o e-mail, o sistema gera o código de acesso PRO e envia automaticamente para o e-mail do aluno.
+        </p>
+        <form id="add-student-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 160px; gap: 12px; align-items: flex-end;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 11px;">Nome Completo</label>
+            <input type="text" id="new-student-name" placeholder="Ex: Roberto Silva" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 11px;">E-mail do Aluno</label>
+            <input type="email" id="new-student-email" placeholder="aluno@email.com" required style="background: rgba(8, 12, 20, 0.5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px 16px; color: var(--text-main); font-size: 15px; width: 100%;">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 11px;">WhatsApp / Telefone</label>
+            <input type="text" id="new-student-phone" placeholder="(11) 99999-9999">
+          </div>
+          <button type="submit" class="btn" style="height: 48px; background: linear-gradient(135deg, #34D399 0%, #00F2FE 100%);">
+            Autorizar Aluno
+          </button>
+        </form>
+        <div id="add-student-feedback" style="display: none; margin-top: 12px; padding: 10px; border-radius: var(--radius-sm); font-size: 13px;"></div>
+      </div>
+
+      <!-- STUDENTS TABLE CARD -->
+      <div class="table-card">
+        <div class="table-header-row">
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="search-student-input" placeholder="Pesquisar aluno por nome ou email...">
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="students-table">
+            <thead>
+              <tr>
+                <th>Aluno</th>
+                <th>E-mail</th>
+                <th>Telefone</th>
+                <th>Código PRO</th>
+                <th>Data Cadastro</th>
+                <th>Último Acesso</th>
+                <th style="text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div class="empty-state" id="students-empty-state" style="display: none;">
+            Nenhum aluno cadastrado na Mentoria.
+          </div>
         </div>
       </div>
     </div>
@@ -508,16 +602,39 @@
   <script>
     // State management
     let leadsData = [];
+    let studentsData = [];
+    let currentTab = 'leads'; // 'leads' or 'students'
+
     const elements = {
       loginPanel: document.getElementById('login-panel'),
       dashboardPanel: document.getElementById('dashboard-panel'),
       loginForm: document.getElementById('login-form'),
       adminPasswordInput: document.getElementById('admin-password'),
       loginError: document.getElementById('login-error'),
+      
+      // Tabs
+      tabBtnLeads: document.getElementById('tab-btn-leads'),
+      tabBtnStudents: document.getElementById('tab-btn-students'),
+      viewLeads: document.getElementById('view-leads'),
+      viewStudents: document.getElementById('view-students'),
+      
+      // Leads
       kpiTotalLeads: document.getElementById('kpi-total-leads'),
       leadsTbody: document.getElementById('leads-tbody'),
       emptyState: document.getElementById('empty-state'),
       searchInput: document.getElementById('search-input'),
+      
+      // Students
+      kpiTotalStudents: document.getElementById('kpi-total-students'),
+      studentsTbody: document.getElementById('students-tbody'),
+      studentsEmptyState: document.getElementById('students-empty-state'),
+      searchStudentInput: document.getElementById('search-student-input'),
+      addStudentForm: document.getElementById('add-student-form'),
+      newStudentName: document.getElementById('new-student-name'),
+      newStudentEmail: document.getElementById('new-student-email'),
+      newStudentPhone: document.getElementById('new-student-phone'),
+      addStudentFeedback: document.getElementById('add-student-feedback'),
+
       btnExport: document.getElementById('btn-export'),
       btnLogout: document.getElementById('btn-logout')
     };
@@ -526,7 +643,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       const storedPass = sessionStorage.getItem('admin_password');
       if (storedPass) {
-        fetchLeads(storedPass);
+        fetchAll(storedPass);
       }
     });
 
@@ -534,7 +651,32 @@
     elements.loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const password = elements.adminPasswordInput.value.trim();
-      fetchLeads(password);
+      fetchAll(password);
+    });
+
+    // Tab switching
+    elements.tabBtnLeads.addEventListener('click', () => {
+      currentTab = 'leads';
+      elements.viewLeads.style.display = 'block';
+      elements.viewStudents.style.display = 'none';
+      elements.tabBtnLeads.style.background = 'rgba(0, 242, 254, 0.15)';
+      elements.tabBtnLeads.style.borderColor = 'var(--accent-primary)';
+      elements.tabBtnLeads.style.color = '#FFF';
+      elements.tabBtnStudents.style.background = 'rgba(255, 255, 255, 0.05)';
+      elements.tabBtnStudents.style.borderColor = 'var(--border-color)';
+      elements.tabBtnStudents.style.color = 'var(--text-muted)';
+    });
+
+    elements.tabBtnStudents.addEventListener('click', () => {
+      currentTab = 'students';
+      elements.viewLeads.style.display = 'none';
+      elements.viewStudents.style.display = 'block';
+      elements.tabBtnStudents.style.background = 'rgba(52, 211, 153, 0.15)';
+      elements.tabBtnStudents.style.borderColor = '#34D399';
+      elements.tabBtnStudents.style.color = '#FFF';
+      elements.tabBtnLeads.style.background = 'rgba(255, 255, 255, 0.05)';
+      elements.tabBtnLeads.style.borderColor = 'var(--border-color)';
+      elements.tabBtnLeads.style.color = 'var(--text-muted)';
     });
 
     // Log out admin
@@ -546,7 +688,7 @@
       document.body.style.justifyContent = 'center';
     });
 
-    // Live search input filtering
+    // Search filters
     elements.searchInput.addEventListener('keyup', () => {
       const query = elements.searchInput.value.toLowerCase();
       const filtered = leadsData.filter(user => 
@@ -554,51 +696,126 @@
         (user.email && user.email.toLowerCase().includes(query)) ||
         (user.telefone && user.telefone.toLowerCase().includes(query))
       );
-      renderTable(filtered);
+      renderLeadsTable(filtered);
+    });
+
+    elements.searchStudentInput.addEventListener('keyup', () => {
+      const query = elements.searchStudentInput.value.toLowerCase();
+      const filtered = studentsData.filter(std => 
+        (std.name && std.name.toLowerCase().includes(query)) ||
+        (std.email && std.email.toLowerCase().includes(query)) ||
+        (std.phone && std.phone.toLowerCase().includes(query))
+      );
+      renderStudentsTable(filtered);
+    });
+
+    // Add new student
+    elements.addStudentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = sessionStorage.getItem('admin_password');
+      const name = elements.newStudentName.value.trim();
+      const email = elements.newStudentEmail.value.trim();
+      const phone = elements.newStudentPhone.value.trim();
+
+      elements.addStudentFeedback.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/admin/students/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, name, email, phone })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          elements.addStudentFeedback.style.display = 'block';
+          elements.addStudentFeedback.style.background = 'rgba(52, 211, 153, 0.15)';
+          elements.addStudentFeedback.style.border = '1px solid rgba(52, 211, 153, 0.3)';
+          elements.addStudentFeedback.style.color = '#34D399';
+          elements.addStudentFeedback.textContent = '✅ Aluno cadastrado e código enviado com sucesso por e-mail!';
+          elements.newStudentName.value = '';
+          elements.newStudentEmail.value = '';
+          elements.newStudentPhone.value = '';
+          fetchStudents(password);
+        } else {
+          elements.addStudentFeedback.style.display = 'block';
+          elements.addStudentFeedback.style.background = 'rgba(239, 68, 68, 0.15)';
+          elements.addStudentFeedback.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+          elements.addStudentFeedback.style.color = '#EF4444';
+          elements.addStudentFeedback.textContent = '❌ ' + (data.error || 'Erro ao cadastrar aluno.');
+        }
+      } catch (err) {
+        alert('Erro ao conectar ao servidor para cadastrar aluno.');
+      }
     });
 
     // Export to CSV trigger
     elements.btnExport.addEventListener('click', () => {
-      if (leadsData.length === 0) {
-        alert('Não há contatos cadastrados para exportação.');
-        return;
+      if (currentTab === 'leads') {
+        if (leadsData.length === 0) {
+          alert('Não há contatos cadastrados para exportação.');
+          return;
+        }
+        exportLeadsToCSV(leadsData);
+      } else {
+        if (studentsData.length === 0) {
+          alert('Não há alunos cadastrados para exportação.');
+          return;
+        }
+        exportStudentsToCSV(studentsData);
       }
-      exportToCSV(leadsData);
     });
 
-    // API Call to fetch leads
+    async function fetchAll(password) {
+      await fetchLeads(password);
+      await fetchStudents(password);
+    }
+
     async function fetchLeads(password) {
       try {
         const response = await fetch('/api/admin/users', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password })
         });
-
         const data = await response.json();
 
         if (data.success) {
           leadsData = data.users || [];
           sessionStorage.setItem('admin_password', password);
           
-          // Switch display
           elements.loginPanel.style.display = 'none';
           elements.dashboardPanel.style.display = 'block';
           elements.loginError.style.display = 'none';
           document.body.style.justifyContent = 'flex-start';
-          document.body.style.paddingTop = '60px';
+          document.body.style.paddingTop = '40px';
 
-          // Populates KPIs & Table
           elements.kpiTotalLeads.textContent = leadsData.length;
-          renderTable(leadsData);
+          renderLeadsTable(leadsData);
         } else {
           showError(data.error || 'Senha incorreta. Tente novamente.');
         }
       } catch (err) {
         showError('Erro ao conectar ao servidor administrativo.');
-        console.error(err);
+      }
+    }
+
+    async function fetchStudents(password) {
+      try {
+        const response = await fetch('/api/admin/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          studentsData = data.students || [];
+          elements.kpiTotalStudents.textContent = studentsData.length;
+          renderStudentsTable(studentsData);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar alunos:', err);
       }
     }
 
@@ -608,32 +825,21 @@
       sessionStorage.removeItem('admin_password');
     }
 
-    // Render leads inside table body
-    function renderTable(data) {
+    function renderLeadsTable(data) {
       elements.leadsTbody.innerHTML = '';
-      
       if (data.length === 0) {
         elements.emptyState.style.display = 'block';
         return;
       }
-      
       elements.emptyState.style.display = 'none';
 
       data.forEach(user => {
         const row = document.createElement('tr');
-        
-        // Format ISO Date to Pt-BR locale
         let formattedDate = 'N/A';
         if (user.createdAt) {
           try {
             const date = new Date(user.createdAt);
-            formattedDate = date.toLocaleString('pt-BR', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            });
+            formattedDate = date.toLocaleString('pt-BR');
           } catch(e) {}
         }
 
@@ -643,12 +849,89 @@
           <td>${escapeHTML(user.email)}</td>
           <td class="td-date">${formattedDate}</td>
         `;
-        
         elements.leadsTbody.appendChild(row);
       });
     }
 
-    // Secure HTML strings to prevent XSS
+    function renderStudentsTable(data) {
+      elements.studentsTbody.innerHTML = '';
+      if (data.length === 0) {
+        elements.studentsEmptyState.style.display = 'block';
+        return;
+      }
+      elements.studentsEmptyState.style.display = 'none';
+
+      data.forEach(std => {
+        const row = document.createElement('tr');
+        let formattedDate = 'N/A';
+        if (std.createdAt) {
+          try {
+            formattedDate = new Date(std.createdAt).toLocaleString('pt-BR');
+          } catch(e) {}
+        }
+
+        let formattedLastAccess = 'Nunca acessou';
+        if (std.lastAccess) {
+          try {
+            formattedLastAccess = new Date(std.lastAccess).toLocaleString('pt-BR');
+          } catch(e) {}
+        }
+
+        row.innerHTML = `
+          <td class="td-name">👑 ${escapeHTML(std.name)}</td>
+          <td>${escapeHTML(std.email)}</td>
+          <td>${escapeHTML(std.phone || '-')}</td>
+          <td><code style="background: rgba(0, 242, 254, 0.1); color: #00F2FE; padding: 4px 8px; border-radius: 4px; font-weight: 700;">${escapeHTML(std.accessCode || '-')}</code></td>
+          <td class="td-date">${formattedDate}</td>
+          <td class="td-date">${formattedLastAccess}</td>
+          <td style="text-align: right; white-space: nowrap;">
+            <button class="btn-secondary" style="display: inline-flex; padding: 6px 10px; font-size: 11px; margin-right: 6px;" onclick="resendCode('${escapeHTML(std.email)}')">
+              ✉️ Reenviar
+            </button>
+            <button class="btn-secondary btn-logout" style="display: inline-flex; padding: 6px 10px; font-size: 11px;" onclick="removeStudent('${escapeHTML(std.email)}')">
+              🗑️ Excluir
+            </button>
+          </td>
+        `;
+        elements.studentsTbody.appendChild(row);
+      });
+    }
+
+    // Global action helpers
+    window.resendCode = async function(email) {
+      const password = sessionStorage.getItem('admin_password');
+      if (!confirm(`Deseja gerar um novo código e reenviar por e-mail para ${email}?`)) return;
+      try {
+        const res = await fetch('/api/admin/students/resend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, email })
+        });
+        const data = await res.json();
+        alert(data.message || (data.success ? 'Código reenviado com sucesso!' : data.error));
+        fetchStudents(password);
+      } catch (err) {
+        alert('Erro ao reenviar código.');
+      }
+    };
+
+    window.removeStudent = async function(email) {
+      const password = sessionStorage.getItem('admin_password');
+      if (!confirm(`Tem certeza que deseja remover o aluno ${email} da lista VIP? Ele perderá o acesso ao Módulo PRO.`)) return;
+      try {
+        const res = await fetch('/api/admin/students/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, email })
+        });
+        const data = await res.json();
+        alert(data.message || 'Aluno removido com sucesso!');
+        fetchStudents(password);
+      } catch (err) {
+        alert('Erro ao remover aluno.');
+      }
+    };
+
     function escapeHTML(str) {
       if (!str) return '';
       return str.replace(/[&<>'"]/g, 
@@ -662,35 +945,37 @@
       );
     }
 
-    // CSV format builder and downloader
-    function exportToCSV(data) {
-      // Define CSV headers
+    function exportLeadsToCSV(data) {
       const headers = ['Nome', 'Telefone', 'Email', 'Data de Cadastro'];
-      
-      // Map user details to CSV lines
-      const rows = data.map(user => {
-        let formattedDate = 'N/A';
-        if (user.createdAt) {
-          const date = new Date(user.createdAt);
-          formattedDate = date.toLocaleString('pt-BR');
-        }
-        return [
-          `"${(user.nome || '').replace(/"/g, '""')}"`,
-          `"${(user.telefone || '').replace(/"/g, '""')}"`,
-          `"${(user.email || '').replace(/"/g, '""')}"`,
-          `"${formattedDate}"`
-        ];
-      });
+      const rows = data.map(user => [
+        `"${(user.nome || '').replace(/"/g, '""')}"`,
+        `"${(user.telefone || '').replace(/"/g, '""')}"`,
+        `"${(user.email || '').replace(/"/g, '""')}"`,
+        `"${user.createdAt ? new Date(user.createdAt).toLocaleString('pt-BR') : 'N/A'}"`
+      ]);
+      downloadCSV('leads_locador_nomade.csv', headers, rows);
+    }
 
-      // Join headers and lines, add UTF-8 BOM so Excel decodes symbols correctly
+    function exportStudentsToCSV(data) {
+      const headers = ['Nome', 'Email', 'Telefone', 'Codigo PRO', 'Data Cadastro', 'Ultimo Acesso'];
+      const rows = data.map(std => [
+        `"${(std.name || '').replace(/"/g, '""')}"`,
+        `"${(std.email || '').replace(/"/g, '""')}"`,
+        `"${(std.phone || '').replace(/"/g, '""')}"`,
+        `"${(std.accessCode || '').replace(/"/g, '""')}"`,
+        `"${std.createdAt ? new Date(std.createdAt).toLocaleString('pt-BR') : 'N/A'}"`,
+        `"${std.lastAccess ? new Date(std.lastAccess).toLocaleString('pt-BR') : 'Nunca'}"`
+      ]);
+      downloadCSV('alunos_mentoria_locador_nomade.csv', headers, rows);
+    }
+
+    function downloadCSV(filename, headers, rows) {
       const csvContent = "\uFEFF" + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
-      
-      // Build blob element and trigger download
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", "leads_locador_nomade.csv");
+      link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
