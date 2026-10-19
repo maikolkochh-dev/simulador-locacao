@@ -2515,6 +2515,7 @@ function runCalculationsAndRender(options = {}) {
     localStorage.setItem('locador_last_simulation', JSON.stringify({
       carPurchaseVal: data.valorPago,
       fipeVal: data.valorFipe,
+      weeklyRent: data.valorSemanal,
       rentVal: monthlyRent,
       upsellM1Val: data.valorCaucao,
       uf: state.selectedUf || 'SP',

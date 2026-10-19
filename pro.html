@@ -614,6 +614,128 @@
       box-shadow: 0 6px 20px rgba(139, 92, 246, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.22);
     }
 
+    /* RÉGUA DE VACÂNCIA ANUAL - APPLE FROSTED GLASS */
+    .vacancy-ruler-card {
+      background: rgba(18, 26, 44, 0.45);
+      backdrop-filter: blur(32px) saturate(190%);
+      -webkit-backdrop-filter: blur(32px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-top: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 20px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .vacancy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .vacancy-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .vacancy-icon-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .vacancy-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      color: #FFFFFF;
+      display: block;
+    }
+
+    .vacancy-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .vacancy-selected-pill {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34D399;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 50px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .vacancy-track {
+      display: flex;
+      gap: 8px;
+      background: rgba(10, 16, 28, 0.55);
+      padding: 5px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow-x: auto;
+    }
+
+    .btn-vacancy {
+      flex: 1;
+      min-width: 90px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .btn-vacancy:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-vacancy.active {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-top: 1px solid rgba(245, 158, 11, 0.7);
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-vacancy.active[data-vacancy="0"] {
+      border-color: rgba(16, 185, 129, 0.4);
+      border-top-color: rgba(16, 185, 129, 0.7);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .vacancy-footer-note {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
     /* GRID CONTROLS & KPIS */
     .dashboard-layout {
       display: grid;
@@ -1126,6 +1248,45 @@
       <span id="sync-status-text">Valores sincronizados automaticamente entre as Telas 1, 2 e 3</span>
     </div>
 
+    <!-- RÉGUA DE VACÂNCIA ANUAL DA FROTA -->
+    <div class="vacancy-ruler-card">
+      <div class="vacancy-header">
+        <div class="vacancy-header-left">
+          <div class="vacancy-icon-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div>
+            <span class="vacancy-title">Régua de Vacância Anual da Frota</span>
+            <span class="vacancy-desc">Selecione o percentual estimado de semanas ociosas da frota ao longo do ano:</span>
+          </div>
+        </div>
+
+        <div class="vacancy-selected-pill" id="vacancy-status-pill">
+          0% &bull; Frota 100% Locada (52 semanas cheias)
+        </div>
+      </div>
+
+      <div class="vacancy-track" id="vacancy-track">
+        <button type="button" class="btn-vacancy active" data-vacancy="0">0% (Sem Vacância)</button>
+        <button type="button" class="btn-vacancy" data-vacancy="5">5%</button>
+        <button type="button" class="btn-vacancy" data-vacancy="10">10%</button>
+        <button type="button" class="btn-vacancy" data-vacancy="15">15%</button>
+        <button type="button" class="btn-vacancy" data-vacancy="20">20%</button>
+        <button type="button" class="btn-vacancy" data-vacancy="25">25%</button>
+        <button type="button" class="btn-vacancy" data-vacancy="30">30%</button>
+        <button type="button" class="btn-vacancy" data-vacancy="35">35%</button>
+      </div>
+
+      <div class="vacancy-footer-note" id="vacancy-footer-note">
+        Base anual de 52 semanas (4,33 semanas/mês). Com <strong>0% de vacância</strong>, os veículos operam gerando receita 100% do tempo.
+      </div>
+    </div>
+
     <!-- Layout: Controls + KPIs -->
     <div class="dashboard-layout">
       
@@ -1284,14 +1445,17 @@
           <input type="text" id="input-deprec-rate" class="form-input" value="8,0%">
         </div>
 
-        <!-- 6. ALUGUEL MENSAL -->
+        <!-- 6. ALUGUEL SEMANAL -->
         <div class="form-group">
           <label class="has-tooltip" tabindex="0">
-            <span>Aluguel Mensal por Carro</span>
+            <span>Aluguel Semanal por Carro</span>
             <span class="tooltip-icon">i</span>
-            <span class="tooltip-bubble">Receita bruta de aluguel por veículo ao mês (ex: R$ 3.000,00/mês equivale a ~R$ 700,00 por semana considerando 4,3 semanas/mês).</span>
+            <span class="tooltip-bubble">Valor cobrado por semana de locação de cada veículo (ex: R$ 700,00/semana). O sistema multiplica automaticamente pela média anual de 4,33 semanas/mês para apurar a receita nominal mensal.</span>
           </label>
-          <input type="text" id="input-rent" class="form-input" value="R$ 3.000,00">
+          <input type="text" id="input-rent-week" class="form-input" value="R$ 700,00">
+          <div id="badge-monthly-rent" style="font-size: 11.5px; padding: 6px 10px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; color: #93C5FD; margin-top: 5px; font-weight: 500;">
+            Equivale a R$ 3.031,00/mês nominal (&times; 4,33 sem)
+          </div>
         </div>
 
         <!-- 7. UP SELL / CAUÇÃO INICIAL COM TOOLTIP -->
@@ -1570,6 +1734,42 @@
     let activeStrategy = 'cashflow'; // 'cashflow', 'snowball', 'leverage'
     let currentStudent = null;
     let equityChartInstance = null;
+    let currentVacancy = 0; // percentage: 0, 5, 10, 15, 20, 25, 30, 35
+
+    const VACANCY_INFO = {
+      0: {
+        label: '0% &bull; Frota 100% Locada (52 semanas cheias)',
+        note: 'Base anual de 52 semanas (4,33 semanas/mês). Com <strong>0% de vacância</strong>, os veículos operam gerando receita 100% do tempo (52 semanas cheias).'
+      },
+      5: {
+        label: '5% &bull; ~2,6 semanas (~18 dias) ociosas no ano',
+        note: 'Com <strong>5% de vacância</strong>, estima-se aproximadamente 2,6 semanas (~18 dias) de troca de motorista ou revisão por veículo no ano.'
+      },
+      10: {
+        label: '10% &bull; ~5,2 semanas (~36 dias) ociosas no ano',
+        note: 'Com <strong>10% de vacância</strong>, estima-se cerca de 5,2 semanas (~36 dias) ociosas no ano para manutenções mais longas ou transição.'
+      },
+      15: {
+        label: '15% &bull; ~7,8 semanas (~55 dias) ociosas no ano',
+        note: 'Com <strong>15% de vacância</strong>, projeta-se cerca de 7,8 semanas (~55 dias) sem locatário no ano.'
+      },
+      20: {
+        label: '20% &bull; ~10,4 semanas (~73 dias) ociosas no ano',
+        note: 'Com <strong>20% de vacância</strong>, projeta-se cerca de 10,4 semanas (~73 dias) ociosas no ano. Modelo conservador.'
+      },
+      25: {
+        label: '25% &bull; ~13 semanas (3 meses) ociosas no ano',
+        note: 'Com <strong>25% de vacância</strong>, projeta-se 13 semanas (1/4 do ano) sem locatário.'
+      },
+      30: {
+        label: '30% &bull; ~15,6 semanas (~109 dias) ociosas no ano',
+        note: 'Com <strong>30% de vacância</strong>, teste de estresse severo de ociosidade anual da frota.'
+      },
+      35: {
+        label: '35% &bull; ~18,2 semanas (~127 dias) ociosas no ano',
+        note: 'Com <strong>35% de vacância</strong>, cenário de estresse operacional extremo (mais de 4 meses ociosos no ano).'
+      }
+    };
 
     // Elements
     const elements = {
@@ -1599,6 +1799,11 @@
       chartTitle: document.getElementById('chart-title'),
       dreTableTitle: document.getElementById('dre-table-title'),
 
+      // Vacancy Ruler
+      vacancyTrack: document.getElementById('vacancy-track'),
+      vacancyStatusPill: document.getElementById('vacancy-status-pill'),
+      vacancyFooterNote: document.getElementById('vacancy-footer-note'),
+
       // Inputs
       inputHorizon: document.getElementById('input-horizon'),
       inputCars: document.getElementById('input-cars'),
@@ -1607,7 +1812,8 @@
       inputCarVal: document.getElementById('input-car-val'),
       inputFipeVal: document.getElementById('input-fipe-val'),
       inputDeprecRate: document.getElementById('input-deprec-rate'),
-      inputRent: document.getElementById('input-rent'),
+      inputRentWeek: document.getElementById('input-rent-week'),
+      badgeMonthlyRent: document.getElementById('badge-monthly-rent'),
       inputUpsellM1: document.getElementById('input-upsell-m1'),
       inputUf: document.getElementById('input-uf'),
       ufBadgeInfo: document.getElementById('uf-badge-info'),
@@ -1707,6 +1913,25 @@
       }
     }
 
+    function setVacancy(vac) {
+      currentVacancy = Number(vac) || 0;
+      const info = VACANCY_INFO[currentVacancy] || VACANCY_INFO[0];
+      
+      if (elements.vacancyStatusPill) {
+        elements.vacancyStatusPill.innerHTML = info.label;
+      }
+      if (elements.vacancyFooterNote) {
+        elements.vacancyFooterNote.innerHTML = info.note;
+      }
+
+      document.querySelectorAll('.btn-vacancy').forEach(btn => {
+        const btnVal = Number(btn.getAttribute('data-vacancy'));
+        btn.classList.toggle('active', btnVal === currentVacancy);
+      });
+
+      recalculate();
+    }
+
     function loadSavedSimulationState() {
       try {
         const saved = localStorage.getItem('pro_simulation_params');
@@ -1720,7 +1945,15 @@
           if (p.carVal) elements.inputCarVal.value = p.carVal;
           if (p.fipeVal) elements.inputFipeVal.value = p.fipeVal;
           if (p.deprecRate) elements.inputDeprecRate.value = p.deprecRate;
-          if (p.rent) elements.inputRent.value = p.rent;
+          if (p.rentWeek) {
+            elements.inputRentWeek.value = p.rentWeek;
+          } else if (p.rent) {
+            const parsedMonthly = parseMoney(p.rent);
+            elements.inputRentWeek.value = formatCurrency(parsedMonthly / 4.33);
+          }
+          if (typeof p.vacancy === 'number') {
+            setVacancy(p.vacancy);
+          }
           if (p.upsellM1) elements.inputUpsellM1.value = p.upsellM1;
           if (p.uf) elements.inputUf.value = p.uf;
           if (p.ipva) elements.inputIpva.value = p.ipva;
@@ -1751,7 +1984,14 @@
           const ps = JSON.parse(publicSim);
           if (ps.carPurchaseVal) elements.inputCarVal.value = formatCurrency(ps.carPurchaseVal);
           if (ps.fipeVal) elements.inputFipeVal.value = formatCurrency(ps.fipeVal);
-          if (ps.rentVal) elements.inputRent.value = formatCurrency(ps.rentVal);
+          if (ps.weeklyRent) {
+            elements.inputRentWeek.value = formatCurrency(ps.weeklyRent);
+          } else if (ps.rentVal) {
+            elements.inputRentWeek.value = formatCurrency(ps.rentVal / 4.33);
+          }
+          if (typeof ps.vacancy === 'number') {
+            setVacancy(ps.vacancy);
+          }
           if (ps.upsellM1Val) elements.inputUpsellM1.value = formatCurrency(ps.upsellM1Val);
           if (ps.uf) elements.inputUf.value = ps.uf;
           if (ps.ipvaVal) elements.inputIpva.value = formatCurrency(ps.ipvaVal);
@@ -1779,7 +2019,8 @@
           carVal: elements.inputCarVal.value,
           fipeVal: elements.inputFipeVal.value,
           deprecRate: elements.inputDeprecRate.value,
-          rent: elements.inputRent.value,
+          rentWeek: elements.inputRentWeek.value,
+          vacancy: currentVacancy,
           upsellM1: elements.inputUpsellM1.value,
           uf: elements.inputUf.value,
           ipva: elements.inputIpva.value,
@@ -1826,6 +2067,14 @@
       elements.tabCashflow.addEventListener('click', () => switchStrategy('cashflow'));
       elements.tabSnowball.addEventListener('click', () => switchStrategy('snowball'));
       elements.tabLeverage.addEventListener('click', () => switchStrategy('leverage'));
+
+      // Vacancy ruler buttons
+      document.querySelectorAll('.btn-vacancy').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const vac = Number(btn.getAttribute('data-vacancy')) || 0;
+          setVacancy(vac);
+        });
+      });
 
       // Slider sync
       elements.inputCars.addEventListener('input', () => {
@@ -1876,7 +2125,7 @@
 
       // Money inputs: select on focus, format on blur, live recalculate on input
       const moneyInputs = [
-        elements.inputCarVal, elements.inputFipeVal, elements.inputRent, 
+        elements.inputCarVal, elements.inputFipeVal, elements.inputRentWeek, 
         elements.inputUpsellM1, elements.inputIpva, elements.inputReserveFund,
         elements.inputTracker, elements.inputInsurance, elements.inputMaintM1,
         elements.inputMaintRec, elements.inputContabM1, elements.inputContabRec,
@@ -2101,7 +2350,13 @@
       const fipeVal = parseMoney(elements.inputFipeVal.value) || 50000;
       const annualDeprecRate = (parsePercent(elements.inputDeprecRate.value) || 8.0) / 100;
 
-      const monthlyRentPerCar = parseMoney(elements.inputRent.value) || 3000;
+      const weeklyRentPerCar = parseMoney(elements.inputRentWeek.value) || 700;
+      const monthlyRentNominal = weeklyRentPerCar * 4.33;
+      if (elements.badgeMonthlyRent) {
+        elements.badgeMonthlyRent.innerHTML = `Equivale a ${formatCurrency(monthlyRentNominal)}/mês nominal (&times; 4,33 sem)`;
+      }
+      const vacancyRate = (currentVacancy || 0) / 100;
+      const effectiveMonthlyRentPerCar = monthlyRentNominal * (1 - vacancyRate);
       const upsellM1PerCar = parseMoney(elements.inputUpsellM1.value) || 1500;
       
       const trackerPerCar = parseMoney(elements.inputTracker.value) || 60;
@@ -2157,7 +2412,7 @@
         const isM1 = (m === 1);
         
         // 1. REVENUE
-        const grossRent = currentFleet * monthlyRentPerCar;
+        const grossRent = currentFleet * effectiveMonthlyRentPerCar;
         // Mês 1: Caução de entrada. Mês 2+: 10% receitas extras (multas ressarcidas, upsell km, quebras de contrato)
         const grossUpsell = isM1 ? (currentFleet * upsellM1PerCar) : (grossRent * 0.10);
         const totalRevenue = grossRent + grossUpsell;
@@ -2368,10 +2623,26 @@
     function renderDRETable(data) {
       elements.dreTbody.innerHTML = '';
 
+      const weeklyRentPerCar = parseMoney(elements.inputRentWeek.value) || 700;
+      const monthlyRentNominal = weeklyRentPerCar * 4.33;
+      const vacancyRate = (currentVacancy || 0) / 100;
+      const effectiveMonthlyRentPerCar = monthlyRentNominal * (1 - vacancyRate);
+
+      const rentRowLabel = currentVacancy > 0 
+        ? `    (+) Aluguel de Carros (4,33 sem &bull; -${currentVacancy}% vacância)`
+        : `    (+) Aluguel de Carros (4,33 sem &bull; 100% locado)`;
+      const rentTooltip = `Aluguel semanal nominal: ${formatCurrency(weeklyRentPerCar)} &times; 4,33 semanas = ${formatCurrency(monthlyRentNominal)}/mês. Com dedução de ${currentVacancy}% de vacância anual, a receita efetiva calculada é de ${formatCurrency(effectiveMonthlyRentPerCar)}/mês por carro.`;
+
       const rowsConfig = [
         { label: 'Frota de Carros Ativa', key: 'fleet', isInt: true, isHeader: true },
         { label: '(+) Receita Bruta Total', key: 'totalRevenue', isMoney: true, isHighlight: true },
-        { label: '    (+) Aluguel de Carros', key: 'grossRent', isMoney: true },
+        { 
+          label: rentRowLabel, 
+          key: 'grossRent', 
+          isMoney: true,
+          hasTooltip: true,
+          tooltipText: rentTooltip
+        },
         { 
           label: '    (+) Up Sell / Caução', 
           key: 'grossUpsell', 
