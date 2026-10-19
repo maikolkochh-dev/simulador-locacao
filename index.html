@@ -446,88 +446,32 @@
           <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
           </svg>
-          Parâmetros de Receita & Ocupação
+          Receita da Locação
         </h1>
-        <p class="page-subtitle">Configure o aluguel semanal, o fator de conversão mensal e as premissas de ocupação e adimplência.</p>
+        <p class="page-subtitle">Informe o valor da caução e o valor cobrado por semana.</p>
         
         <form id="rental-form">
+          <input type="hidden" id="rental-semanas-mes" value="4.3">
+
           <div class="form-grid">
             <div class="form-group">
               <label for="rental-valor-caucao">
-                Valor da Caução (R$)
+                Valor da Caução (R$) <span class="badge-auto" id="caucao-fipe-badge">Sugestão: 2,7% FIPE</span>
               </label>
-              <input type="text" id="rental-valor-caucao" placeholder="R$ 1.500,00" required>
-              <span class="field-micro-help">
-                <strong>Garantia contratual (passivo):</strong> a caução recebida não entra como receita mensal de locação.
+              <input type="text" id="rental-valor-caucao" placeholder="R$ 1.424,01" required>
+              <span class="field-micro-help" id="caucao-fipe-hint">
+                Esta é apenas uma sugestão (2,7% em relação à FIPE do veículo). O valor exato deve ser analisado de acordo com dados geográficos e políticas de cada locador.
               </span>
             </div>
             
             <div class="form-group">
               <label for="rental-valor-semanal">
-                Valor do Aluguel por Semana (R$)
+                Valor Cobrado na Semana (R$)
               </label>
               <input type="text" id="rental-valor-semanal" placeholder="R$ 680,00" required>
               <span class="field-micro-help">
-                Valor semanal contratado com o motorista locatário.
+                Valor semanal cobrado do motorista locatário.
               </span>
-            </div>
-            
-            <div class="form-group">
-              <label for="rental-semanas-mes">
-                Semanas Faturadas por Mês
-              </label>
-              <input type="number" id="rental-semanas-mes" step="0.01" min="1" max="5.5" value="4.3" required>
-              <div class="depreciation-scenarios" style="margin-top: 6px;">
-                <button type="button" class="scenario-btn active" id="btn-weeks-43" data-weeks="4.3">4,3 sem (Padrão)</button>
-                <button type="button" class="scenario-btn" id="btn-weeks-433" data-weeks="4.3333">4,33 sem (52÷12)</button>
-              </div>
-              <span class="field-micro-help">
-                Ex.: R$ 680 × 4,3 = R$ 2.924,00/mês | 52÷12 (4,3333) = R$ 2.946,67/mês.
-              </span>
-            </div>
-            
-            <div class="form-group">
-              <label for="rental-ocupacao">
-                Taxa de Ocupação Projetada (%)
-              </label>
-              <div class="percent-input-wrapper">
-                <input type="number" id="rental-ocupacao" step="1" min="50" max="100" value="100" required>
-                <span class="percent-input-suffix">%</span>
-              </div>
-              <div class="depreciation-scenarios" style="margin-top: 6px;">
-                <button type="button" class="scenario-btn active" data-ocup-step3="100">100%</button>
-                <button type="button" class="scenario-btn" data-ocup-step3="90">90%</button>
-                <button type="button" class="scenario-btn" data-ocup-step3="80">80%</button>
-              </div>
-              <span class="field-micro-help">
-                No relatório final exibiremos automaticamente o comparativo para <strong>100%, 90% e 80%</strong> de ocupação.
-              </span>
-            </div>
-
-            <div class="form-group">
-              <label for="rental-adimplencia">
-                Taxa de Adimplência Esperada (%)
-              </label>
-              <div class="percent-input-wrapper">
-                <input type="number" id="rental-adimplencia" step="1" min="50" max="100" value="100" required>
-                <span class="percent-input-suffix">%</span>
-              </div>
-              <span class="field-micro-help">
-                Percentual efetivamente recebido sobre as semanas locadas (100% = zero inadimplência).
-              </span>
-            </div>
-
-            <div class="form-group" style="justify-content: center;">
-              <div class="variable-dre-explanation" style="margin-top: 0;">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                <p>
-                  <strong>Receita Esperada:</strong> Calculada como <code>Aluguel Semanal × Semanas/Mês × Ocupação × Adimplência</code>. Receita projetada não é garantia de 52 semanas ininterruptas.
-                </p>
-              </div>
             </div>
           </div>
 
@@ -876,7 +820,7 @@
         </form>
       </section>
 
-      <!-- STEP 5: RELATÓRIO PROFISSIONAL DE VIABILIDADE & INVESTIDORES -->
+      <!-- STEP 5: RESUMO DA OPERAÇÃO & SIMULAÇÃO POR PERÍODO (12 A 60 MESES) -->
       <section class="wizard-page" id="page-step-5" aria-labelledby="title-step-5">
         <div class="report-top-bar">
           <div>
@@ -884,79 +828,65 @@
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>
               </svg>
-              Relatório Executivo de Viabilidade & Patrimônio
+              Resumo da Operação & Viabilidade
             </h1>
             <p class="page-subtitle" style="margin-bottom: 0;">
-              Separação rigorosa entre <strong>Fluxo de Caixa Mensal Distribuível</strong> e <strong>Resultado Econômico / Patrimonial (Depreciação sobre a FIPE)</strong>.
+              Descontando apenas os custos operacionais que saem de fato do bolso da empresa.
             </p>
           </div>
           <div class="report-meta-badges">
             <span class="report-meta-pill" id="report-generated-date">Data: --/--/----</span>
-            <span class="report-meta-pill accent" id="report-scenario-pill">Ocupação: 100%</span>
-          </div>
-        </div>
-
-        <!-- BARRA INTERATIVA DE SENSIBILIDADE (Ocupação, Prazo de Saída e Deságio de Revenda) -->
-        <div class="sensitivity-control-bar no-print">
-          <div class="sens-control-group">
-            <span class="sens-control-label">Simular Ocupação:</span>
-            <div class="sens-btn-group" id="step5-ocupacao-btns">
-              <button type="button" class="sens-pill-btn active" data-ocup="1">100%</button>
-              <button type="button" class="sens-pill-btn" data-ocup="0.9">90%</button>
-              <button type="button" class="sens-pill-btn" data-ocup="0.8">80%</button>
-            </div>
-          </div>
-
-          <div class="sens-control-group">
-            <span class="sens-control-label">Horizonte Patrimonial:</span>
-            <div class="sens-btn-group" id="step5-prazo-btns">
-              <button type="button" class="sens-pill-btn" data-prazo="12">12m</button>
-              <button type="button" class="sens-pill-btn" data-prazo="24">24m</button>
-              <button type="button" class="sens-pill-btn" data-prazo="36">36m</button>
-              <button type="button" class="sens-pill-btn active" data-prazo="48">48m</button>
-            </div>
-          </div>
-
-          <div class="sens-control-group">
-            <span class="sens-control-label">Deságio na Revenda vs. FIPE Futura:</span>
-            <div class="sens-btn-group" id="step5-desagio-btns">
-              <button type="button" class="sens-pill-btn active" data-desagio="0">0% (FIPE)</button>
-              <button type="button" class="sens-pill-btn" data-desagio="0.05">-5%</button>
-              <button type="button" class="sens-pill-btn" data-desagio="0.10">-10%</button>
-              <button type="button" class="sens-pill-btn" data-desagio="0.15">-15%</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ALERTA DESTACADO QUANDO CAIXA < 0 OU DSCR < 1 -->
-        <div class="investor-risk-alert" id="investor-alert-banner" style="display: none;">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.3">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-          <div>
-            <strong id="investor-alert-title">Atenção: Insuficiência de Caixa Operacional</strong>
-            <p id="investor-alert-desc">O fluxo operacional atual exige revisão das premissas.</p>
           </div>
         </div>
 
         <!-- ==================================================================
-             SEÇÃO 1: VISÃO GERAL DA OPORTUNIDADE (CABEÇALHO + FOTO + 8 CARDS)
+             RÉGUA DE PERÍODO NO TOPO: 12, 24, 36, 48 OU 60 MESES
+             ================================================================== -->
+        <div class="period-ruler-card no-print">
+          <div class="period-ruler-header">
+            <span class="period-ruler-title">Escolha o Período da Operação na Régua:</span>
+            <span class="period-ruler-badge" id="period-ruler-active-label">36 Meses (3 Anos)</span>
+          </div>
+          <div class="period-ruler-track" id="step5-prazo-btns">
+            <button type="button" class="period-ruler-stop" data-prazo="12">
+              <span class="ruler-dot"></span>
+              <span class="ruler-months">12 meses</span>
+              <span class="ruler-years">1 ano</span>
+            </button>
+            <button type="button" class="period-ruler-stop" data-prazo="24">
+              <span class="ruler-dot"></span>
+              <span class="ruler-months">24 meses</span>
+              <span class="ruler-years">2 anos</span>
+            </button>
+            <button type="button" class="period-ruler-stop active" data-prazo="36">
+              <span class="ruler-dot"></span>
+              <span class="ruler-months">36 meses</span>
+              <span class="ruler-years">3 anos</span>
+            </button>
+            <button type="button" class="period-ruler-stop" data-prazo="48">
+              <span class="ruler-dot"></span>
+              <span class="ruler-months">48 meses</span>
+              <span class="ruler-years">4 anos</span>
+            </button>
+            <button type="button" class="period-ruler-stop" data-prazo="60">
+              <span class="ruler-dot"></span>
+              <span class="ruler-months">60 meses</span>
+              <span class="ruler-years">5 anos</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             CABEÇALHO ENXUTO DO VEÍCULO (FOTO AUTOMÁTICA + DADOS DE COMPRA)
              ================================================================== -->
         <div class="report-section-card">
-          <div class="report-section-header">
-            <span class="report-section-step">PÁGINA 1 • VISÃO GERAL DA OPORTUNIDADE</span>
-            <span class="report-purchase-badge" id="report-fipe-margin-badge">Compra 15,25% abaixo da FIPE</span>
-          </div>
-
-          <div class="opportunity-hero-grid">
-            <!-- Foto / Silhueta Licenciada do Veículo (Opcional) -->
+          <div class="vehicle-compact-header">
+            <!-- Foto Automática do Veículo -->
             <div class="vehicle-photo-panel">
               <div class="vehicle-photo-frame" id="vehicle-photo-frame">
-                <img id="vehicle-photo-img" src="" alt="Foto do veículo simulado" style="display: none;">
+                <img id="vehicle-photo-img" src="" alt="Foto do veículo" style="display: none;">
                 <div class="vehicle-silhouette-fallback" id="vehicle-photo-fallback">
-                  <svg viewBox="0 0 120 60" width="110" height="55" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <svg viewBox="0 0 120 60" width="100" height="50" fill="none" stroke="currentColor" stroke-width="2.2">
                     <path d="M12 42 L18 25 C21 18 28 14 38 14 L74 14 C84 14 92 19 98 27 L108 30 C112 31 114 35 114 39 L114 42 Z" stroke-linejoin="round"></path>
                     <circle cx="30" cy="43" r="9"></circle>
                     <circle cx="88" cy="43" r="9"></circle>
@@ -964,124 +894,180 @@
                     <path d="M38 18 L32 28 L60 28 L60 18 Z"></path>
                     <path d="M64 18 L64 28 L91 28 L82 18 Z"></path>
                   </svg>
-                  <span id="vehicle-silhouette-caption">Ilustração neutra do veículo (adicione foto real abaixo)</span>
+                  <span id="vehicle-silhouette-caption">Buscando imagem do veículo...</span>
                 </div>
               </div>
               <div class="vehicle-photo-actions no-print">
                 <label for="vehicle-photo-upload" class="photo-action-btn">
-                  Enviar Foto Própria
+                  Trocar Foto
                   <input type="file" id="vehicle-photo-upload" accept="image/*" style="display: none;">
                 </label>
-                <button type="button" class="photo-action-btn" id="btn-vehicle-photo-url">Inserir URL</button>
-                <button type="button" class="photo-action-btn danger" id="btn-vehicle-photo-remove" style="display: none;">Remover</button>
-              </div>
-              <span class="vehicle-photo-license" id="vehicle-photo-license">Imagem ilustrativa • Sem vínculo de placa</span>
-            </div>
-
-            <!-- Resumo de Identificação e Narrativa Automática do Investidor -->
-            <div class="opportunity-summary-panel">
-              <div class="opportunity-vehicle-titles">
-                <h2 class="text-gradient" id="result-vehicle-name">Fiat Mobi Like 1.0</h2>
-                <span class="dre-subtitle" id="result-fipe-reference">FIPE de Referência: R$ 52.741,00</span>
-              </div>
-
-              <!-- Texto Automático para o Investidor (Seção 10 da Especificação) -->
-              <div class="investor-narrative-box" id="investor-narrative-box">
-                <p id="investor-narrative-text">
-                  Carregando análise executiva da oportunidade...
-                </p>
+                <button type="button" class="photo-action-btn" id="btn-vehicle-photo-url">URL</button>
+                <button type="button" class="photo-action-btn danger" id="btn-vehicle-photo-remove" style="display: none;">Restaurar</button>
               </div>
             </div>
-          </div>
 
-          <!-- 8 Cards Executivos Grandes e Legíveis -->
-          <div class="executive-kpi-grid">
-            <div class="exec-kpi-card">
-              <span class="exec-kpi-label">FIPE REFERÊNCIA</span>
-              <strong class="exec-kpi-val" id="exec-kpi-fipe">R$ 52.741,00</strong>
-              <span class="exec-kpi-sub">Base oficial para depreciação</span>
+            <!-- Dados Diretos do Veículo (Sem texto longo) -->
+            <div class="vehicle-direct-summary">
+              <div class="vehicle-title-row">
+                <div>
+                  <h2 class="text-gradient" id="result-vehicle-name">Fiat Mobi Like 1.0</h2>
+                  <span class="dre-subtitle" id="result-fipe-reference">FIPE: R$ 52.741,00</span>
+                </div>
+                <span class="report-purchase-badge" id="report-fipe-margin-badge">Compra 15,25% abaixo da FIPE</span>
+              </div>
+
+              <div class="vehicle-mini-kpis">
+                <div class="exec-kpi-card">
+                  <span class="exec-kpi-label">VALOR TABELA FIPE</span>
+                  <strong class="exec-kpi-val" id="exec-kpi-fipe">R$ 52.741,00</strong>
+                  <span class="exec-kpi-sub">Base da depreciação</span>
+                </div>
+                <div class="exec-kpi-card">
+                  <span class="exec-kpi-label">VALOR DE COMPRA</span>
+                  <strong class="exec-kpi-val" id="exec-kpi-pago">R$ 44.698,00</strong>
+                  <span class="exec-kpi-sub" id="exec-kpi-pago-sub">Aquisição</span>
+                </div>
+                <div class="exec-kpi-card highlight-cyan">
+                  <span class="exec-kpi-label">MARGEM NA COMPRA</span>
+                  <strong class="exec-kpi-val" id="kpi-fipe-desconto">15,25%</strong>
+                  <span class="exec-kpi-sub" id="kpi-fipe-detalhe">Abaixo da FIPE</span>
+                </div>
+                <div class="exec-kpi-card highlight-green">
+                  <span class="exec-kpi-label">LUCRO OPERACIONAL / MÊS</span>
+                  <strong class="exec-kpi-val" id="exec-kpi-caixa-distribuivel">R$ 950,37</strong>
+                  <span class="exec-kpi-sub" id="exec-kpi-caixa-dist-sub">Líquido no bolso por mês</span>
+                </div>
+              </div>
             </div>
-
-            <div class="exec-kpi-card">
-              <span class="exec-kpi-label">CUSTO DE AQUISIÇÃO</span>
-              <strong class="exec-kpi-val" id="exec-kpi-pago">R$ 44.698,00</strong>
-              <span class="exec-kpi-sub" id="exec-kpi-pago-sub">Valor efetivo de compra</span>
-            </div>
-
-            <div class="exec-kpi-card highlight-cyan">
-              <span class="exec-kpi-label">MARGEM NA COMPRA VS. FIPE</span>
-              <strong class="exec-kpi-val" id="kpi-fipe-desconto">15,25%</strong>
-              <span class="exec-kpi-sub" id="kpi-fipe-detalhe">R$ 8.043,00 abaixo da FIPE (Colchão patrimonial)</span>
-            </div>
-
-            <div class="exec-kpi-card">
-              <span class="exec-kpi-label" id="exec-kpi-receita-label">RECEITA MENSAL (100% OCUP.)</span>
-              <strong class="exec-kpi-val" id="dre-header-revenue">R$ 2.924,00</strong>
-              <span class="exec-kpi-sub" id="exec-kpi-receita-sub">Aluguel semanal × 4,3 sem/mês</span>
-            </div>
-
-            <div class="exec-kpi-card">
-              <span class="exec-kpi-label">CAIXA OPERACIONAL (ANTES DÍVIDA)</span>
-              <strong class="exec-kpi-val" id="exec-kpi-caixa-op">R$ 2.428,60</strong>
-              <span class="exec-kpi-sub" id="exec-kpi-custos-sub">Após R$ 495,40 de custos fixos</span>
-            </div>
-
-            <div class="exec-kpi-card">
-              <span class="exec-kpi-label">SERVIÇO DA DÍVIDA & DSCR</span>
-              <strong class="exec-kpi-val" id="exec-kpi-dscr">R$ 1.478,23</strong>
-              <span class="exec-kpi-sub" id="exec-kpi-dscr-sub">Cobertura DSCR: 1,64x | Equilíbrio: 70,9%</span>
-            </div>
-
-            <div class="exec-kpi-card highlight-green" id="exec-card-caixa-distribuivel">
-              <span class="exec-kpi-label">CAIXA MENSAL DISPONÍVEL PROJETADO</span>
-              <strong class="exec-kpi-val" id="exec-kpi-caixa-distribuivel">R$ 850,37</strong>
-              <span class="exec-kpi-sub" id="exec-kpi-caixa-dist-sub">Livre após dívida e R$ 100,00 de reserva</span>
-            </div>
-
-            <div class="exec-kpi-card" id="metric-card-roi">
-              <span class="exec-kpi-label" id="kpi-roi-label">ROI & PAYBACK (CAPITAL PRÓPRIO)</span>
-              <strong class="exec-kpi-val" id="kpi-roi-mensal">2,18% a.m.</strong>
-              <span class="exec-kpi-sub" id="kpi-roi-anual">Payback: -- meses</span>
-            </div>
-          </div>
-
-          <!-- Hidden compatibility nodes for legacy KPI references -->
-          <div style="display: none;">
-            <span id="kpi-payback"></span>
-            <span id="kpi-payback-subtext"></span>
-            <span id="kpi-margem"></span>
           </div>
         </div>
 
         <!-- ==================================================================
-             SEÇÃO 2: PARA ONDE VAI O DINHEIRO (CAIXA MENSAL VS. DRE ECONÔMICO)
+             RESULTADO DO PERÍODO ESCOLHIDO NA RÉGUA (12, 24, 36, 48 OU 60 MESES)
              ================================================================== -->
-        <div class="results-grid" style="margin-top: 22px;">
-          
-          <!-- Left Column: Demonstrativo de Fluxo de Caixa + Painel Patrimonial/Econômico Separado -->
+        <div class="report-section-card" style="margin-top: 20px;">
+          <div class="report-section-header">
+            <div>
+              <span class="report-section-step" id="period-summary-eyebrow">SIMULAÇÃO ACUMULADA NO PERÍODO ESCOLHIDO</span>
+              <h3 class="report-section-title" id="period-summary-title">Resultado da Operação em 36 Meses</h3>
+            </div>
+            <span class="patrimonial-fipe-rule" id="period-financing-status-badge">Financiamento Quitado no Período</span>
+          </div>
+
+          <div class="period-breakdown-grid">
+            <!-- 1. Lucro Operacional durante o Período Escolhido -->
+            <div class="period-box highlight-profit">
+              <span class="period-box-step">1. LUCRO OPERACIONAL NO PERÍODO</span>
+              <strong class="period-box-value positive" id="period-lucro-operacional">R$ 34.213,32</strong>
+              <span class="period-box-sub" id="period-lucro-operacional-sub">
+                Receita menos custos que saem do bolso em 36 meses
+              </span>
+            </div>
+
+            <!-- 2. Depreciação em cima da FIPE nesse Período -->
+            <div class="period-box highlight-warning">
+              <span class="period-box-step">2. DEPRECIAÇÃO SOBRE A FIPE NO PERÍODO</span>
+              <strong class="period-box-value warning" id="period-depreciacao-fipe">- R$ 12.739,68</strong>
+              <span class="period-box-sub" id="period-depreciacao-fipe-sub">
+                R$ 353,88/mês × 36 meses (calculada sobre a FIPE)
+              </span>
+            </div>
+
+            <!-- 3. Valor de Venda do Veículo (Já descontada a depreciação do período + Editável) -->
+            <div class="period-box editable-box">
+              <div class="period-box-top-row">
+                <span class="period-box-step">3. VALOR DE VENDA DO VEÍCULO (APÓS DEPRECIAÇÃO)</span>
+                <button type="button" class="btn-reset-inline" id="btn-reset-sale-price" style="display: none;">Restaurar FIPE - Deprec.</button>
+              </div>
+              <div class="period-editable-input-wrap">
+                <input type="text" id="custom-sale-price" class="period-editable-input" value="R$ 40.001,32" aria-label="Valor de Venda do Veículo">
+              </div>
+              <span class="period-box-sub" id="period-venda-sub">
+                FIPE (R$ 52.741,00) - Depreciação do período (edite se desejar)
+              </span>
+            </div>
+
+            <!-- 4. Resultado: Lucro Operacional + Valor de Venda do Veículo -->
+            <div class="period-box highlight-total">
+              <span class="period-box-step">4. LUCRO OPERACIONAL + VENDA DO VEÍCULO</span>
+              <strong class="period-box-value cyan" id="period-lucro-mais-venda">R$ 74.214,64</strong>
+              <span class="period-box-sub" id="period-lucro-mais-venda-sub">
+                Soma do lucro operacional acumulado + venda do carro no mês 36
+              </span>
+            </div>
+          </div>
+
+          <!-- BLOCO CONDICIONAL: APARECE QUANDO O PERÍODO ESCOLHIDO É MENOR QUE O TOTAL DE PARCELAS DO FINANCIAMENTO -->
+          <div class="financing-payoff-panel" id="financing-payoff-panel" style="display: none;">
+            <div class="financing-payoff-header">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+              <div>
+                <h4 id="financing-payoff-title">Financiamento em Aberto neste Período (Faltam 12 parcelas)</h4>
+                <p id="financing-payoff-subtitle">
+                  Como o período selecionado na régua é menor que o prazo total do financiamento, informe abaixo o valor para quitação caso venda o veículo neste mês.
+                </p>
+              </div>
+            </div>
+
+            <div class="financing-payoff-grid">
+              <!-- Soma das Parcelas que Faltam -->
+              <div class="period-box">
+                <span class="period-box-step">SOMA DAS PARCELAS QUE FALTAM</span>
+                <strong class="period-box-value negative" id="period-soma-parcelas-faltam">R$ 17.738,76</strong>
+                <span class="period-box-sub" id="period-parcelas-faltam-detalhe">
+                  12 parcelas restantes × R$ 1.478,23
+                </span>
+              </div>
+
+              <!-- Espaço Editável para colocar o Valor para Quitação -->
+              <div class="period-box editable-box">
+                <div class="period-box-top-row">
+                  <span class="period-box-step">VALOR PARA QUITAÇÃO (EDITÁVEL)</span>
+                  <button type="button" class="btn-reset-inline" id="btn-reset-payoff-amount" style="display: none;">Usar Soma das Parcelas</button>
+                </div>
+                <div class="period-editable-input-wrap">
+                  <input type="text" id="custom-payoff-amount" class="period-editable-input" value="R$ 17.738,76" aria-label="Valor para Quitação do Financiamento">
+                </div>
+                <span class="period-box-sub">
+                  Digite o valor com desconto para quitação antecipada do banco
+                </span>
+              </div>
+
+              <!-- Resultado Final Descontando a Quitação -->
+              <div class="period-box highlight-final-net">
+                <span class="period-box-step">RESULTADO LÍQUIDO APÓS QUITAR FINANCIAMENTO</span>
+                <strong class="period-box-value positive" id="period-resultado-apos-quitacao">R$ 56.475,88</strong>
+                <span class="period-box-sub" id="period-resultado-apos-quitacao-sub">
+                  (Lucro Operacional + Venda do Carro) - Valor para Quitação
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             MARCADORES DE RETORNO (PAYBACK, ROI, MARGEM) & RESUMO MENSAL DE CAIXA
+             ================================================================== -->
+        <div class="results-grid" style="margin-top: 20px;">
+          <!-- Coluna Esquerda: Demonstrativo Mensal (Apenas Custos que Saem do Bolso) -->
           <div class="dre-card">
             <div class="dre-title-bar">
               <div>
-                <span class="report-section-step">PÁGINA 2 • DEMONSTRATIVO DE CAIXA MENSAL</span>
+                <span class="report-section-step">CAIXA MENSAL DA EMPRESA</span>
                 <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-top: 2px;">
-                  1. Fluxo de Caixa Mensal (Dinheiro Vivo)
+                  Resumo da Operação Mensal (Saídas do Bolso)
                 </h3>
               </div>
-              <span class="dre-subtitle">Sem descontar depreciação não-caixa</span>
+              <span class="dre-subtitle">Sem descontar depreciação ou provisões</span>
             </div>
 
             <div class="dre-table">
-              <div class="dre-row revenue" id="dre-row-receita-potencial" style="display: none; opacity: 0.85;">
-                <span>(+) Receita Potencial (100% Ocupação)</span>
-                <span class="dre-val" id="dre-receita-potencial">R$ 2.924,00</span>
-              </div>
-              <div class="dre-row expense dre-indent" id="dre-row-vacancia" style="display: none;">
-                <span id="dre-label-vacancia">(-) Efeito Vacância / Inadimplência</span>
-                <span class="dre-val" id="dre-val-vacancia">R$ 0,00</span>
-              </div>
-
               <div class="dre-row revenue">
-                <span id="dre-label-receita-bruta">(+) RECEITA MENSAL ESPERADA</span>
+                <span id="dre-label-receita-bruta">(+) RECEITA BRUTA MENSAL (4,3 SEM.)</span>
                 <span class="dre-val" id="dre-receita-bruta">R$ 2.924,00</span>
               </div>
               <div class="dre-row tax" id="dre-row-impostos" style="display: none;">
@@ -1090,21 +1076,21 @@
               </div>
               
               <div class="dre-row revenue" id="dre-row-receita-liquida" style="display: none; background: rgba(255,255,255,0.02); border-left-color: var(--text-muted);">
-                <span>(=) RECEITA LÍQUIDA DE TRIBUTOS</span>
+                <span>(=) RECEITA LÍQUIDA</span>
                 <span class="dre-val" id="dre-receita-liquida" style="color: var(--text-main)">R$ 2.924,00</span>
               </div>
               
               <div class="dre-row opex-header" style="font-weight: 600; padding: 6px 14px 2px 14px; font-size: 13px; color: var(--text-muted)">
-                <span>(-) CUSTOS OPERACIONAIS FIXOS (SAÍDAS DE CAIXA)</span>
+                <span>(-) CUSTOS OPERACIONAIS QUE SAEM DO BOLSO</span>
                 <span id="dre-custos-recorrentes-total">R$ -495,40</span>
               </div>
               
               <div class="dre-row expense dre-indent">
-                <span>IPVA & Licenciamento (Estadual)</span>
+                <span>IPVA & Licenciamento (Mensal)</span>
                 <span class="dre-val" id="dre-ipva">R$ -56,40</span>
               </div>
               <div class="dre-row expense dre-indent">
-                <span>1. Seguro do Veículo (Base 0,34% FIPE)</span>
+                <span>1. Seguro (0,34% FIPE)</span>
                 <span class="dre-val" id="dre-seguro">R$ -200,00</span>
               </div>
               <div class="dre-row expense dre-indent">
@@ -1124,232 +1110,69 @@
                 <span class="dre-val" id="dre-contabilidade">R$ 0,00</span>
               </div>
 
-              <!-- Subtotal: Caixa Operacional Antes da Dívida -->
-              <div class="dre-row subtotal-row">
-                <span>(=) CAIXA OPERACIONAL (ANTES DA DÍVIDA)</span>
-                <span class="dre-val" id="dre-caixa-operacional">R$ 2.428,60</span>
-              </div>
-
-              <!-- Serviço da Dívida (Parcela do Financiamento) -->
-              <div class="dre-row opex-header" id="dre-financiamento-header" style="display: none; font-weight: 600; padding: 6px 14px 2px 14px; font-size: 13px; color: var(--text-muted)">
-                <span>(-) SERVIÇO DA DÍVIDA (DESEMBOLSO DE CAIXA)</span>
-                <span id="dre-financiamento-total">R$ 0,00</span>
-              </div>
-
+              <!-- Parcela do Financiamento (Se financiado) -->
               <div class="dre-row expense dre-indent" id="dre-financiamento-row" style="display: none;">
-                <span id="dre-financiamento-label">Parcela Integral do Financiamento</span>
+                <span id="dre-financiamento-label">Parcela Mensal do Financiamento</span>
                 <span class="dre-val" id="dre-financiamento-val">R$ 0,00</span>
               </div>
 
-              <div class="dre-row subtotal-row" id="dre-row-caixa-apos-divida" style="display: none;">
-                <span>(=) CAIXA APÓS SERVIÇO DA DÍVIDA</span>
-                <span class="dre-val" id="dre-caixa-apos-divida">R$ 950,37</span>
-              </div>
-
-              <!-- Retenções de Caixa em Fundos -->
-              <div class="dre-row opex-header" style="font-weight: 600; padding: 6px 14px 2px 14px; font-size: 13px; color: var(--text-muted)">
-                <span>(-) RETENÇÕES MENSAIS EM FUNDOS (NÃO CONSUMIDAS)</span>
-                <span id="dre-provisoes-total">R$ -100,00</span>
-              </div>
-              
-              <div class="dre-row expense dre-indent">
-                <span>1. Provisão de Fundo de Reserva (Retido em Caixa)</span>
-                <span class="dre-val" id="dre-fundo-reserva">R$ -100,00</span>
-              </div>
-              <div class="dre-row expense dre-indent">
-                <span>2. Provisão de Manutenção Extra (Retida em Caixa)</span>
-                <span class="dre-val" id="dre-manutencao-extra">R$ 0,00</span>
-              </div>
-
               <div class="dre-row total-expenses">
-                <span>(-) TOTAL DE SAÍDAS E RETENÇÕES DE CAIXA</span>
-                <span class="dre-val" id="dre-saidas-total">R$ -2.073,63</span>
+                <span>(-) TOTAL DE SAÍDAS DO BOLSO / MÊS</span>
+                <span class="dre-val" id="dre-saidas-total">R$ -1.973,63</span>
               </div>
               
               <div class="dre-row net-profit">
-                <span>(=) CAIXA MENSAL DISPONÍVEL PROJETADO</span>
-                <span class="dre-val" id="dre-lucro-liquido">R$ 850,37</span>
+                <span>(=) LUCRO OPERACIONAL MENSAL (NO BOLSO)</span>
+                <span class="dre-val" id="dre-lucro-liquido">R$ 950,37</span>
               </div>
             </div>
 
-            <!-- DEMONSTRATIVO 2 SEPARADO: EFEITO PATRIMONIAL NÃO-CAIXA (DEPRECIAÇÃO SOBRE A FIPE & DRE ECONÔMICO) -->
-            <div class="patrimonial-dre-box">
+            <!-- Informativo das Provisões e Depreciação (Não saem do bolso mensalmente) -->
+            <div class="patrimonial-dre-box" style="margin-top: 14px;">
               <div class="patrimonial-dre-header">
                 <div>
-                  <span class="patrimonial-badge">DEMONSTRATIVO SEPARADO • NÃO REDUZ O CAIXA DISTRIBUÍVEL</span>
-                  <h4>2. Apuração Econômica & Depreciação sobre a FIPE</h4>
+                  <span class="patrimonial-badge">INFORMATIVO CONTÁBIL • NÃO SAI DO CAIXA MENSAL</span>
+                  <h4>Provisões & Depreciação Mensal sobre a FIPE</h4>
                 </div>
-                <span class="patrimonial-fipe-rule">Base 100% FIPE</span>
               </div>
-
               <div class="dre-table" style="margin-top: 8px;">
                 <div class="dre-row expense">
-                  <span id="dre-label-depreciacao-fipe">(-) 3. Depreciação Mensal sobre a FIPE (Efeito Patrimonial Não-Caixa)</span>
+                  <span>Provisões Mensais (Fundo de Reserva + Manut. Extra)</span>
+                  <span class="dre-val" id="dre-provisoes-total">R$ -100,00</span>
+                </div>
+                <div class="dre-row expense">
+                  <span id="dre-label-depreciacao-fipe">Depreciação Mensal sobre a FIPE</span>
                   <span class="dre-val" id="dre-depreciacao" style="color: var(--color-warning);">R$ -353,88</span>
                 </div>
-                <div class="dre-row subtotal-row">
-                  <span>(=) RESULTADO ECONÔMICO MENSAL (APÓS DEPRECIAÇÃO FIPE)</span>
-                  <span class="dre-val" id="dre-resultado-economico">R$ 496,49</span>
-                </div>
               </div>
-
-              <p class="patrimonial-dre-note" id="patrimonial-dre-note">
-                * A <strong>Depreciação é calculada sempre sobre a FIPE do veículo</strong> e representa perda estimada de valor de mercado do ativo, não saída mensal de dinheiro. Em operações financiadas, a parcela reduz o caixa, mas parte dela amortiza a dívida e constrói patrimônio no veículo.
-              </p>
             </div>
           </div>
 
-          <!-- Right Column: Gráfico 1 (Cascata / Waterfall do Caixa) + Risco & Equilíbrio -->
+          <!-- Coluna Direita: Marcadores (Payback, ROI, Margem, Ponto de Equilíbrio) -->
           <div class="metrics-panel">
-            
-            <!-- GRÁFICO 1: CASCATA (WATERFALL) DO CAIXA MENSAL -->
-            <div class="waterfall-card">
-              <div class="waterfall-header">
-                <span class="report-section-step">GRÁFICO 1 • PARA ONDE VAI O DINHEIRO</span>
-                <h4>Cascata (Waterfall) do Caixa Mensal</h4>
-              </div>
-              <div class="waterfall-rows" id="waterfall-chart-container">
-                <!-- Populated dynamically by app.js -->
-              </div>
-
-              <!-- Barra de Distribuição Percentual da Receita -->
-              <div class="dre-chart-section" style="margin-top: 14px; padding-top: 12px;">
-                <span class="chart-title">Composição Percentual da Receita Mensal</span>
-                <div class="distribution-bar">
-                  <div class="dist-slice profit" id="slice-profit" style="width: 40%" title="Caixa Disponível"></div>
-                  <div class="dist-slice taxes" id="slice-taxes" style="width: 10%" title="Impostos"></div>
-                  <div class="dist-slice opex" id="slice-opex" style="width: 25%" title="Custos Fixos + Dívida"></div>
-                  <div class="dist-slice provisions" id="slice-provisions" style="width: 25%" title="Reservas Retidas"></div>
-                </div>
-                
-                <div class="chart-legend">
-                  <div class="legend-item">
-                    <div class="legend-color profit"></div>
-                    <span>Caixa Livre: <b id="legend-profit-pct">29,1%</b></span>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-color taxes"></div>
-                    <span>Impostos: <b id="legend-taxes-pct">0,0%</b></span>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-color opex"></div>
-                    <span>Custos + Dívida: <b id="legend-opex-pct">67,5%</b></span>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-color provisions"></div>
-                    <span>Reserva Retida: <b id="legend-provisions-pct">3,4%</b></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Operational Risk Card -->
-            <div class="risk-card success" id="risk-card">
-              <div class="risk-header">
-                <span class="risk-label" id="risk-label">Diagnóstico de Risco & Liquidez</span>
-                <span class="risk-badge" id="risk-badge">Operação Equilibrada</span>
-              </div>
-              <p class="risk-desc" id="risk-desc">
-                Análise automática da cobertura da dívida (DSCR) e geração de caixa disponível.
-              </p>
-            </div>
-
-            <!-- Ponto de Equilíbrio (Break-Even) & Reserva Acumulada -->
-            <div class="metric-card" id="exec-breakeven-card">
-              <span class="metric-label">OCUPAÇÃO DE EQUILÍBRIO (BREAK-EVEN DE CAIXA)</span>
-              <span class="metric-value" id="kpi-breakeven-pct">70,92%</span>
-              <span class="metric-subtext" id="kpi-breakeven-sub">Equivale a 3,05 semanas alugadas/mês para cobrir custos, parcela e reserva</span>
+            <div class="metric-card" id="metric-card-roi">
+              <span class="metric-label" id="kpi-roi-label">ROI SOBRE CAPITAL INVESTIDO</span>
+              <span class="metric-value" id="kpi-roi-mensal">2,18% a.m.</span>
+              <span class="metric-subtext" id="kpi-roi-anual">26,16% ao ano</span>
             </div>
 
             <div class="metric-card">
-              <span class="metric-label">SALDO DE RESERVAS RETIDAS ACUMULADAS</span>
-              <span class="metric-value" id="kpi-reserva-acumulada" style="color: var(--accent-secondary);">R$ 4.800,00</span>
-              <span class="metric-subtext" id="kpi-reserva-acumulada-sub">Caixa retido em fundo próprio ao longo de 48 meses (não somado ao caixa distribuível)</span>
+              <span class="metric-label">PAYBACK DO CAPITAL INVESTIDO</span>
+              <span class="metric-value" id="kpi-payback">15,8 meses</span>
+              <span class="metric-subtext" id="kpi-payback-subtext">Tempo para recuperar o capital desembolsado pelo lucro operacional</span>
             </div>
 
-          </div>
-        </div>
-
-        <!-- ==================================================================
-             SEÇÃO 3: OCUPAÇÃO, RISCOS E COMPARAÇÃO DE CENÁRIOS (100% / 90% / 80%)
-             ================================================================== -->
-        <div class="report-section-card" style="margin-top: 22px;">
-          <div class="report-section-header">
-            <div>
-              <span class="report-section-step">PÁGINA 3 • SENSIBILIDADE DE OCUPAÇÃO E RISCO DE VACÂNCIA</span>
-              <h3 class="report-section-title">Gráfico 2 — Comparativo de Cenários: 100%, 90% e 80% de Ocupação</h3>
-            </div>
-            <span class="dre-subtitle">Premissa: custos fixos e parcela constantes</span>
-          </div>
-
-          <!-- Visual Bar Comparison for 100% / 90% / 80% -->
-          <div class="occupancy-bars-grid" id="occupancy-bars-container">
-            <!-- Populated dynamically by app.js -->
-          </div>
-
-          <!-- Tabela Conciliada dos 3 Cenários -->
-          <div class="table-wrapper" style="margin-top: 16px;">
-            <table class="investor-data-table" id="occupancy-comparison-table">
-              <thead>
-                <tr>
-                  <th>Ocupação</th>
-                  <th>Receita Mensal</th>
-                  <th>Caixa Operacional</th>
-                  <th>Serviço da Dívida</th>
-                  <th>Caixa Após Dívida</th>
-                  <th>Reserva Retida</th>
-                  <th>Caixa Distribuível</th>
-                  <th>DSCR</th>
-                </tr>
-              </thead>
-              <tbody id="occupancy-table-body">
-                <!-- Populated dynamically by app.js -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ==================================================================
-             SEÇÃO 4: EVOLUÇÃO EM 12/24/36/48 MESES & PATRIMÔNIO SOBRE A FIPE
-             ================================================================== -->
-        <div class="report-section-card" style="margin-top: 22px;">
-          <div class="report-section-header">
-            <div>
-              <span class="report-section-step">PÁGINA 4 • EVOLUÇÃO DE CAIXA ACUMULADO & PATRIMÔNIO SOBRE A FIPE</span>
-              <h3 class="report-section-title">Gráficos 3 e 4 — Caixa Acumulado (12 a 48m) e Projeção Patrimonial FIPE</h3>
-            </div>
-            <span class="patrimonial-fipe-rule">Depreciação 100% sobre a FIPE</span>
-          </div>
-
-          <div class="patrimony-two-col-grid">
-            <!-- Gráfico 3: Evolução Temporal do Caixa Distribuível Acumulado -->
-            <div class="patrimony-subcard">
-              <h4>Gráfico 3 — Caixa Distribuível Acumulado vs. Reservas (12 a 48 Meses)</h4>
-              <p class="dre-subtitle" style="margin-bottom: 12px;">
-                Soma mês a mês do caixa livre para distribuição, separada do saldo acumulado nos fundos de reserva.
-              </p>
-              <div class="horizon-timeline-list" id="horizon-cash-bars">
-                <!-- Populated dynamically by app.js -->
-              </div>
+            <div class="metric-card">
+              <span class="metric-label">ROI TOTAL NO PERÍODO (LUCRO + VENDA LÍQUIDA)</span>
+              <span class="metric-value" id="kpi-roi-periodo" style="color: var(--accent-primary);">+145,2%</span>
+              <span class="metric-subtext" id="kpi-roi-periodo-sub">Retorno total no período selecionado sobre o capital investido</span>
             </div>
 
-            <!-- Gráfico 4: Valor Patrimonial, Depreciação sobre a FIPE e Saída do Ativo -->
-            <div class="patrimony-subcard">
-              <h4 id="patrimony-chart4-title">Gráfico 4 — Patrimônio no Veículo & Depreciação sobre a FIPE (48m)</h4>
-              <p class="dre-subtitle" style="margin-bottom: 12px;">
-                A depreciação incide <strong>sempre sobre o valor da FIPE</strong>. Veja como a margem de compra abaixo da FIPE protege o seu capital:
-              </p>
-              <div class="fipe-patrimony-bars" id="fipe-patrimony-bars">
-                <!-- Populated dynamically by app.js -->
-              </div>
-              <div class="patrimony-protection-summary" id="patrimony-protection-summary">
-                <!-- Populated dynamically by app.js -->
-              </div>
+            <div class="metric-card">
+              <span class="metric-label">MARGEM OPERACIONAL LÍQUIDA</span>
+              <span class="metric-value" id="kpi-margem">32,50%</span>
+              <span class="metric-subtext" id="kpi-breakeven-sub">Ponto de equilíbrio: 2,90 semanas alugadas/mês</span>
             </div>
-          </div>
-
-          <div class="report-legal-disclaimer">
-            <strong>Nota Metodológica & Advertência de Risco:</strong> As projeções distinguem rigorosamente <em>Caixa Mensal Disponível Projetado</em> de <em>Resultado Econômico/Patrimonial</em>. A depreciação é calculada sobre a Tabela FIPE de referência e não constitui desembolso mensal de caixa. Em compras financiadas, o saldo para quitação antecipada depende do contrato/CET bancário. Resultados passados da FIPE ou projeções de ocupação não representam garantia de rentabilidade futura.
           </div>
         </div>
 
@@ -1421,6 +1244,6 @@
   </footer>
 
   <!-- Application Controller Scripts -->
-  <script type="module" src="app.js?v=20261019b"></script>
+  <script type="module" src="app.js?v=20261019c"></script>
 </body>
 </html>

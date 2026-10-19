@@ -3164,6 +3164,337 @@ body::before {
 }
 
 /* ==========================================================================
+   STEP 5: RÉGUA DE PERÍODO (12, 24, 36, 48, 60 MESES) & RESUMO DIRETO
+   ========================================================================== */
+.period-ruler-card {
+  background: linear-gradient(145deg, rgba(16, 23, 38, 0.92), rgba(8, 12, 20, 0.96));
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 28px -12px rgba(0, 242, 254, 0.16);
+}
+
+.period-ruler-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.period-ruler-title {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+}
+
+.period-ruler-badge {
+  background: rgba(0, 242, 254, 0.14);
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.period-ruler-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 680px) {
+  .period-ruler-track {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.period-ruler-stop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.period-ruler-stop:hover {
+  background: rgba(0, 242, 254, 0.07);
+  border-color: rgba(0, 242, 254, 0.45);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.period-ruler-stop.active {
+  background: rgba(0, 242, 254, 0.16);
+  border: 1.5px solid var(--accent-primary);
+  color: #FFFFFF;
+  box-shadow: 0 0 18px rgba(0, 242, 254, 0.22);
+}
+
+.ruler-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transition: all 0.2s ease;
+}
+
+.period-ruler-stop.active .ruler-dot {
+  background: var(--accent-primary);
+  box-shadow: 0 0 10px var(--accent-primary);
+  transform: scale(1.25);
+}
+
+.ruler-months {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: inherit;
+}
+
+.period-ruler-stop.active .ruler-months {
+  color: var(--accent-primary);
+}
+
+.ruler-years {
+  font-size: 11px;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* Compact Vehicle Header */
+.vehicle-compact-header {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+@media (max-width: 820px) {
+  .vehicle-compact-header {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vehicle-direct-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vehicle-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vehicle-mini-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 960px) {
+  .vehicle-mini-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .vehicle-mini-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Period Breakdown Grid (4 Cards) */
+.period-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 720px) {
+  .period-breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.period-box {
+  background: rgba(8, 12, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.period-box.highlight-profit {
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.period-box.highlight-warning {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.period-box.highlight-total {
+  border-color: rgba(0, 242, 254, 0.4);
+  background: rgba(0, 242, 254, 0.08);
+}
+
+.period-box.highlight-final-net {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.period-box.editable-box {
+  border-color: rgba(0, 242, 254, 0.35);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.period-box-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.period-box-step {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.period-box-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.period-box-value.positive {
+  color: var(--color-success);
+}
+
+.period-box-value.warning {
+  color: var(--color-warning);
+}
+
+.period-box-value.negative {
+  color: var(--color-danger);
+}
+
+.period-box-value.cyan {
+  color: var(--accent-primary);
+}
+
+.period-box-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.period-editable-input-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.period-editable-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(0, 242, 254, 0.45) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-family: var(--font-display) !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: #FFFFFF !important;
+}
+
+.period-editable-input:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.25) !important;
+}
+
+.btn-reset-inline {
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  color: var(--accent-primary);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-reset-inline:hover {
+  background: rgba(0, 242, 254, 0.22);
+}
+
+/* Conditional Financing Payoff Panel */
+.financing-payoff-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px dashed rgba(245, 158, 11, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeIn 0.25s ease;
+}
+
+.financing-payoff-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--color-warning);
+}
+
+.financing-payoff-header h4 {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--color-warning);
+  margin: 0 0 3px 0;
+}
+
+.financing-payoff-header p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.financing-payoff-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 860px) {
+  .financing-payoff-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
    PRINT STYLES & LAYOUTS (A4 INVESTOR REPORT)
    ========================================================================== */
 
@@ -3212,7 +3543,8 @@ body::before {
   #page-step-5 p,
   #page-step-5 th,
   #page-step-5 td,
-  #page-step-5 strong {
+  #page-step-5 strong,
+  #page-step-5 input {
     color: #0F172A !important;
     box-shadow: none !important;
     text-shadow: none !important;
@@ -3220,11 +3552,8 @@ body::before {
 
   .report-section-card,
   .dre-card,
-  .waterfall-card,
   .exec-kpi-card,
-  .patrimony-subcard,
-  .occupancy-scenario-card,
-  .risk-card,
+  .period-box,
   .metric-card,
   .patrimonial-dre-box {
     border: 1px solid #CBD5E1 !important;
@@ -3233,23 +3562,15 @@ body::before {
     page-break-inside: avoid !important;
   }
 
-  .executive-kpi-grid {
+  .vehicle-mini-kpis {
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 8px !important;
   }
 
-  .results-grid,
-  .patrimony-two-col-grid {
+  .results-grid {
     display: grid !important;
     grid-template-columns: 1.15fr 1fr !important;
     gap: 10px !important;
-  }
-
-  .wf-bar-fill,
-  .dist-slice,
-  .legend-color {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
   }
 
   .print-only-footer {
@@ -3262,9 +3583,4 @@ body::before {
     padding-top: 8px !important;
   }
 }
-
-
-
-
-
 

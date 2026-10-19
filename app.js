@@ -3,8 +3,8 @@
  * Manages state, wizard steps, input formatting masks, and visual outputs.
  */
 
-import { fipeService } from './fipeService.js?v=20261019b';
-import { simulationService } from './simulationService.js?v=20261019b';
+import { fipeService } from './fipeService.js?v=20261019c';
+import { simulationService } from './simulationService.js?v=20261019c';
 
 // ==========================================================================
 // APPLICATION STATE
@@ -32,10 +32,12 @@ const state = {
     valorParcela: 0,
     isFinanciadoManual: false,
     photoUrl: '',
-    photoLicense: 'Imagem ilustrativa • Sem vínculo de placa'
+    isCustomPhoto: false,
+    photoLicense: 'Imagem automática do modelo'
   },
   rental: {
     valorCaucao: 0,
+    isCaucaoManual: false,
     valorSemanal: 0,
     semanasMes: 4.3,
     taxaOcupacao: 1.0,
@@ -64,8 +66,9 @@ const state = {
     useFundoReserva: true
   },
   report: {
-    prazoAnaliseMeses: 48,
-    desagioVendaFipe: 0
+    prazoAnaliseMeses: 36,
+    customSalePrice: null,
+    customPayoffAmount: null
   }
 };
 
@@ -169,15 +172,13 @@ const elements = {
   comparisonDirection: document.getElementById('comparison-direction'),
   comparisonBadge: document.getElementById('comparison-badge'),
 
-  // Step 3: Income & Occupancy
+  // Step 3: Income (Caução 2.7% FIPE + Valor Cobrado na Semana)
   rentalForm: document.getElementById('rental-form'),
   valorCaucaoInput: document.getElementById('rental-valor-caucao'),
+  caucaoFipeBadge: document.getElementById('caucao-fipe-badge'),
+  caucaoFipeHint: document.getElementById('caucao-fipe-hint'),
   valorSemanalInput: document.getElementById('rental-valor-semanal'),
   semanasMesInput: document.getElementById('rental-semanas-mes'),
-  btnWeeks43: document.getElementById('btn-weeks-43'),
-  btnWeeks433: document.getElementById('btn-weeks-433'),
-  rentalOcupacaoInput: document.getElementById('rental-ocupacao'),
-  rentalAdimplenciaInput: document.getElementById('rental-adimplencia'),
 
   // Step 4: Costs
   costsForm: document.getElementById('costs-form'),
@@ -225,45 +226,53 @@ const elements = {
   reserveFundInputGroup: document.getElementById('reserve-fund-input-group'),
   costFundoReserva: document.getElementById('cost-fundo-reserva'),
 
-  // Step 5: Investor Report & Executive Cards
+  // Step 5: Resumo da Operação & Régua 12 a 60 Meses
   reportGeneratedDate: document.getElementById('report-generated-date'),
-  reportScenarioPill: document.getElementById('report-scenario-pill'),
-  step5OcupacaoBtns: document.getElementById('step5-ocupacao-btns'),
   step5PrazoBtns: document.getElementById('step5-prazo-btns'),
-  step5DesagioBtns: document.getElementById('step5-desagio-btns'),
-  investorAlertBanner: document.getElementById('investor-alert-banner'),
-  investorAlertTitle: document.getElementById('investor-alert-title'),
-  investorAlertDesc: document.getElementById('investor-alert-desc'),
+  periodRulerActiveLabel: document.getElementById('period-ruler-active-label'),
   reportFipeMarginBadge: document.getElementById('report-fipe-margin-badge'),
   vehiclePhotoImg: document.getElementById('vehicle-photo-img'),
   vehiclePhotoFallback: document.getElementById('vehicle-photo-fallback'),
+  vehicleSilhouetteCaption: document.getElementById('vehicle-silhouette-caption'),
   vehiclePhotoUpload: document.getElementById('vehicle-photo-upload'),
   btnVehiclePhotoUrl: document.getElementById('btn-vehicle-photo-url'),
   btnVehiclePhotoRemove: document.getElementById('btn-vehicle-photo-remove'),
-  vehiclePhotoLicense: document.getElementById('vehicle-photo-license'),
-  investorNarrativeText: document.getElementById('investor-narrative-text'),
 
   resultVehicleName: document.getElementById('result-vehicle-name'),
   resultFipeReference: document.getElementById('result-fipe-reference'),
   execKpiFipe: document.getElementById('exec-kpi-fipe'),
   execKpiPago: document.getElementById('exec-kpi-pago'),
   execKpiPagoSub: document.getElementById('exec-kpi-pago-sub'),
-  execKpiReceitaLabel: document.getElementById('exec-kpi-receita-label'),
-  dreHeaderRevenue: document.getElementById('dre-header-revenue'),
-  execKpiReceitaSub: document.getElementById('exec-kpi-receita-sub'),
-  execKpiCaixaOp: document.getElementById('exec-kpi-caixa-op'),
-  execKpiCustosSub: document.getElementById('exec-kpi-custos-sub'),
-  execKpiDscr: document.getElementById('exec-kpi-dscr'),
-  execKpiDscrSub: document.getElementById('exec-kpi-dscr-sub'),
-  execCardCaixaDistribuivel: document.getElementById('exec-card-caixa-distribuivel'),
+  kpiFipeDesconto: document.getElementById('kpi-fipe-desconto'),
+  kpiFipeDetalhe: document.getElementById('kpi-fipe-detalhe'),
   execKpiCaixaDistribuivel: document.getElementById('exec-kpi-caixa-distribuivel'),
   execKpiCaixaDistSub: document.getElementById('exec-kpi-caixa-dist-sub'),
 
-  dreRowReceitaPotencial: document.getElementById('dre-row-receita-potencial'),
-  dreReceitaPotencial: document.getElementById('dre-receita-potencial'),
-  dreRowVacancia: document.getElementById('dre-row-vacancia'),
-  dreLabelVacancia: document.getElementById('dre-label-vacancia'),
-  dreValVacancia: document.getElementById('dre-val-vacancia'),
+  // Period Summary Cards (12, 24, 36, 48, 60m)
+  periodSummaryTitle: document.getElementById('period-summary-title'),
+  periodFinancingStatusBadge: document.getElementById('period-financing-status-badge'),
+  periodLucroOperacional: document.getElementById('period-lucro-operacional'),
+  periodLucroOperacionalSub: document.getElementById('period-lucro-operacional-sub'),
+  periodDepreciacaoFipe: document.getElementById('period-depreciacao-fipe'),
+  periodDepreciacaoFipeSub: document.getElementById('period-depreciacao-fipe-sub'),
+  customSalePriceInput: document.getElementById('custom-sale-price'),
+  btnResetSalePrice: document.getElementById('btn-reset-sale-price'),
+  periodVendaSub: document.getElementById('period-venda-sub'),
+  periodLucroMaisVenda: document.getElementById('period-lucro-mais-venda'),
+  periodLucroMaisVendaSub: document.getElementById('period-lucro-mais-venda-sub'),
+
+  // Conditional Financing Payoff Box
+  financingPayoffPanel: document.getElementById('financing-payoff-panel'),
+  financingPayoffTitle: document.getElementById('financing-payoff-title'),
+  financingPayoffSubtitle: document.getElementById('financing-payoff-subtitle'),
+  periodSomaParcelasFaltam: document.getElementById('period-soma-parcelas-faltam'),
+  periodParcelasFaltamDetalhe: document.getElementById('period-parcelas-faltam-detalhe'),
+  customPayoffAmountInput: document.getElementById('custom-payoff-amount'),
+  btnResetPayoffAmount: document.getElementById('btn-reset-payoff-amount'),
+  periodResultadoAposQuitacao: document.getElementById('period-resultado-apos-quitacao'),
+  periodResultadoAposQuitacaoSub: document.getElementById('period-resultado-apos-quitacao-sub'),
+
+  // Monthly Out-of-Pocket Statement
   dreLabelReceitaBruta: document.getElementById('dre-label-receita-bruta'),
   dreReceitaBruta: document.getElementById('dre-receita-bruta'),
   dreRowImpostos: document.getElementById('dre-row-impostos'),
@@ -275,63 +284,30 @@ const elements = {
   dreRastreador: document.getElementById('dre-rastreador'),
   dreSeguro: document.getElementById('dre-seguro'),
   dreManutencao: document.getElementById('dre-manutencao'),
-  dreManutencaoExtra: document.getElementById('dre-manutencao-extra'),
   dreSuporte: document.getElementById('dre-suporte'),
   dreRowContabilidade: document.getElementById('dre-row-contabilidade'),
   dreContabilidade: document.getElementById('dre-contabilidade'),
   dreIpva: document.getElementById('dre-ipva'),
-  dreCaixaOperacional: document.getElementById('dre-caixa-operacional'),
   dreProvisoesTotal: document.getElementById('dre-provisoes-total'),
-  dreFundoReserva: document.getElementById('dre-fundo-reserva'),
   dreDepreciacao: document.getElementById('dre-depreciacao'),
   dreLabelDepreciacaoFipe: document.getElementById('dre-label-depreciacao-fipe'),
-  dreResultadoEconomico: document.getElementById('dre-resultado-economico'),
-  dreFinanciamentoHeader: document.getElementById('dre-financiamento-header'),
-  dreFinanciamentoTotal: document.getElementById('dre-financiamento-total'),
   dreFinanciamentoRow: document.getElementById('dre-financiamento-row'),
   dreFinanciamentoLabel: document.getElementById('dre-financiamento-label'),
   dreFinanciamentoVal: document.getElementById('dre-financiamento-val'),
-  dreRowCaixaAposDivida: document.getElementById('dre-row-caixa-apos-divida'),
-  dreCaixaAposDivida: document.getElementById('dre-caixa-apos-divida'),
   dreSaidasTotal: document.getElementById('dre-saidas-total'),
   dreLucroLiquido: document.getElementById('dre-lucro-liquido'),
 
-  // KPI Results & Charts
-  riskCard: document.getElementById('risk-card'),
-  riskLabel: document.getElementById('risk-label'),
-  riskBadge: document.getElementById('risk-badge'),
-  riskDesc: document.getElementById('risk-desc'),
+  // KPI Markers
   metricCardRoi: document.getElementById('metric-card-roi'),
   kpiRoiLabel: document.getElementById('kpi-roi-label'),
   kpiRoiMensal: document.getElementById('kpi-roi-mensal'),
   kpiRoiAnual: document.getElementById('kpi-roi-anual'),
   kpiPayback: document.getElementById('kpi-payback'),
   kpiPaybackSubtext: document.getElementById('kpi-payback-subtext'),
+  kpiRoiPeriodo: document.getElementById('kpi-roi-periodo'),
+  kpiRoiPeriodoSub: document.getElementById('kpi-roi-periodo-sub'),
   kpiMargem: document.getElementById('kpi-margem'),
-  kpiFipeDesconto: document.getElementById('kpi-fipe-desconto'),
-  kpiFipeDetalhe: document.getElementById('kpi-fipe-detalhe'),
-  kpiBreakevenPct: document.getElementById('kpi-breakeven-pct'),
   kpiBreakevenSub: document.getElementById('kpi-breakeven-sub'),
-  kpiReservaAcumulada: document.getElementById('kpi-reserva-acumulada'),
-  kpiReservaAcumuladaSub: document.getElementById('kpi-reserva-acumulada-sub'),
-
-  waterfallChartContainer: document.getElementById('waterfall-chart-container'),
-  occupancyBarsContainer: document.getElementById('occupancy-bars-container'),
-  occupancyTableBody: document.getElementById('occupancy-table-body'),
-  horizonCashBars: document.getElementById('horizon-cash-bars'),
-  patrimonyChart4Title: document.getElementById('patrimony-chart4-title'),
-  fipePatrimonyBars: document.getElementById('fipe-patrimony-bars'),
-  patrimonyProtectionSummary: document.getElementById('patrimony-protection-summary'),
-
-  // Visual slices and legends
-  sliceProfit: document.getElementById('slice-profit'),
-  sliceTaxes: document.getElementById('slice-taxes'),
-  sliceOpex: document.getElementById('slice-opex'),
-  sliceProvisions: document.getElementById('slice-provisions'),
-  legendProfitPct: document.getElementById('legend-profit-pct'),
-  legendTaxesPct: document.getElementById('legend-taxes-pct'),
-  legendOpexPct: document.getElementById('legend-opex-pct'),
-  legendProvisionsPct: document.getElementById('legend-provisions-pct'),
 
   // Global action buttons
   btnRestart: document.getElementById('btn-restart-simulation')
@@ -479,6 +455,8 @@ function init() {
   if (elements.ipvaManualMensal) utils.setupCurrencyMask(elements.ipvaManualMensal);
   utils.setupCurrencyMask(elements.costDepreciacao);
   utils.setupCurrencyMask(elements.costFundoReserva);
+  if (elements.customSalePriceInput) utils.setupCurrencyMask(elements.customSalePriceInput);
+  if (elements.customPayoffAmountInput) utils.setupCurrencyMask(elements.customPayoffAmountInput);
 
   // Check if user is logged in
   const storedUser = localStorage.getItem('locasim_user');
@@ -586,7 +564,6 @@ function recalculateStateIpvaAndLicenciamento(options = {}) {
       ipvaAnualEfetivo = valorFipe * effectiveIpvaRate;
       ipvaMensalEfetivo = ipvaAnualEfetivo / 12;
 
-      // Pre-populate manualIpvaAnual so switching to Manual starts with current value
       state.costs.manualIpvaAnual = ipvaAnualEfetivo;
       if (elements.ipvaManualAnual) elements.ipvaManualAnual.value = utils.formatCurrency(ipvaAnualEfetivo);
       if (elements.ipvaManualMensal) elements.ipvaManualMensal.value = utils.formatCurrency(ipvaMensalEfetivo);
@@ -595,13 +572,11 @@ function recalculateStateIpvaAndLicenciamento(options = {}) {
     const totalAnual = licenciamentoAnual + ipvaAnualEfetivo;
     const totalMensal = licenciamentoMensal + ipvaMensalEfetivo;
 
-    // Populate main monthly IPVA+Licenciamento field
     if (!options.skipCostIpvaInputSync) {
       elements.costIpva.value = utils.formatCurrency(totalMensal);
     }
     state.costs.ipvaLicenciamento = totalMensal;
 
-    // Sync rate buttons highlight
     ipvaBtns.forEach(btn => {
       if (!btn) return;
       const r = parseFloat(btn.getAttribute('data-rate'));
@@ -615,7 +590,6 @@ function recalculateStateIpvaAndLicenciamento(options = {}) {
       btnIpvaManualRate.classList.toggle('active', Boolean(state.costs.isIpvaManual));
     }
 
-    // Populate Discriminated Panel (1. Licenciamento | 2. IPVA | Soma Total)
     if (elements.ufTaxBreakdownPanel) {
       elements.ufTaxBreakdownPanel.style.display = 'flex';
       elements.ufBreakdownStateTitle.textContent = `${ufData.nome} (${ufCode}) — Licenciamento + IPVA 2026`;
@@ -641,7 +615,6 @@ function recalculateStateIpvaAndLicenciamento(options = {}) {
       elements.ufTotalAnual.textContent = `(${utils.formatCurrency(totalAnual)} / ano)`;
     }
 
-    // Populate Green Savings Box when Locadora 1% Benefit is active
     if (elements.locadoraSavingsBox) {
       if (state.costs.isLocadoraBenefit) {
         const economiaAnual = Math.max(0, ipvaAnualCheio - ipvaAnualEfetivo);
@@ -656,7 +629,6 @@ function recalculateStateIpvaAndLicenciamento(options = {}) {
       }
     }
   } else {
-    // Fallback if UF not yet selected
     if (elements.ufTaxBreakdownPanel) elements.ufTaxBreakdownPanel.style.display = 'none';
     if (elements.locadoraSavingsBox) elements.locadoraSavingsBox.style.display = 'none';
     if (state.costs.isIpvaIsento) {
@@ -680,6 +652,115 @@ function recalculateStateIpvaAndLicenciamento(options = {}) {
   }
 }
 
+// ==========================================================================
+// BUSCA AUTOMÁTICA DA IMAGEM DO VEÍCULO (WIKIPEDIA API + BANCO CURADO)
+// ==========================================================================
+const CURATED_CAR_PHOTOS = [
+  { match: /\bmobi\b/i, wikiQuery: 'Fiat Mobi' },
+  { match: /\bkwid\b/i, wikiQuery: 'Renault Kwid' },
+  { match: /\bonix\b/i, wikiQuery: 'Chevrolet Onix' },
+  { match: /\bprisma\b/i, wikiQuery: 'Chevrolet Prisma' },
+  { match: /\bhb20s?\b/i, wikiQuery: 'Hyundai HB20' },
+  { match: /\bargo\b/i, wikiQuery: 'Fiat Argo' },
+  { match: /\bcronos\b/i, wikiQuery: 'Fiat Cronos' },
+  { match: /\bstrada\b/i, wikiQuery: 'Fiat Strada' },
+  { match: /\buno\b/i, wikiQuery: 'Fiat Novo Uno' },
+  { match: /\bpulse\b/i, wikiQuery: 'Fiat Pulse' },
+  { match: /\bfastback\b/i, wikiQuery: 'Fiat Fastback' },
+  { match: /\btoro\b/i, wikiQuery: 'Fiat Toro' },
+  { match: /\bsiena\b/i, wikiQuery: 'Fiat Grand Siena' },
+  { match: /\bpalio\b/i, wikiQuery: 'Fiat Palio' },
+  { match: /\bgol\b/i, wikiQuery: 'Volkswagen Gol' },
+  { match: /\bvoyage\b/i, wikiQuery: 'Volkswagen Voyage' },
+  { match: /\bpolo\b/i, wikiQuery: 'Volkswagen Polo' },
+  { match: /\bvirtus\b/i, wikiQuery: 'Volkswagen Virtus' },
+  { match: /\bt-?cross\b/i, wikiQuery: 'Volkswagen T-Cross' },
+  { match: /\bnivus\b/i, wikiQuery: 'Volkswagen Nivus' },
+  { match: /\bsaveiro\b/i, wikiQuery: 'Volkswagen Saveiro' },
+  { match: /\bup!?\b/i, wikiQuery: 'Volkswagen Up' },
+  { match: /\bfox\b/i, wikiQuery: 'Volkswagen Fox' },
+  { match: /\bsandero\b/i, wikiQuery: 'Renault Sandero' },
+  { match: /\blogan\b/i, wikiQuery: 'Renault Logan' },
+  { match: /\bduster\b/i, wikiQuery: 'Renault Duster' },
+  { match: /\bkardian\b/i, wikiQuery: 'Renault Kardian' },
+  { match: /\b208\b/i, wikiQuery: 'Peugeot 208' },
+  { match: /\b2008\b/i, wikiQuery: 'Peugeot 2008' },
+  { match: /\bc3\b/i, wikiQuery: 'Citroën C3' },
+  { match: /\bc4\s*cactus\b/i, wikiQuery: 'Citroën C4 Cactus' },
+  { match: /\bka\b/i, wikiQuery: 'Ford Ka' },
+  { match: /\bfiesta\b/i, wikiQuery: 'Ford Fiesta' },
+  { match: /\becosport\b/i, wikiQuery: 'Ford EcoSport' },
+  { match: /\betios\b/i, wikiQuery: 'Toyota Etios' },
+  { match: /\byaris\b/i, wikiQuery: 'Toyota Yaris' },
+  { match: /\bcorolla\b/i, wikiQuery: 'Toyota Corolla' },
+  { match: /\bmarch\b/i, wikiQuery: 'Nissan Micra' },
+  { match: /\bversa\b/i, wikiQuery: 'Nissan Versa' },
+  { match: /\bkicks\b/i, wikiQuery: 'Nissan Kicks' },
+  { match: /\bfit\b/i, wikiQuery: 'Honda Fit' },
+  { match: /\bcity\b/i, wikiQuery: 'Honda City' },
+  { match: /\bhr-?v\b/i, wikiQuery: 'Honda HR-V' },
+  { match: /\brenegade\b/i, wikiQuery: 'Jeep Renegade' },
+  { match: /\bcompass\b/i, wikiQuery: 'Jeep Compass' },
+  { match: /\bspin\b/i, wikiQuery: 'Chevrolet Spin' },
+  { match: /\btracker\b/i, wikiQuery: 'Chevrolet Tracker' },
+  { match: /\bcobalt\b/i, wikiQuery: 'Chevrolet Cobalt' },
+  { match: /\bmontana\b/i, wikiQuery: 'Chevrolet Montana' },
+  { match: /\bdolphin\b/i, wikiQuery: 'BYD Dolphin' }
+];
+
+async function queryWikipediaImage(searchQuery, lang = 'pt') {
+  try {
+    const endpoint = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail|original&pithumbsize=800&generator=search&gsrlimit=3&gsrsearch=${encodeURIComponent(searchQuery)}`;
+    const res = await fetch(endpoint);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const pages = data?.query?.pages;
+    if (!pages) return null;
+    const sortedPages = Object.values(pages).sort((a, b) => (a.index || 99) - (b.index || 99));
+    for (const page of sortedPages) {
+      const imgUrl = page?.thumbnail?.source || page?.original?.source;
+      if (imgUrl && !/\.svg$/i.test(imgUrl) && !/logo|icon|flag|emblem/i.test(imgUrl)) {
+        return imgUrl;
+      }
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchVehicleImageAutomatically(brandName, modelName) {
+  if (state.vehicle.isCustomPhoto) return;
+
+  const cleanBrand = String(brandName || '').replace(/[-_]/g, ' ').trim();
+  const cleanModelFirstWord = String(modelName || '').trim().split(/\s+/)[0] || '';
+  const fullLabel = `${cleanBrand} ${modelName || ''}`.trim();
+
+  if (!fullLabel) return;
+
+  let targetQuery = `${cleanBrand} ${cleanModelFirstWord}`.trim();
+  for (const item of CURATED_CAR_PHOTOS) {
+    if (item.match.test(fullLabel)) {
+      targetQuery = item.wikiQuery;
+      break;
+    }
+  }
+
+  let foundUrl = await queryWikipediaImage(targetQuery, 'pt');
+  if (!foundUrl) {
+    foundUrl = await queryWikipediaImage(targetQuery, 'en');
+  }
+  if (!foundUrl && cleanModelFirstWord) {
+    foundUrl = await queryWikipediaImage(`${cleanBrand} ${cleanModelFirstWord} automobile`, 'en');
+  }
+
+  if (foundUrl && !state.vehicle.isCustomPhoto) {
+    state.vehicle.photoUrl = foundUrl;
+    state.vehicle.photoLicense = `Imagem automática: ${targetQuery}`;
+    syncVehiclePhotoUI();
+  }
+}
+
 /**
  * Binds DOM triggers to state modifiers
  */
@@ -697,7 +778,7 @@ function bindEvents() {
     elements.authLoginView.style.display = 'none';
   });
 
-  // Step 1: Register Form Submit (LOCADOR NÔMADE backend)
+  // Step 1: Register Form Submit
   elements.registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -751,7 +832,6 @@ function bindEvents() {
       localStorage.setItem('locasim_user', JSON.stringify(data.user));
       renderLoggedInWidget();
 
-      // Show beautiful notification about the email if preview URL exists!
       if (data.emailPreviewUrl) {
         console.log('[WELCOME EMAIL PREVIEW LINK]', data.emailPreviewUrl);
         showEmailToast(data.emailPreviewUrl);
@@ -762,7 +842,6 @@ function bindEvents() {
       goToStep(2);
     } catch (err) {
       console.error('API Register Error:', err);
-      // Fallback local storage logic if backend server is offline or fails
       const localUser = { nome, telefone, email };
       state.currentUser = localUser;
       localStorage.setItem('locasim_user', JSON.stringify(localUser));
@@ -818,18 +897,18 @@ function bindEvents() {
     }
   });
 
-  // Step Indicators Navigation (Allowed if completed or already authenticated)
+  // Step Indicators Navigation
   elements.stepIndicators.forEach(ind => {
     ind.addEventListener('click', () => {
       const step = parseInt(ind.dataset.step);
-      // Can't navigate past step 1 if not logged in
       if (!state.currentUser && step > 1) return;
       
-      // Validate current step before allowing forward navigation
       if (step > state.currentStep) {
         if (!validateStep(state.currentStep)) return;
       }
-      
+      if (step === 5) {
+        runCalculationsAndRender();
+      }
       goToStep(step);
     });
   });
@@ -845,7 +924,8 @@ function bindEvents() {
     btn.addEventListener('click', () => {
       if (validateStep(state.currentStep)) {
         if (state.currentStep === 4) {
-          // Compute calculations on step 4 submit -> results in step 5
+          state.report.customSalePrice = null;
+          state.report.customPayoffAmount = null;
           runCalculationsAndRender();
         }
         goToStep(state.currentStep + 1);
@@ -859,7 +939,6 @@ function bindEvents() {
     state.currentUser = null;
     elements.userWidget.style.display = 'none';
     
-    // Clear forms and reset state
     if (elements.registerForm) elements.registerForm.reset();
     if (elements.loginForm) elements.loginForm.reset();
     resetSimulationState();
@@ -898,7 +977,6 @@ function bindEvents() {
     state.vehicle.brandId = brandId;
     state.vehicle.brandName = e.target.options[e.target.selectedIndex]?.text || '';
     
-    // Clear model and year dropdowns
     elements.fipeModel.innerHTML = '<option value="">Carregando modelos...</option>';
     elements.fipeModel.disabled = true;
     elements.fipeYear.innerHTML = '<option value="">Selecione um modelo primeiro</option>';
@@ -934,6 +1012,12 @@ function bindEvents() {
 
     if (!modelId) return;
 
+    // Fetch vehicle image automatically as soon as brand + model are selected
+    if (!state.vehicle.isCustomPhoto) {
+      state.vehicle.photoUrl = '';
+      fetchVehicleImageAutomatically(state.vehicle.brandName, state.vehicle.modelName);
+    }
+
     try {
       const years = await fipeService.getYears(state.vehicle.brandId, modelId);
       elements.fipeYear.innerHTML = '<option value="">Selecione o ano modelo</option>';
@@ -964,31 +1048,39 @@ function bindEvents() {
     try {
       const priceDetails = await fipeService.getPrice(state.vehicle.brandId, state.vehicle.modelId, yearId);
       if (priceDetails) {
-        // Cache numeric FIPE value and historical depreciation in state
         const parsedVal = utils.parseCurrency(priceDetails.Valor);
         state.vehicle.valorFipe = parsedVal;
         state.vehicle.historicoDepreciacaoMensal = priceDetails.historicoDepreciacaoMensalNum || 0;
         state.vehicle.historicoDepreciacaoTotal = priceDetails.historicoDepreciacaoTotalNum || 0;
         state.vehicle.historicoMeses = priceDetails.historicoMeses || 0;
 
-        // Reset auto-calculated Seguro & Depreciação flags when a new vehicle is selected
+        // Reset auto-calculated Caução (2.7% FIPE), Seguro (0.34% FIPE) & Depreciação flags when a new vehicle is selected
+        state.rental.isCaucaoManual = false;
         state.costs.isSeguroManual = false;
         if (state.costs.deprecMultiplier === 'manual') {
           state.costs.deprecMultiplier = 1;
         }
         
-        // Populate inputs
         elements.valorFipeInput.value = priceDetails.Valor;
         
-        // Show details card
         renderFipeCard(priceDetails);
         triggerSmartDefaults();
+        fetchVehicleImageAutomatically(state.vehicle.brandName, state.vehicle.modelName);
       }
     } catch (err) {
       alert('Falha ao buscar preço FIPE na API.');
       hideFipePreview();
     }
   });
+
+  // Also fetch vehicle photo when user types manual brand/model
+  if (elements.manualModel) {
+    elements.manualModel.addEventListener('blur', () => {
+      if (state.vehicle.isManual && !state.vehicle.isCustomPhoto) {
+        fetchVehicleImageAutomatically(elements.manualBrand.value, elements.manualModel.value);
+      }
+    });
+  }
 
   // Smart defaults triggers
   elements.valorPagoInput.addEventListener('blur', () => {
@@ -1001,9 +1093,17 @@ function bindEvents() {
   });
 
   elements.valorFipeInput.addEventListener('blur', () => {
+    state.rental.isCaucaoManual = false;
     state.costs.isSeguroManual = false;
     triggerSmartDefaults();
   });
+
+  // Allow user to edit Caução manually while preserving 2.7% FIPE initial prefill
+  if (elements.valorCaucaoInput) {
+    elements.valorCaucaoInput.addEventListener('input', () => {
+      state.rental.isCaucaoManual = true;
+    });
+  }
 
   // Allow user to edit Seguro manually while preserving 0.34% FIPE initial prefill
   if (elements.costSeguro) {
@@ -1130,61 +1230,8 @@ function bindEvents() {
   // Landing Page Start Triggers
   elements.btnLandingStart.addEventListener('click', startSimulation);
   elements.btnLandingStartBanner.addEventListener('click', startSimulation);
-  
-  // Step 3: Weeks/Month quick buttons (4.3 vs 4.3333) & Occupancy buttons (100%, 90%, 80%)
-  const weeksBtns = [elements.btnWeeks43, elements.btnWeeks433].filter(Boolean);
-  weeksBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const w = parseFloat(btn.getAttribute('data-weeks')) || 4.3;
-      elements.semanasMesInput.value = w;
-      state.rental.semanasMes = w;
-      weeksBtns.forEach(b => b.classList.toggle('active', b === btn));
-      updateTaxPreviewTag();
-    });
-  });
-
-  if (elements.semanasMesInput) {
-    elements.semanasMesInput.addEventListener('input', () => {
-      const val = parseFloat(elements.semanasMesInput.value) || 4.3;
-      state.rental.semanasMes = val;
-      weeksBtns.forEach(b => {
-        const bw = parseFloat(b.getAttribute('data-weeks'));
-        b.classList.toggle('active', Math.abs(bw - val) < 0.005);
-      });
-      updateTaxPreviewTag();
-    });
-  }
-
-  const step3OcupBtns = document.querySelectorAll('[data-ocup-step3]');
-  step3OcupBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const pct = parseFloat(btn.getAttribute('data-ocup-step3')) || 100;
-      if (elements.rentalOcupacaoInput) elements.rentalOcupacaoInput.value = pct;
-      state.rental.taxaOcupacao = pct / 100;
-      step3OcupBtns.forEach(b => b.classList.toggle('active', b === btn));
-    });
-  });
-
-  if (elements.rentalOcupacaoInput) {
-    elements.rentalOcupacaoInput.addEventListener('input', () => {
-      const pct = Math.min(100, Math.max(10, parseFloat(elements.rentalOcupacaoInput.value) || 100));
-      state.rental.taxaOcupacao = pct / 100;
-      step3OcupBtns.forEach(b => {
-        const bp = parseFloat(b.getAttribute('data-ocup-step3'));
-        b.classList.toggle('active', Math.abs(bp - pct) < 0.5);
-      });
-    });
-  }
-
-  if (elements.rentalAdimplenciaInput) {
-    elements.rentalAdimplenciaInput.addEventListener('input', () => {
-      const pct = Math.min(100, Math.max(10, parseFloat(elements.rentalAdimplenciaInput.value) || 100));
-      state.rental.taxaAdimplencia = pct / 100;
-    });
-  }
 
   // Step 4: Depreciation Buttons (1x, 1.5x, 2x from 1st Screen FIPE, 6% a.a. FIPE, 10% a.a. FIPE, Manual)
-  // MANDATORY RULE: All depreciation calculations ALWAYS use valorFipe as the base, NEVER valorPago!
   const allDeprecBtns = [
     elements.btnDeprec1x,
     elements.btnDeprec15x,
@@ -1220,7 +1267,6 @@ function bindEvents() {
     });
   });
 
-  // Switch to "Manual" automatically when user types directly in Depreciation input
   elements.costDepreciacao.addEventListener('input', () => {
     state.costs.deprecMultiplier = 'manual';
     state.costs.deprecFipeAnnualRate = null;
@@ -1229,44 +1275,56 @@ function bindEvents() {
     });
   });
 
-  // Step 5: Interactive Sensitivity Bar (Ocupação, Horizonte 12-48m, Deságio Revenda vs FIPE)
-  if (elements.step5OcupacaoBtns) {
-    elements.step5OcupacaoBtns.querySelectorAll('[data-ocup]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const ocup = parseFloat(btn.getAttribute('data-ocup')) || 1;
-        state.rental.taxaOcupacao = ocup;
-        if (elements.rentalOcupacaoInput) {
-          elements.rentalOcupacaoInput.value = Math.round(ocup * 100);
-        }
-        elements.step5OcupacaoBtns.querySelectorAll('[data-ocup]').forEach(b => b.classList.toggle('active', b === btn));
-        runCalculationsAndRender();
-      });
-    });
-  }
-
+  // Step 5: Interactive Period Ruler (12, 24, 36, 48, 60 meses)
   if (elements.step5PrazoBtns) {
     elements.step5PrazoBtns.querySelectorAll('[data-prazo]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const prazo = parseInt(btn.getAttribute('data-prazo'), 10) || 48;
+        const prazo = parseInt(btn.getAttribute('data-prazo'), 10) || 36;
         state.report.prazoAnaliseMeses = prazo;
+        // Reset custom overrides when switching period on the ruler so it shows the fresh period calculation
+        state.report.customSalePrice = null;
+        state.report.customPayoffAmount = null;
         elements.step5PrazoBtns.querySelectorAll('[data-prazo]').forEach(b => b.classList.toggle('active', b === btn));
         runCalculationsAndRender();
       });
     });
   }
 
-  if (elements.step5DesagioBtns) {
-    elements.step5DesagioBtns.querySelectorAll('[data-desagio]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const desagio = parseFloat(btn.getAttribute('data-desagio')) || 0;
-        state.report.desagioVendaFipe = desagio;
-        elements.step5DesagioBtns.querySelectorAll('[data-desagio]').forEach(b => b.classList.toggle('active', b === btn));
-        runCalculationsAndRender();
-      });
+  // Step 5: Editable Vehicle Sale Price (#custom-sale-price)
+  if (elements.customSalePriceInput) {
+    elements.customSalePriceInput.addEventListener('input', () => {
+      state.report.customSalePrice = utils.parseCurrency(elements.customSalePriceInput.value);
+      if (elements.btnResetSalePrice) elements.btnResetSalePrice.style.display = 'inline-block';
+      runCalculationsAndRender({ skipSaleInputSync: true });
     });
   }
 
-  // Step 5: Vehicle Photo Upload / URL / Remove (Licensed or user-provided image)
+  if (elements.btnResetSalePrice) {
+    elements.btnResetSalePrice.addEventListener('click', () => {
+      state.report.customSalePrice = null;
+      elements.btnResetSalePrice.style.display = 'none';
+      runCalculationsAndRender();
+    });
+  }
+
+  // Step 5: Editable Financing Payoff Amount (#custom-payoff-amount)
+  if (elements.customPayoffAmountInput) {
+    elements.customPayoffAmountInput.addEventListener('input', () => {
+      state.report.customPayoffAmount = utils.parseCurrency(elements.customPayoffAmountInput.value);
+      if (elements.btnResetPayoffAmount) elements.btnResetPayoffAmount.style.display = 'inline-block';
+      runCalculationsAndRender({ skipPayoffInputSync: true });
+    });
+  }
+
+  if (elements.btnResetPayoffAmount) {
+    elements.btnResetPayoffAmount.addEventListener('click', () => {
+      state.report.customPayoffAmount = null;
+      elements.btnResetPayoffAmount.style.display = 'none';
+      runCalculationsAndRender();
+    });
+  }
+
+  // Step 5: Vehicle Photo Upload / URL / Restore Automatic Photo
   if (elements.vehiclePhotoUpload) {
     elements.vehiclePhotoUpload.addEventListener('change', (e) => {
       const file = e.target.files && e.target.files[0];
@@ -1274,7 +1332,7 @@ function bindEvents() {
       const reader = new FileReader();
       reader.onload = (ev) => {
         state.vehicle.photoUrl = ev.target.result;
-        state.vehicle.photoLicense = 'Foto própria enviada pelo usuário • Uso autorizado no relatório';
+        state.vehicle.isCustomPhoto = true;
         syncVehiclePhotoUI();
       };
       reader.readAsDataURL(file);
@@ -1283,10 +1341,10 @@ function bindEvents() {
 
   if (elements.btnVehiclePhotoUrl) {
     elements.btnVehiclePhotoUrl.addEventListener('click', () => {
-      const url = prompt('Cole a URL da imagem do veículo (use fotos próprias ou de banco licenciado):', state.vehicle.photoUrl || '');
+      const url = prompt('Cole a URL da imagem do veículo:', state.vehicle.photoUrl || '');
       if (url && url.trim()) {
         state.vehicle.photoUrl = url.trim();
-        state.vehicle.photoLicense = 'Imagem informada via URL pelo usuário • Sem vínculo de placa';
+        state.vehicle.isCustomPhoto = true;
         syncVehiclePhotoUI();
       }
     });
@@ -1294,17 +1352,19 @@ function bindEvents() {
 
   if (elements.btnVehiclePhotoRemove) {
     elements.btnVehiclePhotoRemove.addEventListener('click', () => {
+      state.vehicle.isCustomPhoto = false;
       state.vehicle.photoUrl = '';
-      state.vehicle.photoLicense = 'Imagem ilustrativa • Sem vínculo de placa';
       if (elements.vehiclePhotoUpload) elements.vehiclePhotoUpload.value = '';
       syncVehiclePhotoUI();
+      const bName = state.vehicle.isManual ? elements.manualBrand.value : state.vehicle.brandName;
+      const mName = state.vehicle.isManual ? elements.manualModel.value : state.vehicle.modelName;
+      fetchVehicleImageAutomatically(bName, mName);
     });
   }
 
   // Step 4: 4. Impostos (%) input mask & live preview (accepts only 0,1 to 100%)
   if (elements.costTaxRate) {
     elements.costTaxRate.addEventListener('input', (e) => {
-      // Allow only digits and a single comma or dot
       let raw = e.target.value.replace(/[^\d.,]/g, '');
       const parts = raw.split(/[.,]/);
       if (parts.length > 2) {
@@ -1356,7 +1416,7 @@ function bindEvents() {
   const btnConsultancy = document.getElementById('btn-consultancy-whatsapp');
   if (btnConsultancy) {
     btnConsultancy.addEventListener('click', () => {
-      const waNumber = '5547999919781'; // Host phone for support
+      const waNumber = '5547999919781';
       const message = 'Olá! Estou utilizando o Simulador Locador Nômade e gostaria de saber mais sobre a consultoria de aluguel de carros.';
       window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
     });
@@ -1364,7 +1424,7 @@ function bindEvents() {
 }
 
 /**
- * Updates the vehicle photo / neutral silhouette box in Step 5
+ * Updates the vehicle photo box in Step 5
  */
 function syncVehiclePhotoUI() {
   if (!elements.vehiclePhotoImg || !elements.vehiclePhotoFallback) return;
@@ -1372,15 +1432,14 @@ function syncVehiclePhotoUI() {
     elements.vehiclePhotoImg.src = state.vehicle.photoUrl;
     elements.vehiclePhotoImg.style.display = 'block';
     elements.vehiclePhotoFallback.style.display = 'none';
-    if (elements.btnVehiclePhotoRemove) elements.btnVehiclePhotoRemove.style.display = 'inline-block';
+    if (elements.btnVehiclePhotoRemove) {
+      elements.btnVehiclePhotoRemove.style.display = state.vehicle.isCustomPhoto ? 'inline-block' : 'none';
+    }
   } else {
     elements.vehiclePhotoImg.src = '';
     elements.vehiclePhotoImg.style.display = 'none';
     elements.vehiclePhotoFallback.style.display = 'flex';
     if (elements.btnVehiclePhotoRemove) elements.btnVehiclePhotoRemove.style.display = 'none';
-  }
-  if (elements.vehiclePhotoLicense) {
-    elements.vehiclePhotoLicense.textContent = state.vehicle.photoLicense || 'Imagem ilustrativa • Sem vínculo de placa';
   }
 }
 
@@ -1403,7 +1462,6 @@ function validateStep(step) {
 }
 
 function validateStep1() {
-  // Can only advance to step 2 if a user has a logged in session
   if (!state.currentUser) {
     alert('Por favor, crie uma conta ou faça login para continuar.');
     return false;
@@ -1414,7 +1472,6 @@ function validateStep1() {
 function validateStep2() {
   let isValid = true;
   
-  // Highlight reset
   elements.valorPagoInput.style.borderColor = '';
   elements.valorFipeInput.style.borderColor = '';
   elements.fipeBrand.style.borderColor = '';
@@ -1496,7 +1553,6 @@ function validateStep3() {
   let isValid = true;
   elements.valorCaucaoInput.style.borderColor = '';
   elements.valorSemanalInput.style.borderColor = '';
-  elements.semanasMesInput.style.borderColor = '';
 
   const caucao = utils.parseCurrency(elements.valorCaucaoInput.value);
   if (caucao < 0) {
@@ -1510,19 +1566,12 @@ function validateStep3() {
     isValid = false;
   }
 
-  const semanas = parseFloat(elements.semanasMesInput.value) || 0;
-  if (semanas < 1 || semanas > 6) {
-    elements.semanasMesInput.style.borderColor = 'var(--color-danger)';
-    isValid = false;
-  }
-
   return isValid;
 }
 
 function validateStep4() {
   let isValid = true;
 
-  // Validate UF selection first
   if (elements.costUf) {
     const customSearchInput = elements.costUf.parentElement?.querySelector('.custom-select-search');
     if (customSearchInput) customSearchInput.style.borderColor = '';
@@ -1533,7 +1582,6 @@ function validateStep4() {
     }
   }
 
-  // Validate optional 4. Impostos (%) — if filled, must be between 0,1% and 100%
   if (elements.costTaxRate) {
     elements.costTaxRate.style.borderColor = '';
     const rawTax = elements.costTaxRate.value.trim();
@@ -1574,20 +1622,15 @@ function validateStep4() {
 // USER CONTROLS & WIZARD STEPS ENGINE
 // ==========================================================================
 
-/**
- * Handles visual updates when shifting between page indices
- */
 function goToStep(step) {
   state.currentStep = step;
   
-  // Hide timeline progress navbar in step 1 (Centered Login) to match screenshot exactly
   if (step === 1) {
     elements.wizardNav.style.display = 'none';
   } else {
     elements.wizardNav.style.display = 'flex';
   }
   
-  // Update Indicators classes
   elements.stepIndicators.forEach(ind => {
     const s = parseInt(ind.dataset.step);
     ind.classList.remove('active', 'completed');
@@ -1598,13 +1641,9 @@ function goToStep(step) {
     }
   });
 
-  // Calculate Progress Fill percentage
-  // Steps: 1, 2, 3, 4, 5
-  // Fill should be: 0% (step1), 25% (step2), 50% (step3), 75% (step4), 100% (step5)
   const percent = ((step - 1) / 4) * 100;
   elements.wizardFill.style.width = `${percent}%`;
 
-  // Display correct page view block
   elements.pages.forEach(p => {
     p.classList.remove('active');
     if (p.id === `page-step-${step}`) {
@@ -1612,9 +1651,12 @@ function goToStep(step) {
     }
   });
 
-  // Lazy Preloads
   if (step === 2 && !state.vehicle.isManual && elements.fipeBrand.options.length <= 1) {
     loadBrands();
+  }
+
+  if (step === 3) {
+    recalculateCaucaoFromFipe();
   }
 
   if (step === 4) {
@@ -1627,17 +1669,11 @@ function goToStep(step) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/**
- * Populates header profile state widget
- */
 function renderLoggedInWidget() {
   elements.userWidgetName.textContent = state.currentUser.nome.split(' ')[0];
   elements.userWidget.style.display = 'flex';
 }
 
-/**
- * Preloads car brands from API in dropdown
- */
 async function loadBrands() {
   elements.fipeBrand.innerHTML = '<option value="">Carregando marcas...</option>';
   try {
@@ -1656,9 +1692,6 @@ async function loadBrands() {
   }
 }
 
-/**
- * Resets vehicle dropdown selections and calculations
- */
 function resetSimulationState() {
   if (elements.vehicleForm) elements.vehicleForm.reset();
   elements.rentalForm.reset();
@@ -1684,11 +1717,13 @@ function resetSimulationState() {
     valorParcela: 0,
     isFinanciadoManual: false,
     photoUrl: '',
-    photoLicense: 'Imagem ilustrativa • Sem vínculo de placa'
+    isCustomPhoto: false,
+    photoLicense: 'Imagem automática do modelo'
   };
 
   state.rental = {
     valorCaucao: 0,
+    isCaucaoManual: false,
     valorSemanal: 0,
     semanasMes: 4.3,
     taxaOcupacao: 1.0,
@@ -1696,8 +1731,9 @@ function resetSimulationState() {
   };
 
   state.report = {
-    prazoAnaliseMeses: 48,
-    desagioVendaFipe: 0
+    prazoAnaliseMeses: 36,
+    customSalePrice: null,
+    customPayoffAmount: null
   };
 
   if (elements.btnLeverageSim && elements.btnLeverageNao) {
@@ -1784,7 +1820,6 @@ function renderFipeCard(data) {
   
   elements.fipePreviewCard.style.display = 'flex';
 
-  // Sincronizar e preencher o cartão de depreciação histórica
   const historyCard = document.getElementById('fipe-depreciation-history-card');
   if (historyCard) {
     if (data.historicoTipo && data.historicoTipo !== 'none') {
@@ -1835,46 +1870,38 @@ function renderComparisonBanner() {
 
   const textElement = elements.fipeComparisonBanner.querySelector('.comparison-text');
   
-  // Reset all state classes
   elements.fipeComparisonBanner.className = 'comparison-banner';
   elements.comparisonBadge.className = 'badge-comparison';
 
   if (diffPct < 0) {
-    // Ágio: Paid more than FIPE
     textElement.innerHTML = `O valor de aquisição está <span>acima</span> da FIPE.`;
     elements.fipeComparisonBanner.classList.add('neutral-state');
     elements.comparisonBadge.classList.add('neutral-badge');
     elements.comparisonBadge.textContent = `${utils.formatPercent(Math.abs(diffPct))} de Ágio`;
   } else {
-    // Discount / Margin
     const marginPct = diffPct;
     
     if (marginPct >= 0 && marginPct < 0.05) {
-      // 0% a 5% (vermelho)
       textElement.textContent = "Margem baixa para operacao de aluguel de carros! Chance alta de perca com depreciaçao!";
       elements.fipeComparisonBanner.classList.add('danger-state');
       elements.comparisonBadge.classList.add('danger-badge');
       elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Margem`;
     } else if (marginPct >= 0.05 && marginPct < 0.10) {
-      // 5% a 9.99% (faixa intermediária padrão)
       textElement.innerHTML = `O valor de aquisição está <span>abaixo</span> da FIPE.`;
       elements.fipeComparisonBanner.classList.add('neutral-state');
       elements.comparisonBadge.classList.add('neutral-badge');
       elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Desconto`;
     } else if (marginPct >= 0.10 && marginPct < 0.15) {
-      // 10% a 14.99% (amarelo)
       textElement.textContent = "Margem de aquisição moderada! Verifique estado do veiculo!";
       elements.fipeComparisonBanner.classList.add('warning-state');
       elements.comparisonBadge.classList.add('warning-badge');
       elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Margem`;
     } else if (marginPct >= 0.15 && marginPct < 0.25) {
-      // 15% ate 24.99% (verde)
       textElement.textContent = "Margem favoravel para compra! Risco baixo de assumir depreciação";
       elements.fipeComparisonBanner.classList.add('success-state');
       elements.comparisonBadge.classList.add('success-badge');
       elements.comparisonBadge.textContent = `${utils.formatPercent(marginPct)} de Margem`;
     } else {
-      // >= 25% (verde neon piscando)
       textElement.textContent = "Margem Excepcional, Altas chances de dobrar o retorno sobre investimento!";
       elements.fipeComparisonBanner.classList.add('neon-state');
       elements.comparisonBadge.classList.add('neon-badge');
@@ -1895,12 +1922,28 @@ function updateTaxPreviewTag() {
   }
   const valorSemanal = utils.parseCurrency(elements.valorSemanalInput.value);
   const semanasMes = parseFloat(elements.semanasMesInput.value) || 4.3;
-  const ocupacao = elements.rentalOcupacaoInput ? (parseFloat(elements.rentalOcupacaoInput.value) || 100) / 100 : 1;
-  const adimplencia = elements.rentalAdimplenciaInput ? (parseFloat(elements.rentalAdimplenciaInput.value) || 100) / 100 : 1;
-  const receitaBruta = valorSemanal * semanasMes * ocupacao * adimplencia;
+  const receitaBruta = valorSemanal * semanasMes;
   const impostoMensal = receitaBruta * (pct / 100);
   elements.taxPreviewTag.style.display = 'inline-block';
   elements.taxPreviewTag.textContent = `${utils.formatCurrency(impostoMensal)}/mês (${String(pct).replace('.', ',')}%)`;
+}
+
+/**
+ * Pre-fills Valor da Caução in Step 3 with 2.7% of the vehicle's FIPE value (editable by the user)
+ */
+function recalculateCaucaoFromFipe() {
+  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value) || state.vehicle.valorFipe || 0;
+  if (valorFipe <= 0) return;
+
+  const caucaoSugerida = valorFipe * 0.027; // 2,7% em relação à FIPE do veículo
+  if (elements.caucaoFipeBadge) {
+    elements.caucaoFipeBadge.textContent = `Sugestão 2,7% FIPE: ${utils.formatCurrency(caucaoSugerida)}`;
+  }
+
+  if (!state.rental.isCaucaoManual && elements.valorCaucaoInput) {
+    elements.valorCaucaoInput.value = utils.formatCurrency(caucaoSugerida);
+    state.rental.valorCaucao = caucaoSugerida;
+  }
 }
 
 /**
@@ -1925,16 +1968,10 @@ function recalculateSeguroFromFipe() {
 /**
  * MANDATORY RULE: Depreciation is ALWAYS calculated over the vehicle's FIPE value (`valorFipe`),
  * NEVER over the purchase price paid (`valorPago`).
- * Supports:
- * - 1x, 1.5x, 2x of the 24-month historical FIPE depreciation brought from Screen 1
- *   (if the vehicle appreciated in the last 24m on Screen 1, suggests R$ 0,00/mês)
- * - 6% a.a. FIPE or 10% a.a. FIPE directly over `valorFipe`
- * - Manual entry
  */
 function recalculateDepreciationFromFirstScreen() {
   const valorFipe = utils.parseCurrency(elements.valorFipeInput.value) || state.vehicle.valorFipe || 0;
 
-  // Case 1: User selected an explicit annual percentage rate over FIPE (6% a.a. FIPE or 10% a.a. FIPE)
   if (state.costs.deprecMultiplier === 'rate-fipe' && state.costs.deprecFipeAnnualRate > 0) {
     const rate = state.costs.deprecFipeAnnualRate;
     const deprecMensalFipe = (valorFipe * rate) / 12;
@@ -1950,7 +1987,6 @@ function recalculateDepreciationFromFirstScreen() {
     return;
   }
 
-  // Case 2: Historical 24-month FIPE variation brought from Screen 1
   let baseDeprecMensal = 0;
 
   if (!state.vehicle.isManual && state.vehicle.historicoDepreciacaoMensal > 0) {
@@ -1964,7 +2000,6 @@ function recalculateDepreciationFromFirstScreen() {
         `Depreciação trazida da 1ª tela sobre a <strong>FIPE (${utils.formatCurrency(valorFipe)})</strong>: <strong>${utils.formatCurrency(baseDeprecMensal)}/mês</strong>. Escolha manter (1x), 1,5x, 2x, 6%/10% a.a. sobre a FIPE ou Manual.`;
     }
   } else if (!state.vehicle.isManual && state.vehicle.historicoMeses > 0 && state.vehicle.historicoDepreciacaoMensal <= 0) {
-    // Vehicle appreciated or had zero depreciation in the last 2 years on Screen 1 -> suggest R$ 0,00!
     baseDeprecMensal = 0;
     if (elements.deprecOriginTag) {
       elements.deprecOriginTag.textContent = `1ª Tela FIPE: Não depreciou (R$ 0,00/mês)`;
@@ -1992,78 +2027,56 @@ function recalculateDepreciationFromFirstScreen() {
   }
 }
 
-/**
- * Triggered automatically on input blur of prices.
- * Dynamically updates IPVA, Seguro (0.34% FIPE) & Depreciation operational inputs based on Vehicle FIPE metrics,
- * but leaves them editable so the user has the final word.
- */
 function triggerSmartDefaults() {
-  // 1. Update IPVA + Licenciamento based on selected UF
+  // 1. Pre-fill Caução in Step 3 at 2.7% of FIPE (if not manually edited)
+  recalculateCaucaoFromFipe();
+
+  // 2. Update IPVA + Licenciamento based on selected UF
   recalculateStateIpvaAndLicenciamento();
 
-  // 2. Pre-fill Seguro Mensal at 0.34% of FIPE (if not manually edited)
+  // 3. Pre-fill Seguro Mensal at 0.34% of FIPE (if not manually edited)
   recalculateSeguroFromFipe();
 
-  // 3. Update Depreciation strictly based on FIPE
+  // 4. Update Depreciation strictly based on FIPE
   recalculateDepreciationFromFirstScreen();
 
-  // Live recalculate the discount banner on step 2 if FipeCard is rendered
   if (state.currentStep === 2 && !state.vehicle.isManual && state.vehicle.valorFipe > 0) {
     renderComparisonBanner();
   }
 }
 
-/**
- * Composes a premium WhatsApp text message summarizing the simulation results and opens the WhatsApp share API.
- */
 function shareSimulationOnWhatsApp() {
   const brand = state.vehicle.isManual ? elements.manualBrand.value : state.vehicle.brandName;
   const model = state.vehicle.isManual ? elements.manualModel.value : `${state.vehicle.modelName} (${state.vehicle.yearName})`;
   const fipe = elements.valorFipeInput.value;
   const pago = elements.valorPagoInput.value;
   const semanal = elements.valorSemanalInput.value;
-  
-  const receita = elements.dreReceitaBruta.textContent;
-  const caixaLivre = elements.dreLucroLiquido.textContent;
-  const resultadoEcon = elements.dreResultadoEconomico ? elements.dreResultadoEconomico.textContent : caixaLivre;
-  const roi = elements.kpiRoiMensal.textContent;
-  const payback = elements.kpiRoiAnual.textContent;
-
-  let leverageText = '';
-  if (state.vehicle.isLeveraged) {
-    const entrada = elements.leverageEntradaInput.value || 'R$ 0,00';
-    const qtd = elements.leverageQtdParcelasInput.value || '0';
-    const parcela = elements.leverageValorParcelaInput.value || 'R$ 0,00';
-    leverageText = `\n*Operação Financiada:* Entrada ${entrada} + ${qtd}x de ${parcela}`;
-  }
+  const prazo = state.report.prazoAnaliseMeses || 36;
+  const lucroMes = elements.dreLucroLiquido ? elements.dreLucroLiquido.textContent : '';
+  const lucroPeriodo = elements.periodLucroOperacional ? elements.periodLucroOperacional.textContent : '';
+  const lucroMaisVenda = elements.periodLucroMaisVenda ? elements.periodLucroMaisVenda.textContent : '';
+  const roi = elements.kpiRoiMensal ? elements.kpiRoiMensal.textContent : '';
 
   const message = 
-`🚗 *LOCADOR NÔMADE — RELATÓRIO DE VIABILIDADE & PATRIMÔNIO* 🚗
+`🚗 *LOCADOR NÔMADE — RESUMO DA OPERAÇÃO (${prazo} MESES)* 🚗
 
 *Veículo:* ${brand} ${model}
-*FIPE Referência:* ${fipe} | *Custo de Aquisição:* ${pago}${leverageText}
+*FIPE:* ${fipe} | *Compra:* ${pago}
 *Aluguel Semanal:* ${semanal}
 
-*--- 1. FLUXO DE CAIXA MENSAL ---*
-*Receita Mensal Esperada:* ${receita}
-*Caixa Mensal Disponível Projetado:* ${caixaLivre}
+*Lucro Operacional Mensal (no bolso):* ${lucroMes}
+*Lucro Operacional em ${prazo} meses:* ${lucroPeriodo}
+*Lucro Operacional + Venda do Veículo (${prazo}m):* ${lucroMaisVenda}
+*ROI Mensal:* ${roi}
 
-*--- 2. VISÃO PATRIMONIAL (BASE 100% FIPE) ---*
-*Resultado Econômico (após Depreciação FIPE):* ${resultadoEcon}
-*Retorno / Payback:* ${roi} | ${payback}
-
-*Siga nossas redes sociais:*
 👉 *@locadornomade*`;
 
   const encodedMessage = encodeURIComponent(message);
-  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
-  
-  window.open(whatsappUrl, '_blank');
+  window.open(`https://api.whatsapp.com/send?text=${encodedMessage}`, '_blank');
 }
 
-
 // ==========================================================================
-// FINANCIAL ENGINE COMPILATION & INVESTOR REPORT RENDERING (4 PAGES)
+// STEP 5: CÁLCULO E RENDERIZAÇÃO DIRETA COM RÉGUA DE 12, 24, 36, 48 E 60 MESES
 // ==========================================================================
 
 function formatSignedNegativeBrl(val) {
@@ -2072,24 +2085,22 @@ function formatSignedNegativeBrl(val) {
   return `R$ -${utils.formatCurrency(num).replace('R$', '').trim()}`;
 }
 
-function runCalculationsAndRender() {
+function runCalculationsAndRender(options = {}) {
   const parsedTaxPct = elements.costTaxRate ? utils.parseTaxPercent(elements.costTaxRate.value) : null;
   const aliquotaImposto = parsedTaxPct !== null && parsedTaxPct > 0 ? (parsedTaxPct / 100) : 0;
 
-  const ocupacaoPctInput = elements.rentalOcupacaoInput ? parseFloat(elements.rentalOcupacaoInput.value) : 100;
-  const taxaOcupacao = Number.isFinite(ocupacaoPctInput) ? Math.min(1, Math.max(0.1, ocupacaoPctInput / 100)) : (state.rental.taxaOcupacao || 1);
-  state.rental.taxaOcupacao = taxaOcupacao;
+  const prazoAnaliseMeses = state.report.prazoAnaliseMeses || 36;
 
-  const adimplenciaPctInput = elements.rentalAdimplenciaInput ? parseFloat(elements.rentalAdimplenciaInput.value) : 100;
-  const taxaAdimplencia = Number.isFinite(adimplenciaPctInput) ? Math.min(1, Math.max(0.1, adimplenciaPctInput / 100)) : (state.rental.taxaAdimplencia || 1);
-  state.rental.taxaAdimplencia = taxaAdimplencia;
-
-  // Sync Step 5 occupancy pills with current taxaOcupacao
-  if (elements.step5OcupacaoBtns) {
-    elements.step5OcupacaoBtns.querySelectorAll('[data-ocup]').forEach(btn => {
-      const bOcup = parseFloat(btn.getAttribute('data-ocup'));
-      btn.classList.toggle('active', Math.abs(bOcup - taxaOcupacao) < 0.02);
+  // Sync ruler buttons active state
+  if (elements.step5PrazoBtns) {
+    elements.step5PrazoBtns.querySelectorAll('[data-prazo]').forEach(btn => {
+      const p = parseInt(btn.getAttribute('data-prazo'), 10);
+      btn.classList.toggle('active', p === prazoAnaliseMeses);
     });
+  }
+  if (elements.periodRulerActiveLabel) {
+    const anos = prazoAnaliseMeses / 12;
+    elements.periodRulerActiveLabel.textContent = `${prazoAnaliseMeses} Meses (${anos} ${anos === 1 ? 'Ano' : 'Anos'})`;
   }
 
   // Collect data from forms
@@ -2104,8 +2115,6 @@ function runCalculationsAndRender() {
     valorCaucao: utils.parseCurrency(elements.valorCaucaoInput.value),
     valorSemanal: utils.parseCurrency(elements.valorSemanalInput.value),
     semanasMes: parseFloat(elements.semanasMesInput.value) || 4.3,
-    taxaOcupacao,
-    taxaAdimplencia,
     
     rastreador: utils.parseCurrency(elements.costRastreador.value),
     seguro: utils.parseCurrency(elements.costSeguro.value),
@@ -2118,156 +2127,173 @@ function runCalculationsAndRender() {
     depreciacaoMensal: utils.parseCurrency(elements.costDepreciacao.value),
     fundoReserva: utils.parseCurrency(elements.costFundoReserva.value),
     manutencaoExtra: elements.costManutencaoExtra ? utils.parseCurrency(elements.costManutencaoExtra.value) : 0,
-    prazoAnaliseMeses: state.report.prazoAnaliseMeses || 48,
-    desagioVendaFipe: state.report.desagioVendaFipe || 0
+
+    prazoAnaliseMeses,
+    customSalePrice: state.report.customSalePrice,
+    customPayoffAmount: state.report.customPayoffAmount
   };
 
-  // Compile calculations through the simulation service
   const results = simulationService.calculate(data);
+  const hSel = results.horizonteSelecionado;
 
-  // Header metadata
+  // Header Date
   if (elements.reportGeneratedDate) {
     elements.reportGeneratedDate.textContent = `Data: ${new Date().toLocaleDateString('pt-BR')}`;
   }
-  if (elements.reportScenarioPill) {
-    const ufLabel = state.costs.uf ? ` • UF: ${state.costs.uf}` : '';
-    elements.reportScenarioPill.textContent = `Ocupação: ${Math.round(taxaOcupacao * 100)}% • Adimplência: ${Math.round(taxaAdimplencia * 100)}%${ufLabel}`;
-  }
 
-  // Vehicle Identification
+  // Vehicle Name & Photo
   let vehicleName = '';
   if (state.vehicle.isManual) {
     vehicleName = `${elements.manualBrand.value.trim()} ${elements.manualModel.value.trim()}`;
   } else {
     vehicleName = `${state.vehicle.brandName} ${state.vehicle.modelName} (${state.vehicle.yearName})`;
   }
-  elements.resultVehicleName.textContent = vehicleName;
-  elements.resultFipeReference.textContent = `FIPE de Referência: ${utils.formatCurrency(results.inputs.valorFipe)} | Aquisição: ${utils.formatCurrency(results.inputs.valorPago)}`;
+  if (elements.resultVehicleName) elements.resultVehicleName.textContent = vehicleName;
+  if (elements.resultFipeReference) {
+    elements.resultFipeReference.textContent =
+      `FIPE: ${utils.formatCurrency(results.inputs.valorFipe)} • Compra: ${utils.formatCurrency(results.inputs.valorPago)} • Caução: ${utils.formatCurrency(results.inputs.valorCaucao)}`;
+  }
+
+  if (!state.vehicle.photoUrl && !state.vehicle.isCustomPhoto) {
+    const bName = state.vehicle.isManual ? elements.manualBrand.value : state.vehicle.brandName;
+    const mName = state.vehicle.isManual ? elements.manualModel.value : state.vehicle.modelName;
+    fetchVehicleImageAutomatically(bName, mName);
+  }
   syncVehiclePhotoUI();
 
-  // Top Purchase Margin Badge
   if (elements.reportFipeMarginBadge) {
     if (results.margemInicialVsFipe >= 0) {
-      elements.reportFipeMarginBadge.textContent = `Compra ${utils.formatPercent(results.descontoSobreFipe)} abaixo da FIPE (+${utils.formatCurrency(results.margemInicialVsFipe)} de margem)`;
+      elements.reportFipeMarginBadge.textContent = `Compra ${utils.formatPercent(results.descontoSobreFipe)} abaixo da FIPE (+${utils.formatCurrency(results.margemInicialVsFipe)})`;
     } else {
       elements.reportFipeMarginBadge.textContent = `Compra ${utils.formatPercent(Math.abs(results.descontoSobreFipe))} acima da FIPE`;
     }
   }
 
-  // Highlighted Risk Alert Banner when Caixa Disponível < 0 or DSCR < 1.0
-  if (elements.investorAlertBanner) {
-    if (results.caixaDisponivelProjetado < 0 || (results.dscr !== null && results.dscr < 1.0)) {
-      elements.investorAlertBanner.style.display = 'flex';
-      elements.investorAlertTitle.textContent = results.dscr !== null && results.dscr < 1.0
-        ? `Alerta Crítico: Cobertura da Dívida Insuficiente (DSCR ${results.dscr.toFixed(2).replace('.', ',')}x)`
-        : `Alerta de Caixa Negativo na Ocupação de ${Math.round(taxaOcupacao * 100)}%`;
-      elements.investorAlertDesc.textContent =
-        `Neste cenário, a operação fecha o mês em ${utils.formatCurrency(results.caixaDisponivelProjetado)} de caixa disponível. A ocupação mínima de equilíbrio (break-even) para cobrir custos fixos, parcela e reservas é de ${utils.formatPercent(results.ocupacaoEquilibrio)} (${results.semanasEquilibrioMes.toFixed(2).replace('.', ',')} semanas/mês).`;
-    } else {
-      elements.investorAlertBanner.style.display = 'none';
-    }
-  }
-
-  // Render Investor Narrative Box (Section 10 of Spec)
-  renderInvestorNarrative(results, vehicleName);
-
-  // =========================================================================
-  // PAGE 1: 8 EXECUTIVE KPI CARDS
-  // =========================================================================
+  // Top 4 Mini KPIs
   if (elements.execKpiFipe) elements.execKpiFipe.textContent = utils.formatCurrency(results.inputs.valorFipe);
   if (elements.execKpiPago) elements.execKpiPago.textContent = utils.formatCurrency(results.inputs.valorPago);
   if (elements.execKpiPagoSub) {
     elements.execKpiPagoSub.textContent = results.isLeveraged
-      ? `Financiado (${results.inputs.qtdParcelas}x de ${utils.formatCurrency(results.parcelaFinanciamento)})`
-      : 'Aquisição 100% à vista';
+      ? `Financiado em ${results.inputs.qtdParcelas}x de ${utils.formatCurrency(results.parcelaFinanciamento)}`
+      : 'Compra à vista';
   }
-
-  elements.kpiFipeDesconto.textContent = utils.formatPercent(results.descontoSobreFipe);
-  const diffVal = Math.abs(results.margemInicialVsFipe);
-  const diffDirection = results.margemInicialVsFipe >= 0 ? 'abaixo da FIPE (Colchão patrimonial)' : 'acima da FIPE (Ágio)';
-  elements.kpiFipeDetalhe.textContent = `${utils.formatCurrency(diffVal)} ${diffDirection}`;
-
-  if (elements.execKpiReceitaLabel) {
-    elements.execKpiReceitaLabel.textContent = `RECEITA MENSAL (${Math.round(taxaOcupacao * 100)}% OCUP.)`;
-  }
-  elements.dreHeaderRevenue.textContent = utils.formatCurrency(results.receitaBrutaMensal);
-  if (elements.execKpiReceitaSub) {
-    elements.execKpiReceitaSub.textContent = `${utils.formatCurrency(results.inputs.valorSemanal)}/sem × ${String(results.inputs.semanasMes).replace('.', ',')} sem/mês`;
-  }
-
-  if (elements.execKpiCaixaOp) {
-    elements.execKpiCaixaOp.textContent = utils.formatCurrency(results.caixaOperacionalAntesDivida);
-  }
-  if (elements.execKpiCustosSub) {
-    const totalCustosETributos = results.custosOperacionaisRecorrentes + results.impostosSimplesNacional;
-    elements.execKpiCustosSub.textContent = `Após ${utils.formatCurrency(totalCustosETributos)} de custos fixos/tributos`;
-  }
-
-  if (elements.execKpiDscr) {
-    if (results.isLeveraged && results.parcelaFinanciamento > 0) {
-      elements.execKpiDscr.textContent = utils.formatCurrency(results.parcelaFinanciamento);
-      elements.execKpiDscrSub.textContent = `DSCR: ${results.dscr.toFixed(2).replace('.', ',')}x | Equilíbrio: ${utils.formatPercent(results.ocupacaoEquilibrio)}`;
-    } else {
-      elements.execKpiDscr.textContent = 'Sem Dívida';
-      elements.execKpiDscrSub.textContent = `Operação à vista | Equilíbrio: ${utils.formatPercent(results.ocupacaoEquilibrio)}`;
-    }
+  if (elements.kpiFipeDesconto) elements.kpiFipeDesconto.textContent = utils.formatPercent(results.descontoSobreFipe);
+  if (elements.kpiFipeDetalhe) {
+    const diffVal = Math.abs(results.margemInicialVsFipe);
+    elements.kpiFipeDetalhe.textContent = results.margemInicialVsFipe >= 0
+      ? `${utils.formatCurrency(diffVal)} abaixo da FIPE`
+      : `${utils.formatCurrency(diffVal)} acima da FIPE`;
   }
 
   if (elements.execKpiCaixaDistribuivel) {
-    elements.execKpiCaixaDistribuivel.textContent = utils.formatCurrency(results.caixaDisponivelProjetado);
-    elements.execKpiCaixaDistribuivel.style.color = results.caixaDisponivelProjetado >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
+    elements.execKpiCaixaDistribuivel.textContent = utils.formatCurrency(results.lucroOperacionalMensal);
+    elements.execKpiCaixaDistribuivel.style.color = results.lucroOperacionalMensal >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
   }
   if (elements.execKpiCaixaDistSub) {
-    elements.execKpiCaixaDistSub.textContent = `Livre após dívida e ${utils.formatCurrency(results.reservasRetidasMes)} de reserva (sem descontar depreciação)`;
+    elements.execKpiCaixaDistSub.textContent = results.isLeveraged
+      ? `Líquido no bolso (já descontando custos e parcela)`
+      : `Líquido no bolso (descontando custos que saem do caixa)`;
   }
-
-  // Card 8: ROI & Payback on Own Initial Capital (Handles 100% Financed / Zero Entry cleanly!)
-  if (results.semCapitalProprioInicial) {
-    if (elements.kpiRoiLabel) elements.kpiRoiLabel.textContent = 'ROI & PAYBACK (100% FINANCIADO)';
-    elements.kpiRoiMensal.textContent = 'Sem Entrada';
-    elements.kpiRoiMensal.style.fontSize = '18px';
-    elements.kpiRoiAnual.textContent = `Compromisso total: ${utils.formatCurrency(results.totalNominalFinanciamento)} (${results.inputs.qtdParcelas}x)`;
-    elements.kpiPayback.textContent = 'N/A (Sem capital próprio inicial)';
-  } else {
-    elements.kpiRoiMensal.style.fontSize = '';
-    if (elements.kpiRoiLabel) {
-      elements.kpiRoiLabel.textContent = results.isLeveraged
-        ? `ROI & PAYBACK (SOBRE ENTRADA DE ${utils.formatCurrency(results.capitalProprioInicial)})`
-        : 'ROI & PAYBACK (CAPITAL PRÓPRIO)';
-    }
-    elements.kpiRoiMensal.textContent = `${utils.formatPercent(results.roiMensal)} a.m.`;
-    const paybackStr = results.paybackMeses && results.paybackMeses !== Infinity
-      ? `Payback: ${results.paybackMeses.toFixed(1).replace('.', ',')} meses`
-      : 'Payback: Indeterminado';
-    elements.kpiRoiAnual.textContent = `${utils.formatPercent(results.roiAnual)} a.a. • ${paybackStr}`;
-    elements.kpiPayback.textContent = paybackStr;
-  }
-  elements.kpiMargem.textContent = utils.formatPercent(results.margemCaixaDisponivel);
 
   // =========================================================================
-  // PAGE 2: DEMONSTRATIVO DE CAIXA MENSAL VS. DEMONSTRATIVO ECONÔMICO (FIPE)
+  // PAINEL DO PERÍODO ESCOLHIDO NA RÉGUA (12, 24, 36, 48 OU 60 MESES)
   // =========================================================================
-  if (results.perdaVacanciaInadimplencia > 0.01) {
-    if (elements.dreRowReceitaPotencial) elements.dreRowReceitaPotencial.style.display = 'flex';
-    if (elements.dreReceitaPotencial) elements.dreReceitaPotencial.textContent = utils.formatCurrency(results.receitaPotencialMensal);
-    if (elements.dreRowVacancia) elements.dreRowVacancia.style.display = 'flex';
-    if (elements.dreLabelVacancia) {
-      elements.dreLabelVacancia.textContent = `(-) Vacância / Inadimplência (${Math.round((1 - taxaOcupacao * taxaAdimplencia) * 100)}%)`;
-    }
-    if (elements.dreValVacancia) {
-      elements.dreValVacancia.textContent = formatSignedNegativeBrl(results.perdaVacanciaInadimplencia);
-    }
-  } else {
-    if (elements.dreRowReceitaPotencial) elements.dreRowReceitaPotencial.style.display = 'none';
-    if (elements.dreRowVacancia) elements.dreRowVacancia.style.display = 'none';
+  if (elements.periodSummaryTitle) {
+    elements.periodSummaryTitle.textContent = `Resultado da Operação em ${hSel.meses} Meses (${hSel.anos} ${hSel.anos === 1 ? 'Ano' : 'Anos'})`;
   }
 
-  if (elements.dreLabelReceitaBruta) {
-    elements.dreLabelReceitaBruta.textContent = `(+) RECEITA MENSAL ESPERADA (${Math.round(taxaOcupacao * 100)}% OCUP.)`;
+  // 1. Lucro Operacional durante o período escolhido
+  if (elements.periodLucroOperacional) {
+    elements.periodLucroOperacional.textContent = utils.formatCurrency(hSel.lucroOperacionalAcumulado);
+    elements.periodLucroOperacional.className = `period-box-value ${hSel.lucroOperacionalAcumulado >= 0 ? 'positive' : 'negative'}`;
   }
-  elements.dreReceitaBruta.textContent = utils.formatCurrency(results.receitaBrutaMensal);
-  elements.dreImpostos.textContent = formatSignedNegativeBrl(results.impostosSimplesNacional);
-  elements.dreReceitaLiquida.textContent = utils.formatCurrency(results.receitaLiquidaMensal);
+  if (elements.periodLucroOperacionalSub) {
+    if (results.isLeveraged && hSel.mesesSemParcela > 0) {
+      elements.periodLucroOperacionalSub.textContent =
+        `${hSel.mesesComParcela}m com parcela (${utils.formatCurrency(results.lucroOperacionalMensal)}/mês) + ${hSel.mesesSemParcela}m já quitado (${utils.formatCurrency(results.lucroOperacionalMensalSemParcela)}/mês)`;
+    } else {
+      elements.periodLucroOperacionalSub.textContent =
+        `${utils.formatCurrency(results.lucroOperacionalMensal)}/mês × ${hSel.meses} meses (descontando apenas custos do bolso)`;
+    }
+  }
+
+  // 2. Depreciação em cima da FIPE nesse período escolhido
+  if (elements.periodDepreciacaoFipe) {
+    elements.periodDepreciacaoFipe.textContent = `- ${utils.formatCurrency(hSel.depreciacaoPeriodoFipe)}`;
+  }
+  if (elements.periodDepreciacaoFipeSub) {
+    elements.periodDepreciacaoFipeSub.textContent =
+      `${utils.formatCurrency(results.depreciacaoMensal)}/mês × ${hSel.meses} meses (sempre sobre a FIPE de ${utils.formatCurrency(results.inputs.valorFipe)})`;
+  }
+
+  // 3. Valor de Venda do Veículo já descontada a depreciação do período (Caixa Editável)
+  if (elements.customSalePriceInput && !options.skipSaleInputSync) {
+    elements.customSalePriceInput.value = utils.formatCurrency(hSel.valorVendaVeiculo);
+  }
+  if (elements.periodVendaSub) {
+    elements.periodVendaSub.textContent =
+      `Sugerido (FIPE - Depreciação de ${hSel.meses}m): ${utils.formatCurrency(hSel.valorVeiculoAposDepreciacao)} — edite acima se desejar`;
+  }
+
+  // 4. Resultado do Lucro Operacional + Valor de Venda do Veículo
+  if (elements.periodLucroMaisVenda) {
+    elements.periodLucroMaisVenda.textContent = utils.formatCurrency(hSel.resultadoOperacionalMaisVenda);
+  }
+  if (elements.periodLucroMaisVendaSub) {
+    elements.periodLucroMaisVendaSub.textContent =
+      `Lucro Operacional (${utils.formatCurrency(hSel.lucroOperacionalAcumulado)}) + Venda do Veículo (${utils.formatCurrency(hSel.valorVendaVeiculo)})`;
+  }
+
+  // 5. Condicional de Financiamento:
+  // Se financiou em ex: 48x e escolheu 12, 24 ou 36 meses (< qtdParcelas), mostra a soma das parcelas que faltam e espaço para quitação.
+  // Se escolheu >= qtdParcelas (ex: 36m para 36x, ou 48m para 48x) ou à vista, não há saldo de financiamento a descontar!
+  if (results.isLeveraged && hSel.TemFinanciamentoRestante) {
+    if (elements.financingPayoffPanel) elements.financingPayoffPanel.style.display = 'flex';
+    if (elements.periodFinancingStatusBadge) {
+      elements.periodFinancingStatusBadge.textContent = `Faltam ${hSel.parcelasRestantes} parcelas no mês ${hSel.meses}`;
+      elements.periodFinancingStatusBadge.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+      elements.periodFinancingStatusBadge.style.color = 'var(--color-warning)';
+    }
+    if (elements.financingPayoffTitle) {
+      elements.financingPayoffTitle.textContent =
+        `Financiamento em Aberto aos ${hSel.meses} Meses (Restam ${hSel.parcelasRestantes} de ${results.inputs.qtdParcelas} parcelas)`;
+    }
+    if (elements.periodSomaParcelasFaltam) {
+      elements.periodSomaParcelasFaltam.textContent = utils.formatCurrency(hSel.somaParcelasRestantes);
+    }
+    if (elements.periodParcelasFaltamDetalhe) {
+      elements.periodParcelasFaltamDetalhe.textContent =
+        `${hSel.parcelasRestantes} parcelas restantes × ${utils.formatCurrency(results.parcelaFinanciamento)}`;
+    }
+    if (elements.customPayoffAmountInput && !options.skipPayoffInputSync) {
+      elements.customPayoffAmountInput.value = utils.formatCurrency(hSel.valorQuitacao);
+    }
+    if (elements.periodResultadoAposQuitacao) {
+      elements.periodResultadoAposQuitacao.textContent = utils.formatCurrency(hSel.resultadoLiquidoAposQuitacao);
+      elements.periodResultadoAposQuitacao.className =
+        `period-box-value ${hSel.resultadoLiquidoAposQuitacao >= 0 ? 'positive' : 'negative'}`;
+    }
+    if (elements.periodResultadoAposQuitacaoSub) {
+      elements.periodResultadoAposQuitacaoSub.textContent =
+        `Lucro + Venda (${utils.formatCurrency(hSel.resultadoOperacionalMaisVenda)}) - Quitação (${utils.formatCurrency(hSel.valorQuitacao)})`;
+    }
+  } else {
+    if (elements.financingPayoffPanel) elements.financingPayoffPanel.style.display = 'none';
+    if (elements.periodFinancingStatusBadge) {
+      elements.periodFinancingStatusBadge.style.borderColor = '';
+      elements.periodFinancingStatusBadge.style.color = '';
+      elements.periodFinancingStatusBadge.textContent = results.isLeveraged
+        ? `Financiamento 100% Quitado em ${hSel.meses} Meses (R$ 0,00 a descontar)`
+        : `Aquisição à Vista • Sem Saldo de Financiamento`;
+    }
+  }
+
+  // =========================================================================
+  // RESUMO DA OPERAÇÃO MENSAL (APENAS SAÍDAS QUE SAEM DO BOLSO DA EMPRESA)
+  // =========================================================================
+  if (elements.dreReceitaBruta) elements.dreReceitaBruta.textContent = utils.formatCurrency(results.receitaBrutaMensal);
+  if (elements.dreImpostos) elements.dreImpostos.textContent = formatSignedNegativeBrl(results.impostosSimplesNacional);
+  if (elements.dreReceitaLiquida) elements.dreReceitaLiquida.textContent = utils.formatCurrency(results.receitaLiquidaMensal);
 
   if (results.impostosSimplesNacional > 0) {
     if (elements.dreRowImpostos) elements.dreRowImpostos.style.display = 'flex';
@@ -2279,404 +2305,103 @@ function runCalculationsAndRender() {
     if (elements.dreRowImpostos) elements.dreRowImpostos.style.display = 'none';
     if (elements.dreRowReceitaLiquida) elements.dreRowReceitaLiquida.style.display = 'none';
   }
-  
-  elements.dreCustosRecorrentesTotal.textContent = formatSignedNegativeBrl(results.custosOperacionaisRecorrentes);
-  elements.dreRastreador.textContent = formatSignedNegativeBrl(results.custosDetalhados.rastreador);
-  elements.dreSeguro.textContent = formatSignedNegativeBrl(results.custosDetalhados.seguro);
-  elements.dreManutencao.textContent = formatSignedNegativeBrl(results.custosDetalhados.manutencao);
-  elements.dreSuporte.textContent = formatSignedNegativeBrl(results.custosDetalhados.suporteSistema);
-  elements.dreContabilidade.textContent = formatSignedNegativeBrl(results.custosDetalhados.contabilidade);
-  elements.dreIpva.textContent = formatSignedNegativeBrl(results.custosDetalhados.ipvaLicenciamento);
 
-  if (elements.dreCaixaOperacional) {
-    elements.dreCaixaOperacional.textContent = utils.formatCurrency(results.caixaOperacionalAntesDivida);
+  if (elements.dreCustosRecorrentesTotal) {
+    elements.dreCustosRecorrentesTotal.textContent = formatSignedNegativeBrl(results.custosOperacionaisRecorrentes);
   }
+  if (elements.dreRastreador) elements.dreRastreador.textContent = formatSignedNegativeBrl(results.custosDetalhados.rastreador);
+  if (elements.dreSeguro) elements.dreSeguro.textContent = formatSignedNegativeBrl(results.custosDetalhados.seguro);
+  if (elements.dreManutencao) elements.dreManutencao.textContent = formatSignedNegativeBrl(results.custosDetalhados.manutencao);
+  if (elements.dreSuporte) elements.dreSuporte.textContent = formatSignedNegativeBrl(results.custosDetalhados.suporteSistema);
+  if (elements.dreContabilidade) elements.dreContabilidade.textContent = formatSignedNegativeBrl(results.custosDetalhados.contabilidade);
+  if (elements.dreIpva) elements.dreIpva.textContent = formatSignedNegativeBrl(results.custosDetalhados.ipvaLicenciamento);
 
-  // Financing / Debt Service rows in Cash Flow Statement
   if (results.isLeveraged && results.parcelaFinanciamento > 0) {
-    if (elements.dreFinanciamentoHeader) elements.dreFinanciamentoHeader.style.display = 'flex';
     if (elements.dreFinanciamentoRow) elements.dreFinanciamentoRow.style.display = 'flex';
-    if (elements.dreRowCaixaAposDivida) elements.dreRowCaixaAposDivida.style.display = 'flex';
-    const parcelaFormatted = formatSignedNegativeBrl(results.parcelaFinanciamento);
-    if (elements.dreFinanciamentoTotal) elements.dreFinanciamentoTotal.textContent = parcelaFormatted;
-    if (elements.dreFinanciamentoVal) elements.dreFinanciamentoVal.textContent = parcelaFormatted;
+    if (elements.dreFinanciamentoVal) elements.dreFinanciamentoVal.textContent = formatSignedNegativeBrl(results.parcelaFinanciamento);
     if (elements.dreFinanciamentoLabel) {
-      elements.dreFinanciamentoLabel.textContent = results.inputs.qtdParcelas > 0
-        ? `Parcela Integral do Financiamento (${results.inputs.qtdParcelas}x)`
-        : 'Parcela Integral do Financiamento';
-    }
-    if (elements.dreCaixaAposDivida) {
-      elements.dreCaixaAposDivida.textContent = utils.formatCurrency(results.caixaAposServicoDivida);
+      elements.dreFinanciamentoLabel.textContent = `Parcela do Financiamento (${results.inputs.qtdParcelas}x)`;
     }
   } else {
-    if (elements.dreFinanciamentoHeader) elements.dreFinanciamentoHeader.style.display = 'none';
     if (elements.dreFinanciamentoRow) elements.dreFinanciamentoRow.style.display = 'none';
-    if (elements.dreRowCaixaAposDivida) elements.dreRowCaixaAposDivida.style.display = 'none';
   }
 
-  // Reserve retentions (only Fundo de Reserva + Manutenção Extra; NOT non-cash depreciation!)
-  elements.dreProvisoesTotal.textContent = formatSignedNegativeBrl(results.reservasRetidasMes);
-  elements.dreFundoReserva.textContent = formatSignedNegativeBrl(results.fundoReserva);
-  if (elements.dreManutencaoExtra) {
-    elements.dreManutencaoExtra.textContent = formatSignedNegativeBrl(results.manutencaoExtra);
+  if (elements.dreSaidasTotal) {
+    elements.dreSaidasTotal.textContent = formatSignedNegativeBrl(results.saidasCaixaBolsoMensais);
   }
 
-  elements.dreSaidasTotal.textContent = formatSignedNegativeBrl(results.saidasCaixaTotaisMensais);
-  
-  // Net Monthly Distributable Cash (Caixa Mensal Disponível Projetado)
-  if (results.caixaDisponivelProjetado >= 0) {
-    elements.dreLucroLiquido.textContent = utils.formatCurrency(results.caixaDisponivelProjetado);
-    elements.dreLucroLiquido.style.color = 'var(--color-success)';
+  if (elements.dreLucroLiquido) {
+    if (results.lucroOperacionalMensal >= 0) {
+      elements.dreLucroLiquido.textContent = utils.formatCurrency(results.lucroOperacionalMensal);
+      elements.dreLucroLiquido.style.color = 'var(--color-success)';
+    } else {
+      elements.dreLucroLiquido.textContent = formatSignedNegativeBrl(results.lucroOperacionalMensal);
+      elements.dreLucroLiquido.style.color = 'var(--color-danger)';
+    }
+  }
+
+  if (elements.dreProvisoesTotal) {
+    elements.dreProvisoesTotal.textContent = formatSignedNegativeBrl(results.reservasRetidasMes);
+  }
+  if (elements.dreDepreciacao) {
+    elements.dreDepreciacao.textContent = formatSignedNegativeBrl(results.depreciacaoMensal);
+  }
+
+  // =========================================================================
+  // MARCADORES DE RETORNO (ROI, PAYBACK, ROI NO PERÍODO, MARGEM)
+  // =========================================================================
+  if (results.semCapitalProprioInicial) {
+    if (elements.kpiRoiLabel) elements.kpiRoiLabel.textContent = 'ROI MENSAL (100% FINANCIADO • SEM ENTRADA)';
+    if (elements.kpiRoiMensal) elements.kpiRoiMensal.textContent = 'Sem Entrada';
+    if (elements.kpiRoiAnual) {
+      elements.kpiRoiAnual.textContent = `Lucro líquido de ${utils.formatCurrency(results.lucroOperacionalMensal)}/mês sem capital inicial`;
+    }
+    if (elements.kpiPayback) elements.kpiPayback.textContent = 'Imediato (R$ 0 entrada)';
+    if (elements.kpiPaybackSubtext) {
+      elements.kpiPaybackSubtext.textContent = `Financiamento pago pelo próprio fluxo da locação (${results.inputs.qtdParcelas}x)`;
+    }
+    if (elements.kpiRoiPeriodo) {
+      elements.kpiRoiPeriodo.textContent = utils.formatCurrency(hSel.resultadoLiquidoAposQuitacao);
+    }
+    if (elements.kpiRoiPeriodoSub) {
+      elements.kpiRoiPeriodoSub.textContent = `Ganho líquido acumulado + venda em ${hSel.meses} meses`;
+    }
   } else {
-    elements.dreLucroLiquido.textContent = formatSignedNegativeBrl(results.caixaDisponivelProjetado);
-    elements.dreLucroLiquido.style.color = 'var(--color-danger)';
+    if (elements.kpiRoiLabel) {
+      elements.kpiRoiLabel.textContent = results.isLeveraged
+        ? `ROI OPERACIONAL (SOBRE ENTRADA DE ${utils.formatCurrency(results.capitalProprioInicial)})`
+        : `ROI OPERACIONAL (SOBRE COMPRA DE ${utils.formatCurrency(results.capitalProprioInicial)})`;
+    }
+    if (elements.kpiRoiMensal) elements.kpiRoiMensal.textContent = `${utils.formatPercent(results.roiMensal)} a.m.`;
+    if (elements.kpiRoiAnual) elements.kpiRoiAnual.textContent = `${utils.formatPercent(results.roiAnual)} ao ano`;
+
+    if (elements.kpiPayback) {
+      elements.kpiPayback.textContent = results.paybackMeses && results.paybackMeses !== Infinity
+        ? `${results.paybackMeses.toFixed(1).replace('.', ',')} meses`
+        : 'Indeterminado';
+    }
+    if (elements.kpiPaybackSubtext) {
+      elements.kpiPaybackSubtext.textContent =
+        `Tempo para recuperar ${utils.formatCurrency(results.capitalProprioInicial)} com o lucro operacional mensal`;
+    }
+
+    if (elements.kpiRoiPeriodo && hSel.roiTotalPeriodo !== null) {
+      const sign = hSel.roiTotalPeriodo >= 0 ? '+' : '';
+      elements.kpiRoiPeriodo.textContent = `${sign}${utils.formatPercent(hSel.roiTotalPeriodo)}`;
+    }
+    if (elements.kpiRoiPeriodoSub) {
+      elements.kpiRoiPeriodoSub.textContent =
+        `Lucro líquido sobre o capital investido (${utils.formatCurrency(hSel.lucroLiquidoSobreCapitalProprio)}) em ${hSel.meses} meses`;
+    }
   }
 
-  // Separate Statement 2: Economic & Patrimonial Depreciation over FIPE
-  if (elements.dreLabelDepreciacaoFipe) {
-    elements.dreLabelDepreciacaoFipe.textContent =
-      `(-) 3. Depreciação Mensal sobre a FIPE (${utils.formatPercent(results.taxaDepreciacaoAnualFipe)} a.a. sobre ${utils.formatCurrency(results.baseFipeDepreciacao)})`;
-  }
-  elements.dreDepreciacao.textContent = formatSignedNegativeBrl(results.depreciacaoMensal);
-  if (elements.dreResultadoEconomico) {
-    elements.dreResultadoEconomico.textContent = utils.formatCurrency(results.resultadoEconomicoMensal);
-    elements.dreResultadoEconomico.style.color = results.resultadoEconomicoMensal >= 0 ? 'var(--accent-primary)' : 'var(--color-warning)';
-  }
-
-  // Render Operational Risk card & Break-Even / Reserves cards
-  const r = results.analiseRisco;
-  elements.riskCard.className = `risk-card ${r.status}`;
-  elements.riskLabel.textContent = 'Diagnóstico de Risco & Liquidez';
-  elements.riskBadge.textContent = r.score;
-  elements.riskDesc.textContent = r.message;
-
-  if (elements.kpiBreakevenPct) {
-    elements.kpiBreakevenPct.textContent = utils.formatPercent(results.ocupacaoEquilibrio);
+  if (elements.kpiMargem) {
+    elements.kpiMargem.textContent = utils.formatPercent(results.margemLucroOperacional);
   }
   if (elements.kpiBreakevenSub) {
     elements.kpiBreakevenSub.textContent =
-      `Equivale a ${results.semanasEquilibrioMes.toFixed(2).replace('.', ',')} semanas alugadas/mês (de ${String(results.inputs.semanasMes).replace('.', ',')}) para empatar o caixa`;
+      `Ponto de equilíbrio: ${results.semanasEquilibrioMes.toFixed(2).replace('.', ',')} semanas alugadas/mês (${utils.formatPercent(results.ocupacaoEquilibrio)})`;
   }
-
-  const hSelected = results.horizonteSelecionado;
-  if (elements.kpiReservaAcumulada && hSelected) {
-    elements.kpiReservaAcumulada.textContent = utils.formatCurrency(hSelected.reservasAcumuladas);
-  }
-  if (elements.kpiReservaAcumuladaSub && hSelected) {
-    elements.kpiReservaAcumuladaSub.textContent =
-      `Saldo retido em fundo próprio ao final de ${hSelected.meses} meses (${utils.formatCurrency(results.reservasRetidasMes)}/mês)`;
-  }
-
-  // Render Chart 1: Waterfall + Revenue Distribution Bar
-  renderWaterfallChart(results);
-  renderDistributionChart(results);
-
-  // =========================================================================
-  // PAGE 3: OCCUPANCY SENSITIVITY (100%, 90%, 80%) — CHART 2 & TABLE
-  // =========================================================================
-  renderOccupancyComparison(results);
-
-  // =========================================================================
-  // PAGE 4: 12/24/36/48M ACCUMULATED CASH (CHART 3) & FIPE PATRIMONY (CHART 4)
-  // =========================================================================
-  renderHorizonAndPatrimonyCharts(results);
-}
-
-/**
- * Generates the Executive Investor Narrative (Section 10 of Spec)
- */
-function renderInvestorNarrative(results, vehicleName) {
-  if (!elements.investorNarrativeText) return;
-  const c100 = results.cenariosOcupacao[0];
-  const c90 = results.cenariosOcupacao[1];
-  const c80 = results.cenariosOcupacao[2];
-  const hSel = results.horizonteSelecionado;
-
-  const discountPhrase = results.margemInicialVsFipe > 0
-    ? `adquirido por <strong>${utils.formatCurrency(results.inputs.valorPago)}</strong> frente à FIPE de <strong>${utils.formatCurrency(results.inputs.valorFipe)}</strong>, gerando uma margem patrimonial inicial na compra de <strong>${utils.formatCurrency(results.margemInicialVsFipe)} (${utils.formatPercent(results.descontoSobreFipe)} abaixo da FIPE)</strong>`
-    : `adquirido por <strong>${utils.formatCurrency(results.inputs.valorPago)}</strong> (FIPE de referência: <strong>${utils.formatCurrency(results.inputs.valorFipe)}</strong>)`;
-
-  const financingPhrase = results.isLeveraged && results.parcelaFinanciamento > 0
-    ? `Após quitar os custos operacionais fixos de <strong>${utils.formatCurrency(results.custosOperacionaisRecorrentes + results.impostosSimplesNacional)}/mês</strong>, o caixa operacional antes da dívida é de <strong>${utils.formatCurrency(c100.caixaOperacionalAntesDivida)}/mês</strong>. Descontando a parcela do financiamento de <strong>${utils.formatCurrency(results.parcelaFinanciamento)}/mês</strong> (DSCR de <strong>${(c100.dscr || 0).toFixed(2).replace('.', ',')}x</strong>) e a retenção de reserva de <strong>${utils.formatCurrency(results.reservasRetidasMes)}/mês</strong>`
-    : `Após quitar os custos operacionais fixos de <strong>${utils.formatCurrency(results.custosOperacionaisRecorrentes + results.impostosSimplesNacional)}/mês</strong> e reter <strong>${utils.formatCurrency(results.reservasRetidasMes)}/mês</strong> para o fundo de reserva`;
-
-  elements.investorNarrativeText.innerHTML =
-    `O veículo <strong>${vehicleName}</strong> foi ${discountPhrase}. Com aluguel semanal de <strong>${utils.formatCurrency(results.inputs.valorSemanal)}</strong> (${String(results.inputs.semanasMes).replace('.', ',')} sem/mês), a receita potencial em 100% de ocupação é de <strong>${utils.formatCurrency(results.receitaPotencialMensal)}/mês</strong>. ${financingPhrase}, o <strong>Caixa Mensal Disponível Projetado</strong> (sem descontar a depreciação não-caixa) é de <strong>${utils.formatCurrency(c100.caixaDisponivelProjetado)}/mês a 100% de ocupação</strong>, <strong>${utils.formatCurrency(c90.caixaDisponivelProjetado)}/mês a 90%</strong> e <strong>${utils.formatCurrency(c80.caixaDisponivelProjetado)}/mês a 80%</strong> (ponto de equilíbrio em <strong>${utils.formatPercent(results.ocupacaoEquilibrio)}</strong>). Em <strong>${hSel.meses} meses</strong>, a operação acumula <strong>${utils.formatCurrency(hSel.caixaDistribuivelAcumulado)}</strong> de caixa distribuível mais <strong>${utils.formatCurrency(hSel.reservasAcumuladas)}</strong> em reservas retidas, enquanto a depreciação calculada sobre a FIPE projeta valor de revenda líquido de <strong>${utils.formatCurrency(hSel.patrimonioLiquidoVeiculo)}</strong>.`;
-}
-
-/**
- * Chart 1: Waterfall of Monthly Cash Flow (Receita -> Custos Fixos -> Caixa Op -> Parcela -> Reserva -> Caixa Livre)
- */
-function renderWaterfallChart(results) {
-  if (!elements.waterfallChartContainer) return;
-  const maxRef = Math.max(results.receitaPotencialMensal, results.receitaBrutaMensal, 1);
-
-  const steps = [
-    {
-      label: `(+) Receita Mensal (${Math.round(results.inputs.taxaOcupacao * 100)}% ocup.)`,
-      val: results.receitaBrutaMensal,
-      cls: 'positive',
-      prefix: ''
-    },
-    {
-      label: '(-) Custos Fixos + Tributos',
-      val: results.custosOperacionaisRecorrentes + results.impostosSimplesNacional,
-      cls: 'negative',
-      prefix: '-'
-    },
-    {
-      label: '(=) Caixa Operacional',
-      val: results.caixaOperacionalAntesDivida,
-      cls: 'subtotal',
-      prefix: ''
-    }
-  ];
-
-  if (results.isLeveraged && results.parcelaFinanciamento > 0) {
-    steps.push({
-      label: `(-) Parcela Financiamento (${results.inputs.qtdParcelas}x)`,
-      val: results.parcelaFinanciamento,
-      cls: 'negative',
-      prefix: '-'
-    });
-    steps.push({
-      label: '(=) Caixa Após Dívida',
-      val: results.caixaAposServicoDivida,
-      cls: 'subtotal',
-      prefix: ''
-    });
-  }
-
-  steps.push({
-    label: '(-) Retenção de Reserva',
-    val: results.reservasRetidasMes,
-    cls: 'reserve',
-    prefix: '-'
-  });
-
-  steps.push({
-    label: '(=) Caixa Disponível Projetado',
-    val: results.caixaDisponivelProjetado,
-    cls: results.caixaDisponivelProjetado >= 0 ? 'final' : 'negative',
-    prefix: ''
-  });
-
-  elements.waterfallChartContainer.innerHTML = steps.map(s => {
-    const pctWidth = Math.min(100, Math.max(3, (Math.abs(s.val) / maxRef) * 100));
-    const formatted = s.prefix === '-' && s.val > 0
-      ? formatSignedNegativeBrl(s.val)
-      : utils.formatCurrency(s.val);
-    return `
-      <div class="wf-row">
-        <span class="wf-label">${s.label}</span>
-        <div class="wf-bar-track">
-          <div class="wf-bar-fill ${s.cls}" style="width: ${pctWidth.toFixed(1)}%;"></div>
-        </div>
-        <span class="wf-val">${formatted}</span>
-      </div>
-    `;
-  }).join('');
-}
-
-/**
- * Chart 2 & Table: 100%, 90%, and 80% Occupancy Scenarios
- */
-function renderOccupancyComparison(results) {
-  if (!elements.occupancyBarsContainer || !elements.occupancyTableBody) return;
-  const scenarios = results.cenariosOcupacao || [];
-  const maxCash = Math.max(...scenarios.map(s => Math.abs(s.caixaDisponivelProjetado)), 1);
-
-  elements.occupancyBarsContainer.innerHTML = scenarios.map(sc => {
-    const isCurrent = Math.abs(sc.taxaOcupacao - results.inputs.taxaOcupacao) < 0.02;
-    const isPositive = sc.caixaDisponivelProjetado >= 0;
-    const barPct = Math.min(100, Math.max(6, (Math.abs(sc.caixaDisponivelProjetado) / maxCash) * 100));
-    const fillColor = isPositive
-      ? 'linear-gradient(90deg, #10B981, #22D3EE)'
-      : 'linear-gradient(90deg, #EF4444, #F87171)';
-
-    return `
-      <div class="occ-scenario-card ${isCurrent ? 'active-scenario' : ''}">
-        <div class="occ-scenario-top">
-          <span class="occ-scenario-title">Ocupação ${sc.ocupacaoPct}% (${sc.semanasAlugadasMes.toFixed(2).replace('.', ',')} sem/mês)</span>
-          <span class="occ-scenario-badge ${isPositive ? 'ok' : 'warn'}">
-            ${sc.dscr !== null ? `DSCR ${sc.dscr.toFixed(2).replace('.', ',')}x` : 'À Vista'}
-          </span>
-        </div>
-        <div class="occ-cash-big" style="color: ${isPositive ? '#10B981' : '#EF4444'};">
-          ${utils.formatCurrency(sc.caixaDisponivelProjetado)}<small style="font-size: 12px; font-weight: 500; color: var(--text-muted);">/mês livre</small>
-        </div>
-        <div class="occ-mini-bar-track">
-          <div class="occ-mini-bar-fill" style="width: ${barPct.toFixed(1)}%; background: ${fillColor};"></div>
-        </div>
-        <div class="occ-scenario-meta">
-          <span>Receita: <strong>${utils.formatCurrency(sc.receitaBrutaMensal)}</strong></span>
-          <span>Em 48m: <strong>${utils.formatCurrency(sc.caixaAcumulado48m)}</strong></span>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  elements.occupancyTableBody.innerHTML = scenarios.map(sc => {
-    const isPositive = sc.caixaDisponivelProjetado >= 0;
-    return `
-      <tr>
-        <td>${sc.ocupacaoPct}% (${sc.semanasAlugadasMes.toFixed(2).replace('.', ',')} sem)</td>
-        <td>${utils.formatCurrency(sc.receitaBrutaMensal)}</td>
-        <td>${utils.formatCurrency(sc.caixaOperacionalAntesDivida)}</td>
-        <td>${sc.parcelaFinanciamento > 0 ? formatSignedNegativeBrl(sc.parcelaFinanciamento) : 'R$ 0,00'}</td>
-        <td>${utils.formatCurrency(sc.caixaAposServicoDivida)}</td>
-        <td>${formatSignedNegativeBrl(sc.reservasRetidasMes)}</td>
-        <td class="${isPositive ? 'val-pos' : 'val-neg'}">${utils.formatCurrency(sc.caixaDisponivelProjetado)}</td>
-        <td>${sc.dscr !== null ? `${sc.dscr.toFixed(2).replace('.', ',')}x` : 'N/A'}</td>
-      </tr>
-    `;
-  }).join('');
-}
-
-/**
- * Chart 3 (12/24/36/48m Accumulated Cash vs Reserves) & Chart 4 (Patrimony & Depreciation strictly over FIPE)
- */
-function renderHorizonAndPatrimonyCharts(results) {
-  if (!elements.horizonCashBars || !elements.fipePatrimonyBars || !elements.patrimonyProtectionSummary) return;
-
-  const horizons = results.horizontes || [];
-  const maxTotalCash = Math.max(
-    ...horizons.map(h => Math.max(0, h.caixaDistribuivelAcumulado) + h.reservasAcumuladas),
-    1
-  );
-
-  elements.horizonCashBars.innerHTML = horizons.map(h => {
-    const isSelected = h.meses === results.inputs.prazoAnaliseMeses;
-    const cashPos = Math.max(0, h.caixaDistribuivelAcumulado);
-    const cashPct = Math.min(100, (cashPos / maxTotalCash) * 100);
-    const resPct = Math.min(100 - cashPct, (h.reservasAcumuladas / maxTotalCash) * 100);
-
-    return `
-      <div class="horizon-row-item" style="${isSelected ? 'border-color: rgba(34, 211, 238, 0.55); background: rgba(34, 211, 238, 0.05);' : ''}">
-        <div class="horizon-row-top">
-          <strong>${h.meses} Meses (${h.anos} ${h.anos === 1 ? 'ano' : 'anos'})</strong>
-          <span>Caixa Livre: <strong style="color: #10B981;">${utils.formatCurrency(h.caixaDistribuivelAcumulado)}</strong> + Reserva: <strong style="color: #22D3EE;">${utils.formatCurrency(h.reservasAcumuladas)}</strong></span>
-        </div>
-        <div class="horizon-dual-bar">
-          <div class="horizon-bar-cash" style="width: ${cashPct.toFixed(1)}%;" title="Caixa Distribuível Acumulado"></div>
-          <div class="horizon-bar-reserve" style="width: ${resPct.toFixed(1)}%;" title="Reservas Acumuladas"></div>
-        </div>
-        <div class="horizon-row-top" style="font-size: 11px; color: var(--text-muted);">
-          <span>FIPE Projetada (${h.meses}m): ${utils.formatCurrency(h.valorFipeProjetado)}</span>
-          <span>Patrimônio + Caixa + Reserva: <strong style="color: var(--text-main);">${utils.formatCurrency(h.riquezaTotalGerada)}</strong></span>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // Chart 4: Vehicle Patrimony & Depreciation over FIPE for the selected horizon
-  const hSel = results.horizonteSelecionado || horizons[horizons.length - 1];
-  if (elements.patrimonyChart4Title && hSel) {
-    elements.patrimonyChart4Title.textContent =
-      `Gráfico 4 — Patrimônio no Veículo & Depreciação sobre a FIPE (${hSel.meses}m)`;
-  }
-
-  if (hSel) {
-    const maxFipeRef = Math.max(results.inputs.valorFipe, results.inputs.valorPago, hSel.valorFipeProjetado, 1);
-    const fipe0Pct = (results.inputs.valorFipe / maxFipeRef) * 100;
-    const pagoPct = (results.inputs.valorPago / maxFipeRef) * 100;
-    const fipeProjPct = (hSel.valorFipeProjetado / maxFipeRef) * 100;
-    const vendaLiqPct = (hSel.valorVendaProjetado / maxFipeRef) * 100;
-
-    elements.fipePatrimonyBars.innerHTML = `
-      <div class="fipe-bar-row">
-        <div class="fipe-bar-label-line">
-          <span>1. Valor Tabela FIPE na Compra (Base 100% da Depreciação)</span>
-          <strong>${utils.formatCurrency(results.inputs.valorFipe)}</strong>
-        </div>
-        <div class="fipe-bar-track">
-          <div class="fipe-bar-fill fipe-initial" style="width: ${fipe0Pct.toFixed(1)}%;"></div>
-        </div>
-      </div>
-
-      <div class="fipe-bar-row">
-        <div class="fipe-bar-label-line">
-          <span>2. Valor Efetivamente Pago na Compra (${utils.formatPercent(results.descontoSobreFipe)} abaixo da FIPE)</span>
-          <strong style="color: #10B981;">${utils.formatCurrency(results.inputs.valorPago)}</strong>
-        </div>
-        <div class="fipe-bar-track">
-          <div class="fipe-bar-fill paid-price" style="width: ${pagoPct.toFixed(1)}%;"></div>
-        </div>
-      </div>
-
-      <div class="fipe-bar-row">
-        <div class="fipe-bar-label-line">
-          <span>3. FIPE Projetada após ${hSel.meses}m (Depreciação sobre a FIPE: -${utils.formatCurrency(hSel.depreciacaoAcumuladaFipe)})</span>
-          <strong style="color: #F59E0B;">${utils.formatCurrency(hSel.valorFipeProjetado)}</strong>
-        </div>
-        <div class="fipe-bar-track">
-          <div class="fipe-bar-fill fipe-future" style="width: ${fipeProjPct.toFixed(1)}%;"></div>
-        </div>
-      </div>
-
-      <div class="fipe-bar-row">
-        <div class="fipe-bar-label-line">
-          <span>4. Valor Estimado de Revenda (${results.inputs.desagioVendaFipe > 0 ? `Deságio de ${utils.formatPercent(results.inputs.desagioVendaFipe)} vs. FIPE futura` : '100% da FIPE futura'})</span>
-          <strong style="color: #22D3EE;">${utils.formatCurrency(hSel.valorVendaProjetado)}</strong>
-        </div>
-        <div class="fipe-bar-track">
-          <div class="fipe-bar-fill net-equity" style="width: ${vendaLiqPct.toFixed(1)}%;"></div>
-        </div>
-      </div>
-    `;
-
-    const diffVendaVsPago = hSel.ganhoOuPerdaSobreValorPago;
-    const isProtected = diffVendaVsPago >= 0;
-    elements.patrimonyProtectionSummary.innerHTML = `
-      <strong>Análise de Proteção Patrimonial (Depreciação calculada sobre a FIPE):</strong><br>
-      Em <strong>${hSel.meses} meses</strong>, a FIPE do veículo passa de <strong>${utils.formatCurrency(results.inputs.valorFipe)}</strong> para <strong>${utils.formatCurrency(hSel.valorFipeProjetado)}</strong> (depreciação acumulada de <strong>${utils.formatCurrency(hSel.depreciacaoAcumuladaFipe)}</strong> sobre a FIPE).
-      ${isProtected
-        ? `Como você comprou com desconto por <strong>${utils.formatCurrency(results.inputs.valorPago)}</strong> (${utils.formatCurrency(results.margemInicialVsFipe)} abaixo da FIPE), a margem de entrada <strong>absorveu 100% da depreciação da FIPE</strong> e o valor estimado de revenda (<strong>${utils.formatCurrency(hSel.valorVendaProjetado)}</strong>) ainda fica <strong>+${utils.formatCurrency(diffVendaVsPago)} acima do que você pagou</strong>!`
-        : `A margem de compra abaixo da FIPE (<strong>${utils.formatCurrency(results.margemInicialVsFipe)}</strong>) amorteceu grande parte da queda da FIPE, resultando em uma diferença líquida na revenda de <strong>${utils.formatCurrency(diffVendaVsPago)}</strong> frente ao preço pago (amplamente superada pelo caixa acumulado de <strong>${utils.formatCurrency(hSel.caixaDistribuivelAcumulado)}</strong>).`
-      }
-      ${hSel.saldoDevedorEstimado > 0
-        ? `<br><em>Nota sobre financiamento:</em> Em ${hSel.meses} meses restam ${Math.max(0, results.inputs.qtdParcelas - hSel.meses)} parcelas (saldo nominal aproximado de ${utils.formatCurrency(hSel.saldoDevedorEstimado)}; patrimônio líquido no ativo de <strong>${utils.formatCurrency(hSel.patrimonioLiquidoVeiculo)}</strong>).`
-        : ''}
-    `;
-  }
-}
-
-/**
- * Calculates and updates widths of the visual CSS revenue distribution bar
- */
-function renderDistributionChart(results) {
-  const rev = results.receitaBrutaMensal;
-  if (rev <= 0) {
-    elements.sliceProfit.style.width = '0%';
-    elements.sliceTaxes.style.width = '0%';
-    elements.sliceOpex.style.width = '0%';
-    elements.sliceProvisions.style.width = '100%';
-    elements.sliceProvisions.style.background = 'var(--color-danger)';
-    
-    elements.legendProfitPct.textContent = '0,00%';
-    elements.legendTaxesPct.textContent = '0,00%';
-    elements.legendOpexPct.textContent = '0,00%';
-    elements.legendProvisionsPct.textContent = '100,00%';
-    return;
-  }
-
-  const profitPct = Math.max(0, results.caixaDisponivelProjetado / rev);
-  const taxesPct = Math.max(0, results.impostosSimplesNacional / rev);
-  const opexPct = Math.max(0, (results.custosOperacionaisRecorrentes + (results.parcelaFinanciamento || 0)) / rev);
-  const provPct = Math.max(0, results.reservasRetidasMes / rev);
-
-  const sumPct = profitPct + taxesPct + opexPct + provPct || 1;
-
-  elements.sliceProfit.style.width = `${(profitPct / sumPct) * 100}%`;
-  elements.sliceTaxes.style.width = `${(taxesPct / sumPct) * 100}%`;
-  elements.sliceOpex.style.width = `${(opexPct / sumPct) * 100}%`;
-  elements.sliceProvisions.style.width = `${(provPct / sumPct) * 100}%`;
-  elements.sliceProvisions.style.background = 'var(--color-warning)';
-
-  elements.legendProfitPct.textContent = utils.formatPercent(profitPct);
-  elements.legendTaxesPct.textContent = utils.formatPercent(taxesPct);
-  elements.legendOpexPct.textContent = utils.formatPercent(opexPct);
-  elements.legendProvisionsPct.textContent = utils.formatPercent(provPct);
 }
 
 // Initialize on document load

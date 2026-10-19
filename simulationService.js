@@ -44,15 +44,16 @@ export const simulationService = {
       ? Math.max(0, Math.min(1, Number(data.taxaAdimplencia)))
       : 1.0;
 
-    // Projection horizon & exit parameters
-    const prazoMeses = Number(data.prazoAnaliseMeses) || Number(data.prazoMeses) || (Number(data.qtdParcelas) > 0 ? Number(data.qtdParcelas) : 48);
-    const descontoRevendaFipePct = typeof data.desagioVendaFipe !== 'undefined'
-      ? Math.max(0, Math.min(1, Number(data.desagioVendaFipe)))
-      : (typeof data.descontoRevendaFipePct !== 'undefined'
-        ? Math.max(0, Math.min(1, Number(data.descontoRevendaFipePct)))
-        : 0);
+    // Projection horizon & exit parameters (12, 24, 36, 48, 60 months)
+    const prazoMeses = Number(data.prazoAnaliseMeses) || Number(data.prazoMeses) || 36;
+    const customSalePrice = typeof data.customSalePrice === 'number' && !Number.isNaN(data.customSalePrice)
+      ? Math.max(0, data.customSalePrice)
+      : null;
+    const customPayoffAmount = typeof data.customPayoffAmount === 'number' && !Number.isNaN(data.customPayoffAmount)
+      ? Math.max(0, data.customPayoffAmount)
+      : null;
 
-    // 1. Purchase vs. FIPE Patrimonial Margin
+    // 1. Purchase vs. FIPE Margin
     const margemInicialVsFipe = this.round2(valorFipe - valorPago);
     const descontoSobreFipe = valorFipe > 0 ? ((valorFipe - valorPago) / valorFipe) : 0;
 
@@ -65,19 +66,18 @@ export const simulationService = {
     const parcelaFinanciamento = isLeveraged ? valorParcela : 0;
     const totalNominalFinanciamento = this.round2(parcelaFinanciamento * qtdParcelas);
 
-    // 3. Revenue Calculations (Potential vs. Expected after Occupancy & Adimplência)
+    // 3. Monthly Revenue
     const receitaPotencialMensal = this.round2(valorSemanal * semanasMes);
-    const receitaBrutaMensal = this.round2(receitaPotencialMensal * taxaOcupacao * taxaAdimplencia);
-    const perdaVacanciaInadimplencia = this.round2(receitaPotencialMensal - receitaBrutaMensal);
+    const receitaBrutaMensal = receitaPotencialMensal;
 
-    // 4. Taxes (Simples Nacional / Aliquota configurada)
+    // 4. Taxes (4. Impostos % - only if informed by user)
     const aliquotaImposto = typeof data.aliquotaImposto !== 'undefined' && data.aliquotaImposto !== null
       ? Number(data.aliquotaImposto)
       : this.DEFAULTS.SIMPLES_NACIONAL_RATE;
     const impostosSimplesNacional = this.round2(receitaBrutaMensal * aliquotaImposto);
     const receitaLiquidaMensal = this.round2(receitaBrutaMensal - impostosSimplesNacional);
 
-    // 5. Fixed Operational Cash Outflows
+    // 5. Out-of-Pocket Fixed Operational Costs (Custos que saem de fato do bolso da empresa)
     const rastreador = Number(data.rastreador) || 0;
     const seguro = Number(data.seguro) || 0;
     const manutencao = Number(data.manutencao) || 0;
@@ -89,265 +89,195 @@ export const simulationService = {
       rastreador + seguro + manutencao + suporteSistema + contabilidade + ipvaLicenciamento
     );
 
-    // 6. Cash Flow Statement (Demonstrativo de Fluxo de Caixa Mensal)
-    // Operational Cash Flow BEFORE Debt Service
+    // 6. Monthly Operational Profit (Desconta APENAS o que sai de fato do bolso da empresa)
+    // Lucro Operacional Antes da Parcela:
     const caixaOperacionalAntesDivida = this.round2(receitaLiquidaMensal - custosOperacionaisRecorrentes);
+    // Lucro Operacional Mensal (Com parcela do financiamento descontada quando houver):
+    const lucroOperacionalMensal = this.round2(caixaOperacionalAntesDivida - parcelaFinanciamento);
+    // Lucro Operacional Mensal após quitar o financiamento (sem parcela):
+    const lucroOperacionalMensalSemParcela = caixaOperacionalAntesDivida;
 
-    // Cash Flow AFTER Debt Service
-    const caixaAposServicoDivida = this.round2(caixaOperacionalAntesDivida - parcelaFinanciamento);
+    // Total que sai de fato do bolso no mês (Custos Fixos + Impostos + Parcela):
+    const saidasBolsoMensais = this.round2(
+      impostosSimplesNacional + custosOperacionaisRecorrentes + parcelaFinanciamento
+    );
 
-    // Cash Retentions in Internal Funds (Emergency Reserve + Extra Maintenance Provision)
+    // 7. Informational Variables (Reservas & Depreciação sobre a FIPE — não saem do bolso como despesa fixa)
     const fundoReserva = Number(data.fundoReserva) || 0;
     const manutencaoExtra = Number(data.manutencaoExtra) || 0;
     const reservasRetidasMes = this.round2(fundoReserva + manutencaoExtra);
 
-    // MAIN INDICATOR: Monthly Distributable Cash Flow (Caixa Mensal Disponível Projetado)
-    // NOTE: Depreciation is NEVER subtracted here!
-    const caixaDisponivelProjetado = this.round2(caixaAposServicoDivida - reservasRetidasMes);
-
-    // Total monthly cash outflows + retentions (excluding non-cash depreciation)
-    const saidasCaixaERetencoesMes = this.round2(
-      impostosSimplesNacional + custosOperacionaisRecorrentes + parcelaFinanciamento + reservasRetidasMes
-    );
-    const saidasCaixaTotaisMensais = saidasCaixaERetencoesMes;
-
-    // 7. Depreciation — MANDATORY RULE: ALWAYS calculated over FIPE (valorFipe), NEVER over valorPago
+    // MANDATORY RULE: Depreciation is ALWAYS calculated over FIPE (valorFipe), NEVER over valorPago
     const baseFipeDepreciacao = valorFipe > 0 ? valorFipe : valorPago;
-    let depreciacaoMensal = 0;
-    if (typeof data.depreciacaoMensal !== 'undefined' && data.depreciacaoMensal !== null) {
-      depreciacaoMensal = this.round2(Number(data.depreciacaoMensal));
-    } else {
-      const depreciacaoAnualTaxa = typeof data.depreciacaoAnualTaxa !== 'undefined'
-        ? Number(data.depreciacaoAnualTaxa)
-        : this.DEFAULTS.ANNUAL_DEPRECIATION_RATE;
-      depreciacaoMensal = this.round2((baseFipeDepreciacao * depreciacaoAnualTaxa) / 12);
-    }
-
+    const depreciacaoMensal = this.round2(Math.max(0, Number(data.depreciacaoMensal) || 0));
     const depreciacaoAnualFipe = this.round2(depreciacaoMensal * 12);
     const taxaDepreciacaoAnualFipe = baseFipeDepreciacao > 0
       ? Math.min(0.99, Math.max(0, depreciacaoAnualFipe / baseFipeDepreciacao))
       : 0;
-    const taxaDepreciacaoMensalFipe = baseFipeDepreciacao > 0
-      ? (depreciacaoMensal / baseFipeDepreciacao)
-      : 0;
-
-    // 8. Economic & Patrimonial Result (DRE Econômico / Patrimonial)
-    // Total provisions (Reserve retentions + Non-cash FIPE depreciation) for Economic view
     const totalProvisoes = this.round2(reservasRetidasMes + depreciacaoMensal);
-    const custosTotaisEconomicos = this.round2(saidasCaixaERetencoesMes + depreciacaoMensal);
-    const resultadoEconomicoMensal = this.round2(caixaDisponivelProjetado - depreciacaoMensal);
 
-    // Legacy compatibility aliases:
-    // lucroOperacional = caixaOperacionalAntesDivida
-    // lucroLiquido = caixaDisponivelProjetado (so main KPIs reflect real distributable cash as required by spec)
-    const lucroOperacional = caixaOperacionalAntesDivida;
-    const lucroLiquido = caixaDisponivelProjetado;
-    const custosTotaisMensais = saidasCaixaERetencoesMes;
-
-    // 9. Debt Service Coverage Ratio (DSCR) & Break-even Occupancy
-    const dscr = parcelaFinanciamento > 0
-      ? (caixaOperacionalAntesDivida / parcelaFinanciamento)
-      : null;
-
-    // Break-even occupancy: minimum occupancy to cover taxes, fixed costs, debt service, and reserve retentions
-    const compromissosFixosMensais = this.round2(
-      custosOperacionaisRecorrentes + parcelaFinanciamento + reservasRetidasMes
-    );
-    const receitaBaseLiquidaPorUnidadeOcupacao = receitaPotencialMensal * taxaAdimplencia * (1 - aliquotaImposto);
-    const ocupacaoEquilibrio = receitaBaseLiquidaPorUnidadeOcupacao > 0
-      ? (compromissosFixosMensais / receitaBaseLiquidaPorUnidadeOcupacao)
-      : 0;
-    const semanasEquilibrioMes = ocupacaoEquilibrio * semanasMes;
-
-    // 10. Capital Base, ROI & Payback (Strict handling when 100% Financed / Entrada = 0)
-    const semCapitalProprioInicial = isLeveraged && valorEntrada <= 0;
-    const capitalInvestido = isLeveraged ? valorEntrada : valorPago;
-    const capitalProprioInicial = capitalInvestido;
-
-    const margemCaixa = receitaBrutaMensal > 0 ? (caixaDisponivelProjetado / receitaBrutaMensal) : 0;
-    const margemCaixaDisponivel = margemCaixa;
-    const margemLiquida = margemCaixa;
-    const margemEconomica = receitaBrutaMensal > 0 ? (resultadoEconomicoMensal / receitaBrutaMensal) : 0;
-
-    const roiMensal = (!semCapitalProprioInicial && capitalInvestido > 0)
-      ? (caixaDisponivelProjetado / capitalInvestido)
-      : null;
-    const roiAnual = roiMensal !== null ? (roiMensal * 12) : null;
-    const paybackMeses = (!semCapitalProprioInicial && capitalInvestido > 0 && caixaDisponivelProjetado > 0)
-      ? (capitalInvestido / caixaDisponivelProjetado)
-      : (semCapitalProprioInicial ? null : Infinity);
-
-    // Reference return over total asset purchase price (always defined if valorPago > 0)
-    const roiSobreAtivoMensal = valorPago > 0 ? (caixaDisponivelProjetado / valorPago) : 0;
-    const roiSobreAtivoAnual = roiSobreAtivoMensal * 12;
-
-    // 11. Occupancy Sensitivity Scenarios (100%, 90%, 80%)
-    const cenariosOcupacao = [1.0, 0.9, 0.8].map((ocup) => {
-      const recMes = this.round2(receitaPotencialMensal * ocup * taxaAdimplencia);
-      const impMes = this.round2(recMes * aliquotaImposto);
-      const recLiq = this.round2(recMes - impMes);
-      const cxOpAntesDivida = this.round2(recLiq - custosOperacionaisRecorrentes);
-      const cxAposDivida = this.round2(cxOpAntesDivida - parcelaFinanciamento);
-      const cxDistribuivel = this.round2(cxAposDivida - reservasRetidasMes);
-      const dscrCenario = parcelaFinanciamento > 0 ? (cxOpAntesDivida / parcelaFinanciamento) : null;
-      return {
-        ocupacaoPct: Math.round(ocup * 100),
-        ocupacaoFactor: ocup,
-        taxaOcupacao: ocup,
-        semanasAlugadasMes: ocup * semanasMes,
-        receitaMensal: recMes,
-        receitaBrutaMensal: recMes,
-        impostosMensal: impMes,
-        caixaOperacionalAntesDivida: cxOpAntesDivida,
-        parcelaFinanciamento,
-        caixaAposDivida: cxAposDivida,
-        caixaAposServicoDivida: cxAposDivida,
-        reservaRetida: reservasRetidasMes,
-        reservasRetidasMes,
-        caixaDistribuivel: cxDistribuivel,
-        caixaDisponivelProjetado: cxDistribuivel,
-        caixaAcumulado48m: this.round2(cxDistribuivel * 48),
-        dscr: dscrCenario
-      };
-    });
-
-    // 12. Multi-Period Horizon Projections (12, 24, 36, 48 months) — Cash & FIPE Patrimony
-    const horizontes = [12, 24, 36, 48].map((meses) => {
-      // Cash accumulated over N months (accounting for financing ending if meses > qtdParcelas)
-      let caixaDistribuivelAcumulado = 0;
+    // 8. Horizon Calculation for 12, 24, 36, 48, and 60 months
+    const buildHorizon = (meses, isSelectedHorizon = false) => {
+      // Operational profit accumulated over `meses`
+      // In months 1..qtdParcelas, financing installment is paid out of pocket; after qtdParcelas, installment is 0!
+      let lucroOperacionalAcumulado = 0;
       for (let m = 1; m <= meses; m++) {
-        const parcelaMes = (isLeveraged && qtdParcelas > 0 && m > qtdParcelas) ? 0 : parcelaFinanciamento;
-        const cxMes = this.round2(caixaOperacionalAntesDivida - parcelaMes - reservasRetidasMes);
-        caixaDistribuivelAcumulado = this.round2(caixaDistribuivelAcumulado + cxMes);
+        const temParcelaNoMes = isLeveraged && qtdParcelas > 0 && m <= qtdParcelas;
+        const lucroMes = temParcelaNoMes ? lucroOperacionalMensal : lucroOperacionalMensalSemParcela;
+        lucroOperacionalAcumulado = this.round2(lucroOperacionalAcumulado + lucroMes);
       }
-      const reservasAcumuladas = this.round2(reservasRetidasMes * meses);
 
-      // FIPE Projected Value at month N (always depreciating from valorFipe!)
-      // Formula from Spec 3.5.A: fipe_projetada = fipe_atual * (1 - taxa_anual)^(n/12)
-      const fipeProjetada = this.round2(
-        baseFipeDepreciacao * Math.pow(1 - taxaDepreciacaoAnualFipe, meses / 12)
-      );
-      const depreciacaoAcumuladaFipe = this.round2(baseFipeDepreciacao - fipeProjetada);
-      const valorBrutoRevenda = this.round2(fipeProjetada * (1 - descontoRevendaFipePct));
-      const diferencaRevendaVsValorPago = this.round2(valorBrutoRevenda - valorPago);
+      // Depreciation over FIPE in the period = depreciacaoMensal * meses (based on what the user set on the previous screen)
+      const depreciacaoPeriodoFipe = this.round2(depreciacaoMensal * meses);
+      const valorVeiculoAposDepreciacao = this.round2(Math.max(0, baseFipeDepreciacao - depreciacaoPeriodoFipe));
 
-      // Nominal remaining installments (note: nominal sum, not discounted present value)
+      // Vehicle sale value (defaults to FIPE minus period depreciation, or user's custom edited sale price on active horizon)
+      const valorVendaVeiculo = (isSelectedHorizon && customSalePrice !== null)
+        ? this.round2(customSalePrice)
+        : valorVeiculoAposDepreciacao;
+
+      // Remaining financing installments at month `meses`
+      const parcelasPagasNoPeriodo = isLeveraged && qtdParcelas > 0 ? Math.min(meses, qtdParcelas) : 0;
       const parcelasRestantes = isLeveraged && qtdParcelas > 0 ? Math.max(0, qtdParcelas - meses) : 0;
-      const saldoNominalParcelasRestantes = this.round2(parcelasRestantes * parcelaFinanciamento);
-      const patrimonioLiquidoVeiculo = this.round2(Math.max(0, valorBrutoRevenda - saldoNominalParcelasRestantes));
-      const riquezaTotalGerada = this.round2(caixaDistribuivelAcumulado + reservasAcumuladas + patrimonioLiquidoVeiculo);
+      const somaParcelasRestantes = this.round2(parcelasRestantes * parcelaFinanciamento);
+
+      // Payoff amount (Valor para Quitação): 0 if no installments remain; otherwise customPayoffAmount or somaParcelasRestantes
+      const valorQuitacao = parcelasRestantes > 0
+        ? ((isSelectedHorizon && customPayoffAmount !== null) ? this.round2(customPayoffAmount) : somaParcelasRestantes)
+        : 0;
+
+      // Result: Lucro Operacional do Período + Valor da Venda do Veículo (descontada depreciação)
+      const resultadoOperacionalMaisVenda = this.round2(lucroOperacionalAcumulado + valorVendaVeiculo);
+
+      // Final Result after Quitação (if any installments remain)
+      const resultadoLiquidoAposQuitacao = this.round2(resultadoOperacionalMaisVenda - valorQuitacao);
+
+      // Initial capital disbursed at day 0 (Valor Pago if cash purchase, or Valor de Entrada if financed)
+      const capitalInicialDesembolsado = isLeveraged ? valorEntrada : valorPago;
+      const ganhoLiquidoSobreCapitalInicial = this.round2(resultadoLiquidoAposQuitacao - capitalInicialDesembolsado);
+
+      const reservasAcumuladas = this.round2(reservasRetidasMes * meses);
 
       return {
         meses,
         anos: meses / 12,
-        caixaDistribuivelAcumulado,
-        reservasAcumuladas,
-        fipeProjetada,
-        valorFipeProjetado: fipeProjetada,
-        depreciacaoAcumuladaFipe,
-        valorBrutoRevenda,
-        valorVendaProjetado: valorBrutoRevenda,
-        diferencaRevendaVsValorPago,
-        ganhoOuPerdaSobreValorPago: diferencaRevendaVsValorPago,
+        lucroOperacionalAcumulado,
+        depreciacaoPeriodoFipe,
+        valorVeiculoAposDepreciacao,
+        valorVendaVeiculo,
+        parcelasPagasNoPeriodo,
         parcelasRestantes,
-        saldoNominalParcelasRestantes,
-        saldoDevedorEstimado: saldoNominalParcelasRestantes,
-        patrimonioLiquidoVeiculo,
-        riquezaTotalGerada
+        somaParcelasRestantes,
+        valorQuitacao,
+        resultadoOperacionalMaisVenda,
+        resultadoLiquidoAposQuitacao,
+        capitalInicialDesembolsado,
+        ganhoLiquidoSobreCapitalInicial,
+        reservasAcumuladas
       };
-    });
+    };
 
-    const projecaoPrazoSelecionado = horizontes.find(h => h.meses === prazoMeses) || horizontes[3];
-    const horizonteSelecionado = projecaoPrazoSelecionado;
+    const horizontes = [12, 24, 36, 48, 60].map(m => buildHorizon(m, m === prazoMeses));
+    const horizonteSelecionado = horizontes.find(h => h.meses === prazoMeses) || buildHorizon(prazoMeses, true);
 
-    // 13. Risk Analysis Scoring (incorporating Cash Flow, DSCR, and Occupancy Break-even)
+    // 9. Key Markers (Payback, ROI, Margem) based on out-of-pocket operational cash flow & selected horizon
+    // Reference capital for ROI & Payback:
+    // If cash purchase: valorPago. If leveraged with entrada > 0: valorEntrada. If 100% financed (entrada = 0): valorPago as asset base reference.
+    const baseCapitalRoi = isLeveraged
+      ? (valorEntrada > 0 ? valorEntrada : valorPago)
+      : valorPago;
+    const semCapitalProprioInicial = isLeveraged && valorEntrada <= 0;
+
+    const margemOperacionalMensal = receitaBrutaMensal > 0
+      ? (lucroOperacionalMensal / receitaBrutaMensal)
+      : 0;
+
+    // Monthly ROI based on monthly operational profit in pocket
+    const roiMensal = baseCapitalRoi > 0 ? (lucroOperacionalMensal / baseCapitalRoi) : 0;
+    const roiAnual = roiMensal * 12;
+
+    // Total ROI in the selected period (including vehicle sale - payoff - initial capital)
+    const roiTotalPeriodo = baseCapitalRoi > 0
+      ? ((horizonteSelecionado.resultadoLiquidoAposQuitacao - (isLeveraged ? valorEntrada : valorPago)) / baseCapitalRoi)
+      : 0;
+
+    // Payback in months
+    const paybackMeses = (lucroOperacionalMensal > 0 && baseCapitalRoi > 0)
+      ? (baseCapitalRoi / lucroOperacionalMensal)
+      : Infinity;
+
+    const dscr = parcelaFinanciamento > 0
+      ? (caixaOperacionalAntesDivida / parcelaFinanciamento)
+      : null;
+
     const analiseRisco = this.evaluateRisk({
-      caixaDisponivelProjetado,
+      caixaDisponivelProjetado: lucroOperacionalMensal,
       dscr,
-      ocupacaoEquilibrio,
+      ocupacaoEquilibrio: 0.7,
       roiMensal,
-      roiSobreAtivoMensal,
+      roiSobreAtivoMensal: valorPago > 0 ? (lucroOperacionalMensal / valorPago) : 0,
       semCapitalProprioInicial
     });
 
     return {
-      // Revenue
+      // Monthly Revenue & Out-of-pocket Expenses
       receitaPotencialMensal,
       receitaBrutaMensal,
-      perdaVacanciaInadimplencia,
       impostosSimplesNacional,
       receitaLiquidaMensal,
-
-      // Cash Flow Statement
       custosOperacionaisRecorrentes,
       caixaOperacionalAntesDivida,
       parcelaFinanciamento,
       totalNominalFinanciamento,
-      caixaAposServicoDivida,
-      fundoReserva,
-      manutencaoExtra,
-      reservasRetidasMes,
-      caixaDisponivelProjetado,
-      saidasCaixaERetencoesMes,
-      saidasCaixaTotaisMensais,
+      saidasBolsoMensais,
+      lucroOperacionalMensal,
+      lucroOperacionalMensalSemParcela,
 
-      // Depreciation (ALWAYS over FIPE) & Economic/Patrimonial Statement
+      // Informational Provisions & FIPE Depreciation
       baseFipeDepreciacao,
       depreciacaoMensal,
       depreciacaoAnualFipe,
       taxaDepreciacaoAnualFipe,
-      taxaDepreciacaoMensalFipe,
+      fundoReserva,
+      manutencaoExtra,
+      reservasRetidasMes,
       totalProvisoes,
-      custosTotaisEconomicos,
-      resultadoEconomicoMensal,
 
-      // Purchase vs FIPE Patrimonial Margin
+      // Purchase vs FIPE Margin
       margemInicialVsFipe,
       descontoSobreFipe,
 
-      // Key Ratios & Indicators
-      dscr,
-      ocupacaoEquilibrio,
-      semanasEquilibrioMes,
-      capitalInvestido,
-      capitalProprioInicial,
-      semCapitalProprioInicial,
+      // Markers (ROI, Payback, Margin)
       isLeveraged,
-      margemCaixa,
-      margemCaixaDisponivel,
-      margemLiquida,
-      margemEconomica,
+      semCapitalProprioInicial,
+      baseCapitalRoi,
+      margemOperacionalMensal,
+      margemLiquida: margemOperacionalMensal,
       roiMensal,
       roiAnual,
+      roiTotalPeriodo,
       paybackMeses,
-      roiSobreAtivoMensal,
-      roiSobreAtivoAnual,
+      dscr,
 
-      // Scenarios & Horizons
-      cenariosOcupacao,
+      // Horizons (12, 24, 36, 48, 60 months)
       horizontes,
-      projecaoPrazoSelecionado,
       horizonteSelecionado,
       analiseRisco,
 
       // Legacy aliases
-      custosTotaisMensais,
-      lucroOperacional,
-      lucroLiquido,
+      custosTotaisMensais: saidasBolsoMensais,
+      lucroOperacional: caixaOperacionalAntesDivida,
+      lucroLiquido: lucroOperacionalMensal,
+      caixaDisponivelProjetado: lucroOperacionalMensal,
 
-      // Breakdown for visual output
       inputs: {
         valorPago,
         valorFipe,
         valorCaucao,
         valorSemanal,
         semanasMes,
-        taxaOcupacao,
-        taxaAdimplencia,
         prazoMeses,
         prazoAnaliseMeses: prazoMeses,
-        descontoRevendaFipePct,
-        desagioVendaFipe: descontoRevendaFipePct,
         isLeveraged,
         valorEntrada,
         valorFinanciado,
