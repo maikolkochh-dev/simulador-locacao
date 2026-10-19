@@ -51,8 +51,8 @@ const state = {
     manualIpvaAnual: 0,
     customIpvaRate: null,
     isSeguroManual: false,
-    deprecMultiplier: 1,
-    deprecFipeAnnualRate: null,
+    deprecMultiplier: 'rate-fipe',
+    deprecFipeAnnualRate: 0.05,
     rastreador: 0,
     seguro: 0,
     manutencao: 0,
@@ -216,10 +216,7 @@ const elements = {
   costDepreciacao: document.getElementById('cost-depreciacao'),
   deprecOriginTag: document.getElementById('deprec-origin-tag'),
   deprecHelperText: document.getElementById('deprec-helper-text'),
-  btnDeprec1x: document.getElementById('btn-deprec-1x'),
-  btnDeprec15x: document.getElementById('btn-deprec-15x'),
-  btnDeprec2x: document.getElementById('btn-deprec-2x'),
-  btnDeprec6pct: document.getElementById('btn-deprec-6pct'),
+  btnDeprec5pct: document.getElementById('btn-deprec-5pct'),
   btnDeprec10pct: document.getElementById('btn-deprec-10pct'),
   btnDeprecManual: document.getElementById('btn-deprec-manual'),
   reserveFundToggle: document.getElementById('reserve-fund-toggle'),
@@ -475,6 +472,9 @@ function init() {
   makeSelectSearchable('fipe-model', 'Selecione ou digite o modelo...');
   makeSelectSearchable('fipe-year', 'Selecione ou digite o ano...');
   makeSelectSearchable('cost-uf', 'Selecione ou digite seu Estado (UF)...');
+
+  // Initialize Apple-style translucent tooltips (triggered only after > 1s hover on titles)
+  initAppleDelayedTooltips();
 
   // Load the Landing Page at first loading
   showLandingPage();
@@ -1079,7 +1079,8 @@ function bindEvents() {
         state.rental.isCaucaoManual = false;
         state.costs.isSeguroManual = false;
         if (state.costs.deprecMultiplier === 'manual') {
-          state.costs.deprecMultiplier = 1;
+          state.costs.deprecMultiplier = 'rate-fipe';
+          state.costs.deprecFipeAnnualRate = 0.05;
         }
         
         elements.valorFipeInput.value = priceDetails.Valor;
@@ -1252,12 +1253,9 @@ function bindEvents() {
   elements.btnLandingStart.addEventListener('click', startSimulation);
   elements.btnLandingStartBanner.addEventListener('click', startSimulation);
 
-  // Step 4: Depreciation Buttons (1x, 1.5x, 2x from 1st Screen FIPE, 6% a.a. FIPE, 10% a.a. FIPE, Manual)
+  // Step 4: Depreciation Buttons (5% ao ano, 10% ao ano, Manual)
   const allDeprecBtns = [
-    elements.btnDeprec1x,
-    elements.btnDeprec15x,
-    elements.btnDeprec2x,
-    elements.btnDeprec6pct,
+    elements.btnDeprec5pct,
     elements.btnDeprec10pct,
     elements.btnDeprecManual
   ].filter(Boolean);
@@ -1272,17 +1270,16 @@ function bindEvents() {
       if (multAttr === 'manual') {
         state.costs.deprecMultiplier = 'manual';
         state.costs.deprecFipeAnnualRate = null;
+        updateManualDepreciationPercentageUI();
         elements.costDepreciacao.focus();
         elements.costDepreciacao.select();
       } else if (rateFipeAttr) {
-        const rate = parseFloat(rateFipeAttr) || 0.06;
+        const rate = parseFloat(rateFipeAttr) || 0.05;
         state.costs.deprecMultiplier = 'rate-fipe';
         state.costs.deprecFipeAnnualRate = rate;
-        recalculateDepreciationFromFirstScreen();
-      } else {
-        const mult = parseFloat(multAttr) || 1;
-        state.costs.deprecMultiplier = mult;
-        state.costs.deprecFipeAnnualRate = null;
+        if (elements.btnDeprecManual) {
+          elements.btnDeprecManual.textContent = 'Manual';
+        }
         recalculateDepreciationFromFirstScreen();
       }
     });
@@ -1294,6 +1291,7 @@ function bindEvents() {
     allDeprecBtns.forEach(b => {
       b.classList.toggle('active', b === elements.btnDeprecManual);
     });
+    updateManualDepreciationPercentageUI();
   });
 
   // Step 5: Interactive Period Ruler (12, 24, 36, 48, 60 meses)
@@ -1790,8 +1788,8 @@ function resetSimulationState() {
     manualIpvaAnual: 0,
     customIpvaRate: null,
     isSeguroManual: false,
-    deprecMultiplier: 1,
-    deprecFipeAnnualRate: null,
+    deprecMultiplier: 'rate-fipe',
+    deprecFipeAnnualRate: 0.05,
     rastreador: 0,
     seguro: 0,
     manutencao: 0,
@@ -1812,16 +1810,16 @@ function resetSimulationState() {
   if (elements.taxPreviewTag) elements.taxPreviewTag.style.display = 'none';
 
   const deprecBtns = [
-    elements.btnDeprec1x,
-    elements.btnDeprec15x,
-    elements.btnDeprec2x,
-    elements.btnDeprec6pct,
+    elements.btnDeprec5pct,
     elements.btnDeprec10pct,
     elements.btnDeprecManual
   ].filter(Boolean);
   deprecBtns.forEach(btn => {
-    btn.classList.toggle('active', btn === elements.btnDeprec1x);
+    btn.classList.toggle('active', btn === elements.btnDeprec5pct);
   });
+  if (elements.btnDeprecManual) {
+    elements.btnDeprecManual.textContent = 'Manual';
+  }
 
   elements.fipeManualToggle.checked = false;
   elements.fipeManualToggle.dispatchEvent(new Event('change'));
@@ -2006,65 +2004,66 @@ function recalculateSeguroFromFipe() {
 }
 
 /**
+ * Updates the "Manual" button text and badge to display the exact % of depreciation over FIPE
+ * whenever the user types a manual value in #cost-depreciacao.
+ */
+function updateManualDepreciationPercentageUI() {
+  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value) || state.vehicle.valorFipe || 0;
+  const valorMensal = elements.costDepreciacao ? utils.parseCurrency(elements.costDepreciacao.value) : 0;
+  state.costs.depreciacaoMensal = valorMensal;
+
+  if (valorFipe > 0 && valorMensal > 0) {
+    const pctAnual = (valorMensal * 12) / valorFipe;
+    const pctMensal = valorMensal / valorFipe;
+    if (elements.btnDeprecManual) {
+      elements.btnDeprecManual.textContent = `${utils.formatPercent(pctAnual)} a.a. (${utils.formatPercent(pctMensal)}/mês)`;
+    }
+    if (elements.deprecOriginTag) {
+      elements.deprecOriginTag.textContent = `Manual: ${utils.formatPercent(pctAnual)} ao ano (${utils.formatPercent(pctMensal)}/mês FIPE)`;
+    }
+  } else {
+    if (elements.btnDeprecManual) {
+      elements.btnDeprecManual.textContent = valorMensal === 0 && elements.costDepreciacao.value.trim() !== ''
+        ? '0,00% ao ano (Manual)'
+        : 'Manual';
+    }
+    if (elements.deprecOriginTag) {
+      elements.deprecOriginTag.textContent = `Manual: 0,00% ao ano FIPE`;
+    }
+  }
+}
+
+/**
  * MANDATORY RULE: Depreciation is ALWAYS calculated over the vehicle's FIPE value (`valorFipe`),
  * NEVER over the purchase price paid (`valorPago`).
+ * Supports 3 modes: 5% ao ano, 10% ao ano, or Manual (showing live % over FIPE).
  */
 function recalculateDepreciationFromFirstScreen() {
   const valorFipe = utils.parseCurrency(elements.valorFipeInput.value) || state.vehicle.valorFipe || 0;
 
-  if (state.costs.deprecMultiplier === 'rate-fipe' && state.costs.deprecFipeAnnualRate > 0) {
-    const rate = state.costs.deprecFipeAnnualRate;
-    const deprecMensalFipe = (valorFipe * rate) / 12;
-    if (elements.deprecOriginTag) {
-      elements.deprecOriginTag.textContent = `${utils.formatPercent(rate)} a.a. sobre FIPE: ${utils.formatCurrency(deprecMensalFipe)}/mês`;
-    }
-    if (elements.deprecHelperText) {
-      elements.deprecHelperText.innerHTML =
-        `Calculada <strong>100% em cima da FIPE (${utils.formatCurrency(valorFipe)})</strong> à taxa de <strong>${utils.formatPercent(rate)} ao ano</strong> (${utils.formatCurrency(deprecMensalFipe)}/mês). Nunca incide sobre o valor pago.`;
-    }
-    elements.costDepreciacao.value = utils.formatCurrency(deprecMensalFipe);
-    state.costs.depreciacaoMensal = deprecMensalFipe;
+  if (state.costs.deprecMultiplier === 'manual') {
+    updateManualDepreciationPercentageUI();
     return;
   }
 
-  let baseDeprecMensal = 0;
+  const rate = state.costs.deprecFipeAnnualRate || 0.05;
+  const deprecMensalFipe = (valorFipe * rate) / 12;
 
-  if (!state.vehicle.isManual && state.vehicle.historicoDepreciacaoMensal > 0) {
-    baseDeprecMensal = state.vehicle.historicoDepreciacaoMensal;
-    const pctAnualFipe = valorFipe > 0 ? ((baseDeprecMensal * 12) / valorFipe) : 0;
-    if (elements.deprecOriginTag) {
-      elements.deprecOriginTag.textContent = `Base FIPE 1ª Tela: ${utils.formatCurrency(baseDeprecMensal)}/mês (${utils.formatPercent(pctAnualFipe)} a.a.)`;
-    }
-    if (elements.deprecHelperText) {
-      elements.deprecHelperText.innerHTML =
-        `Depreciação trazida da 1ª tela sobre a <strong>FIPE (${utils.formatCurrency(valorFipe)})</strong>: <strong>${utils.formatCurrency(baseDeprecMensal)}/mês</strong>. Escolha manter (1x), 1,5x, 2x, 6%/10% a.a. sobre a FIPE ou Manual.`;
-    }
-  } else if (!state.vehicle.isManual && state.vehicle.historicoMeses > 0 && state.vehicle.historicoDepreciacaoMensal <= 0) {
-    baseDeprecMensal = 0;
-    if (elements.deprecOriginTag) {
-      elements.deprecOriginTag.textContent = `1ª Tela FIPE: Não depreciou (R$ 0,00/mês)`;
-    }
-    if (elements.deprecHelperText) {
-      elements.deprecHelperText.innerHTML =
-        `Na 1ª tela este modelo <strong>não depreciou na FIPE nos últimos 2 anos</strong>, por isso a sugestão base é <strong>R$ 0,00/mês</strong>. Para simular depreciação futura sobre a FIPE (${utils.formatCurrency(valorFipe)}), clique em <strong>6% a.a. FIPE</strong>, <strong>10% a.a. FIPE</strong> ou <strong>Manual</strong>.`;
-    }
-  } else {
-    baseDeprecMensal = 0;
-    if (elements.deprecOriginTag) {
-      elements.deprecOriginTag.textContent = `Base FIPE: R$ 0,00/mês`;
-    }
-    if (elements.deprecHelperText) {
-      elements.deprecHelperText.innerHTML =
-        `A depreciação é calculada <strong>sempre sobre a FIPE (${utils.formatCurrency(valorFipe)})</strong> e nunca sobre o valor pago. Clique em <strong>6% a.a. FIPE</strong>, <strong>10% a.a. FIPE</strong> ou <strong>Manual</strong> para estimar.`;
-    }
+  if (elements.btnDeprecManual) {
+    elements.btnDeprecManual.textContent = 'Manual';
+  }
+  if (elements.btnDeprec5pct && elements.btnDeprec10pct) {
+    elements.btnDeprec5pct.classList.toggle('active', Math.abs(rate - 0.05) < 0.001);
+    elements.btnDeprec10pct.classList.toggle('active', Math.abs(rate - 0.10) < 0.001);
+    if (elements.btnDeprecManual) elements.btnDeprecManual.classList.remove('active');
   }
 
-  if (state.costs.deprecMultiplier !== 'manual') {
-    const mult = Number(state.costs.deprecMultiplier) || 1;
-    const finalDeprecMensal = baseDeprecMensal * mult;
-    elements.costDepreciacao.value = utils.formatCurrency(finalDeprecMensal);
-    state.costs.depreciacaoMensal = finalDeprecMensal;
+  if (elements.deprecOriginTag) {
+    elements.deprecOriginTag.textContent = `${utils.formatPercent(rate)} ao ano sobre FIPE (${utils.formatCurrency(deprecMensalFipe)}/mês)`;
   }
+
+  elements.costDepreciacao.value = utils.formatCurrency(deprecMensalFipe);
+  state.costs.depreciacaoMensal = deprecMensalFipe;
 }
 
 function triggerSmartDefaults() {
@@ -2863,6 +2862,131 @@ function makeSelectSearchable(selectId, placeholderText) {
 
   // 9. Initial sync load
   updateDropdownItems();
+}
+
+/**
+ * Initializes Apple-style translucent glass tooltips on elements with [data-apple-tooltip].
+ * Opens ONLY if the pointer remains hovered over the title for more than 1 second (1000ms).
+ */
+function initAppleDelayedTooltips() {
+  const tooltipEl = document.createElement('div');
+  tooltipEl.className = 'apple-glass-tooltip';
+  tooltipEl.setAttribute('role', 'tooltip');
+  tooltipEl.style.display = 'none';
+  document.body.appendChild(tooltipEl);
+
+  let hoverTimer = null;
+  let hideTimer = null;
+  let activeTrigger = null;
+
+  function positionTooltip(trigger) {
+    const rect = trigger.getBoundingClientRect();
+    const tooltipRect = tooltipEl.getBoundingClientRect();
+    const margin = 10;
+
+    let top = rect.top - tooltipRect.height - margin;
+    let left = rect.left;
+
+    // Flip below the title if there isn't enough room above
+    if (top < 12) {
+      top = rect.bottom + margin;
+    }
+
+    // Clamp horizontally inside viewport
+    if (left + tooltipRect.width > window.innerWidth - 16) {
+      left = Math.max(12, window.innerWidth - tooltipRect.width - 16);
+    }
+    if (left < 12) left = 12;
+
+    tooltipEl.style.top = `${Math.round(top)}px`;
+    tooltipEl.style.left = `${Math.round(left)}px`;
+  }
+
+  function showTooltip(trigger) {
+    const text = trigger.getAttribute('data-apple-tooltip');
+    if (!text) return;
+
+    activeTrigger = trigger;
+    tooltipEl.textContent = text;
+    tooltipEl.style.display = 'block';
+    positionTooltip(trigger);
+
+    requestAnimationFrame(() => {
+      tooltipEl.classList.add('visible');
+    });
+  }
+
+  function hideTooltip() {
+    if (hoverTimer) {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+    }
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+    activeTrigger = null;
+    tooltipEl.classList.remove('visible');
+    setTimeout(() => {
+      if (!activeTrigger) {
+        tooltipEl.style.display = 'none';
+      }
+    }, 200);
+  }
+
+  document.querySelectorAll('[data-apple-tooltip]').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      if (hideTimer) {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+      }
+      if (hoverTimer) clearTimeout(hoverTimer);
+
+      // Open ONLY if mouse stays on the title for more than 1 second (1000ms)
+      hoverTimer = setTimeout(() => {
+        showTooltip(el);
+      }, 1000);
+    });
+
+    el.addEventListener('mouseleave', () => {
+      if (hoverTimer) {
+        clearTimeout(hoverTimer);
+        hoverTimer = null;
+      }
+      hideTimer = setTimeout(() => {
+        hideTooltip();
+      }, 120);
+    });
+
+    el.addEventListener('mousedown', () => {
+      hideTooltip();
+    });
+  });
+
+  // Keep tooltip visible if user moves pointer onto the balloon itself (WCAG 1.4.13 Hoverable)
+  tooltipEl.addEventListener('mouseenter', () => {
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+  });
+
+  tooltipEl.addEventListener('mouseleave', () => {
+    hideTooltip();
+  });
+
+  // Dismiss on Escape or scroll (WCAG 1.4.13 Dismissible)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && activeTrigger) {
+      hideTooltip();
+    }
+  });
+
+  window.addEventListener('scroll', () => {
+    if (hoverTimer || activeTrigger) {
+      hideTooltip();
+    }
+  }, { passive: true });
 }
 
 export default state;

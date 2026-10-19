@@ -11,7 +11,7 @@
   <meta name="author" content="Antigravity Finance">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20261019d">
+  <link rel="stylesheet" href="style.css?v=20261019e">
 </head>
 <body>
 
@@ -663,48 +663,38 @@
                 <div class="costs-column-card fixed-costs-col">
                   <div class="costs-column-header">
                     <div class="costs-column-badge fixed-badge">SAÍDAS DE CAIXA</div>
-                    <h3 class="costs-column-title">Custos Fixos</h3>
-                    <p class="costs-column-subtitle">Despesas operacionais recorrentes pagas mensalmente pela operação.</p>
+                    <h3 class="costs-column-title" data-apple-tooltip="Despesas operacionais recorrentes que saem de fato do caixa/bolso da empresa todos os meses.">Custos Fixos</h3>
                   </div>
 
                   <div class="costs-column-fields">
                     <!-- 1. SEGURO (0,34% da FIPE pré-preenchido e editável) -->
                     <div class="form-group">
-                      <label for="cost-seguro">
+                      <label for="cost-seguro" data-apple-tooltip="Pré-preenchido automaticamente com base em 0,34% sobre a FIPE do veículo. Caixa livre para edição caso sua cotação seja diferente.">
                         1. Seguro Mensal (R$)
                       </label>
                       <input type="text" id="cost-seguro" value="R$ 0,00" placeholder="R$ 0,00" required>
-                      <span class="field-micro-help" id="seguro-fipe-hint">
-                        Pré-preenchido automaticamente com base em <strong>0,34% sobre a FIPE</strong> do veículo (permite edição livre).
-                      </span>
                     </div>
 
                     <!-- 2. RASTREADOR (Sem valor pré-definido) -->
                     <div class="form-group">
-                      <label for="cost-rastreador">
+                      <label for="cost-rastreador" data-apple-tooltip="Valor mensal do rastreador, telemetria e bloqueio remoto do veículo.">
                         2. Rastreador Mensal (R$)
                       </label>
                       <input type="text" id="cost-rastreador" value="" placeholder="Digite o valor (Ex: R$ 50,00)">
-                      <span class="field-micro-help">
-                        Valor mensal do rastreador / telemetria do veículo.
-                      </span>
                     </div>
 
                     <!-- 3. CUSTO DE MANUTENÇÃO MÉDIA DO CARRO -->
                     <div class="form-group">
-                      <label for="cost-manutencao">
+                      <label for="cost-manutencao" data-apple-tooltip="Trata-se da manutenção preventiva do carro (troca de óleo, revisões obrigatórias, pneus, pastilhas, entre outros).">
                         3. Custo de Manutenção Média do Carro (R$)
                       </label>
                       <input type="text" id="cost-manutencao" value="" placeholder="Digite o valor (Ex: R$ 150,00)">
-                      <span class="field-micro-help">
-                        Trata-se da <strong>manutenção preventiva</strong> do carro (troca de óleo, revisões obrigatórias, pneus, pastilhas, entre outros).
-                      </span>
                     </div>
 
                     <!-- 4. IMPOSTOS (0,1% a 100%, não obrigatório para Pessoa Física) -->
                     <div class="form-group">
                       <div class="deprec-label-row">
-                        <label for="cost-tax-rate" style="margin-bottom: 0;">
+                        <label for="cost-tax-rate" style="margin-bottom: 0;" data-apple-tooltip="Não é obrigatório se você estiver simulando como Pessoa Física, mas pode ser usado a título de informação (aceita apenas percentual de 0,1% a 100%).">
                           4. Impostos (%)
                         </label>
                         <span class="deprec-origin-tag" id="tax-preview-tag" style="display: none;">R$ 0,00/mês</span>
@@ -713,20 +703,14 @@
                         <input type="text" id="cost-tax-rate" inputmode="decimal" value="" placeholder="De 0,1% a 100% (Ex: 6)">
                         <span class="percent-input-suffix">%</span>
                       </div>
-                      <span class="field-micro-help">
-                        <strong>Não é obrigatório</strong> se você estiver simulando como <strong>Pessoa Física</strong>, mas pode ser usado a título de informação (aceita apenas percentual de <strong>0,1% a 100%</strong>).
-                      </span>
                     </div>
 
                     <!-- 5. DESPESAS FIXAS (Contador, Advogado, Outros) -->
                     <div class="form-group">
-                      <label for="cost-contabilidade">
+                      <label for="cost-contabilidade" data-apple-tooltip="Deixe sem valor ou preencha como sugestão caso tenha despesas fixas administrativas (contador, advogado, sistemas, outros).">
                         5. Despesas Fixas — Contador, Advogado, Outros (R$)
                       </label>
                       <input type="text" id="cost-contabilidade" value="" placeholder="Sugestão opcional (Ex: R$ 150,00)">
-                      <span class="field-micro-help">
-                        Deixe sem valor ou preencha como sugestão caso tenha despesas fixas administrativas (contador, advogado, outros).
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -735,65 +719,40 @@
                 <div class="costs-column-card variable-costs-col">
                   <div class="costs-column-header">
                     <div class="costs-column-badge variable-badge">RESERVAS & PATRIMÔNIO (DRE)</div>
-                    <h3 class="costs-column-title">Custos Variáveis & Depreciação</h3>
-                    <p class="costs-column-subtitle">Retenções de reserva da operação e efeito patrimonial de depreciação sobre a FIPE.</p>
+                    <h3 class="costs-column-title" data-apple-tooltip="Reservas da própria operação e depreciação sobre a FIPE. Não saem do caixa mensal como boleto a terceiros, mas entram no controle patrimonial e DRE.">Custos Variáveis & Depreciação</h3>
                   </div>
 
                   <div class="costs-column-fields">
                     <!-- 1. PROVISÃO DE FUNDO DE RESERVA -->
                     <div class="form-group">
-                      <label for="cost-fundo-reserva">
+                      <label for="cost-fundo-reserva" data-apple-tooltip="Valor guardado na própria empresa para emergências, franquia de seguro ou vacância. Permanece no caixa da operação como reserva de segurança.">
                         1. Provisão de Fundo de Reserva (R$)
                       </label>
                       <input type="text" id="cost-fundo-reserva" value="" placeholder="Digite o valor (Ex: R$ 100,00)">
-                      <span class="field-micro-help">
-                        <strong>Retenção de caixa:</strong> valor guardado mensalmente para emergências/franquias. Reduz o caixa distribuível do mês, mas acumula como reserva da operação.
-                      </span>
                     </div>
 
                     <!-- 2. PROVISÃO DE MANUTENÇÃO EXTRA -->
                     <div class="form-group">
-                      <label for="cost-manutencao-extra">
+                      <label for="cost-manutencao-extra" data-apple-tooltip="Reserva da própria operação para manutenções corretivas extraordinárias além da preventiva (embreagem, suspensão, bateria, etc.).">
                         2. Provisão de Manutenção Extra (R$)
                       </label>
                       <input type="text" id="cost-manutencao-extra" value="" placeholder="Digite o valor (Ex: R$ 100,00)">
-                      <span class="field-micro-help">
-                        <strong>Retenção de caixa:</strong> reserva para corretivas extraordinárias além da manutenção preventiva.
-                      </span>
                     </div>
 
                     <!-- 3. DEPRECIAÇÃO (SEMPRE EM CIMA DO VALOR DA FIPE) -->
                     <div class="form-group">
                       <div class="deprec-label-row">
-                        <label for="cost-depreciacao" style="margin-bottom: 0;">
+                        <label for="cost-depreciacao" style="margin-bottom: 0;" data-apple-tooltip="Calculada sempre em cima do valor da Tabela FIPE do veículo (e nunca sobre o valor pago). Não sai do caixa mensal da empresa, entrando na projeção de venda do carro.">
                           3. Depreciação Mensal sobre a FIPE (R$)
                         </label>
-                        <span class="deprec-origin-tag" id="deprec-origin-tag">Base FIPE 1ª Tela: R$ 0,00/mês</span>
+                        <span class="deprec-origin-tag" id="deprec-origin-tag">5,00% ao ano FIPE</span>
                       </div>
                       <input type="text" id="cost-depreciacao" value="R$ 0,00" placeholder="R$ 0,00" required>
-                      <span class="field-micro-help" id="deprec-helper-text" style="margin-top: 2px;">
-                        Calculada <strong>sempre em cima do valor da Tabela FIPE</strong> do carro (e nunca sobre o valor pago).
-                      </span>
                       <div class="depreciation-scenarios">
-                        <button type="button" class="scenario-btn active" id="btn-deprec-1x" data-mult="1">Manter 1x (FIPE)</button>
-                        <button type="button" class="scenario-btn" id="btn-deprec-15x" data-mult="1.5">1,5x</button>
-                        <button type="button" class="scenario-btn" id="btn-deprec-2x" data-mult="2">2x</button>
-                        <button type="button" class="scenario-btn" id="btn-deprec-6pct" data-rate-fipe="0.06">6% a.a. FIPE</button>
-                        <button type="button" class="scenario-btn" id="btn-deprec-10pct" data-rate-fipe="0.10">10% a.a. FIPE</button>
+                        <button type="button" class="scenario-btn active" id="btn-deprec-5pct" data-rate-fipe="0.05">5% ao ano</button>
+                        <button type="button" class="scenario-btn" id="btn-deprec-10pct" data-rate-fipe="0.10">10% ao ano</button>
                         <button type="button" class="scenario-btn" id="btn-deprec-manual" data-mult="manual">Manual</button>
                       </div>
-                    </div>
-
-                    <!-- Explicação Técnica: Caixa vs. DRE / Depreciação sobre a FIPE -->
-                    <div class="variable-dre-explanation">
-                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                      </svg>
-                      <p>
-                        <strong>Regra de Ouro (Caixa vs. Patrimônio):</strong> A <strong>Depreciação é calculada sempre sobre a FIPE</strong> e <strong>não é descontada como saída de dinheiro do seu Caixa Mensal Disponível</strong>. Ela entra no <strong>Demonstrativo Econômico (DRE) e na Projeção Patrimonial de Revenda</strong>, enquanto as reservas retidas acumulam em fundo próprio da operação.
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -1244,6 +1203,6 @@
   </footer>
 
   <!-- Application Controller Scripts -->
-  <script type="module" src="app.js?v=20261019d"></script>
+  <script type="module" src="app.js?v=20261019e"></script>
 </body>
 </html>
