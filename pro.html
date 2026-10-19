@@ -340,49 +340,52 @@
     /* TOOLTIP POPUP STYLES */
     .has-tooltip {
       position: relative;
+      cursor: help;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      cursor: pointer;
+      user-select: none;
     }
 
     .tooltip-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 17px;
-      height: 17px;
+      width: 15px;
+      height: 15px;
       border-radius: 50%;
-      background: rgba(0, 242, 254, 0.15);
+      background: rgba(0, 242, 254, 0.12);
       color: var(--accent-cyan);
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 10px;
+      font-weight: 800;
+      border: 1px solid rgba(0, 242, 254, 0.35);
       transition: all 0.2s ease;
-      border: 1px solid rgba(0, 242, 254, 0.3);
+      flex-shrink: 0;
     }
 
-    .has-tooltip:hover .tooltip-icon {
+    .has-tooltip:hover .tooltip-icon,
+    .has-tooltip.active .tooltip-icon {
       background: var(--accent-cyan);
       color: #080C14;
-      transform: scale(1.1);
+      transform: scale(1.15);
+      border-color: var(--accent-cyan);
     }
 
     .tooltip-bubble {
       visibility: hidden;
       opacity: 0;
       position: absolute;
-      bottom: calc(100% + 10px);
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: calc(100% + 8px);
+      left: 0;
       background: #0D1424;
-      border: 1px solid rgba(0, 242, 254, 0.35);
+      border: 1px solid rgba(0, 242, 254, 0.4);
       color: #E2E8F0;
-      padding: 14px 16px;
+      padding: 12px 14px;
       border-radius: var(--radius-sm);
-      font-size: 12.5px;
-      line-height: 1.5;
-      width: 320px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+      font-size: 12px;
+      line-height: 1.45;
+      width: 300px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85);
       z-index: 1000;
       transition: opacity 0.2s ease, visibility 0.2s ease;
       pointer-events: none;
@@ -392,8 +395,14 @@
       text-align: left;
     }
 
+    .tooltip-down {
+      bottom: auto !important;
+      top: calc(100% + 8px) !important;
+    }
+
     .has-tooltip:hover .tooltip-bubble,
-    .has-tooltip:focus .tooltip-bubble {
+    .has-tooltip:focus .tooltip-bubble,
+    .has-tooltip.active .tooltip-bubble {
       visibility: visible;
       opacity: 1;
     }
@@ -961,16 +970,22 @@
 
           <!-- Valor da Carta Real -->
           <div class="form-group">
-            <label>Valor da Carta de Crédito (R$)</label>
-            <input type="number" id="input-cons-credit-val" class="form-input" value="50000" step="1000">
-            <span style="font-size: 11px; color: var(--text-dim);">Informe o valor real da carta contratada</span>
+            <label class="has-tooltip" tabindex="0">
+              <span>Valor da Carta de Crédito</span>
+              <span class="tooltip-icon">i</span>
+              <span class="tooltip-bubble tooltip-down">Valor nominal total do crédito da cota de consórcio contratada na administradora para aquisição do veículo.</span>
+            </label>
+            <input type="text" id="input-cons-credit-val" class="form-input" value="R$ 50.000,00">
           </div>
 
           <!-- Prazo Total da Carta -->
           <div class="form-group">
-            <label>Prazo Total da Carta de Consórcio (Meses)</label>
+            <label class="has-tooltip" tabindex="0">
+              <span>Prazo Total da Carta (Meses)</span>
+              <span class="tooltip-icon">i</span>
+              <span class="tooltip-bubble">Número total de meses/parcelas do plano do consórcio contratado (ex: 36, 48, 60, 72 ou 80 meses).</span>
+            </label>
             <input type="number" id="input-cons-term" class="form-input" value="60" min="12" max="120" step="12">
-            <span style="font-size: 11px; color: var(--text-dim);">Número total de parcelas (ex: 36, 48, 60, 72, 80)</span>
           </div>
 
           <!-- Checkbox Usar Médias de Mercado -->
@@ -982,24 +997,33 @@
           </div>
 
           <!-- Taxas (Adm e Fundo de Reserva) -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
             <div class="form-group" style="margin-bottom: 0;">
-              <label>Taxa Adm (%)</label>
-              <input type="number" id="input-cons-adm-rate" class="form-input" value="15.0" step="0.5" disabled>
+              <label class="has-tooltip" tabindex="0">
+                <span>Taxa Adm</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Taxa de administração total cobrada pela gestora do consórcio ao longo de todo o plano (média de mercado: ~15%).</span>
+              </label>
+              <input type="text" id="input-cons-adm-rate" class="form-input" value="15,0%" disabled>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
-              <label>Fundo Reserva (%)</label>
-              <input type="number" id="input-cons-fund-rate" class="form-input" value="5.0" step="0.5" disabled>
+              <label class="has-tooltip" tabindex="0">
+                <span>Fundo Reserva</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Fundo de reserva de garantia do grupo (média: 3% a 5%). Importante: Este valor volta integralmente para você no encerramento e quitação do grupo!</span>
+              </label>
+              <input type="text" id="input-cons-fund-rate" class="form-input" value="5,0%" disabled>
             </div>
           </div>
-          <span style="font-size: 11px; color: #A78BFA; display: block; margin-bottom: 14px; line-height: 1.35;">
-            *O Fundo de Reserva é acumulado e <strong>volta para você no encerramento/quitação do grupo</strong>, entrando como crédito no patrimônio final!
-          </span>
 
           <!-- Dados do Lance -->
           <div class="form-group">
-            <label>Valor do Lance Ofertado por Carta (R$)</label>
-            <input type="number" id="input-cons-lance-val" class="form-input" value="15000" step="1000">
+            <label class="has-tooltip" tabindex="0">
+              <span>Valor do Lance Ofertado</span>
+              <span class="tooltip-icon">i</span>
+              <span class="tooltip-bubble">Valor de lance próprio ofertado para contemplação imediata da cota. É o único capital desembolsado no início da operação com consórcio.</span>
+            </label>
+            <input type="text" id="input-cons-lance-val" class="form-input" value="R$ 15.000,00">
             <div id="cons-lance-badge" style="font-size: 11.5px; padding: 7px 10px; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 6px; color: #DDD; margin-top: 5px;">
               Lance de R$ 15.000,00 representa 30,0% da carta
             </div>
@@ -1028,7 +1052,11 @@
 
         <!-- 1. PRAZO DO DRE -->
         <div class="form-group">
-          <label for="input-horizon">Horizonte de Projeção (Prazo do DRE)</label>
+          <label for="input-horizon" class="has-tooltip" tabindex="0">
+            <span>Horizonte de Projeção (Prazo do DRE)</span>
+            <span class="tooltip-icon">i</span>
+            <span class="tooltip-bubble tooltip-down">Define o período de projeção da locadora (12 a 60 meses). Permite analisar a rentabilidade mês a mês, reinvestimentos e liquidação final da frota.</span>
+          </label>
           <select id="input-horizon" class="form-input">
             <option value="12">12 Meses (1 Ano)</option>
             <option value="24" selected>24 Meses (2 Anos - Padrão)</option>
@@ -1040,7 +1068,11 @@
 
         <!-- 2. QTD DE CARROS INICIAL -->
         <div class="form-group">
-          <label id="label-cars">Quantidade de Carros / Cotas</label>
+          <label id="label-cars" class="has-tooltip" tabindex="0">
+            <span>Quantidade de Carros / Cotas</span>
+            <span class="tooltip-icon">i</span>
+            <span class="tooltip-bubble">Quantidade inicial de veículos adquiridos para iniciar a frota da sua operação de locação.</span>
+          </label>
           <div class="input-range-wrapper">
             <input type="range" id="input-cars" class="input-range" min="1" max="25" value="4">
             <div class="input-number-badge" id="badge-cars">4</div>
@@ -1049,48 +1081,64 @@
 
         <!-- 3. VALOR DE COMPRA (REAL EMPREGADO) -->
         <div class="form-group" id="group-car-val">
-          <label>Valor de Compra / Empregado por Carro (R$)</label>
-          <input type="number" id="input-car-val" class="form-input" value="50000" step="1000">
-          <span style="font-size: 11.5px; color: var(--text-dim);">Capital real desembolsado por veículo</span>
+          <label class="has-tooltip" tabindex="0">
+            <span>Valor de Compra por Carro</span>
+            <span class="tooltip-icon">i</span>
+            <span class="tooltip-bubble">Capital real desembolsado por veículo na aquisição. Base oficial para calcular o ROI e o tempo de Payback do seu investimento.</span>
+          </label>
+          <input type="text" id="input-car-val" class="form-input" value="R$ 50.000,00">
         </div>
 
         <!-- 4. VALOR FIPE DE REFERÊNCIA -->
         <div class="form-group">
-          <label>Valor de Referência Tabela FIPE (R$)</label>
-          <input type="number" id="input-fipe-val" class="form-input" value="50000" step="1000">
-          <span style="font-size: 11.5px; color: var(--text-dim);">Base oficial para calcular IPVA e Depreciação</span>
+          <label class="has-tooltip" tabindex="0">
+            <span>Valor Tabela FIPE</span>
+            <span class="tooltip-icon">i</span>
+            <span class="tooltip-bubble">Valor oficial do veículo na tabela FIPE. Utilizado para o cálculo de IPVA estadual e como base para a depreciação do patrimônio ao final do período.</span>
+          </label>
+          <input type="text" id="input-fipe-val" class="form-input" value="R$ 50.000,00">
         </div>
 
         <!-- 5. TAXA DE DEPRECIAÇÃO ANUAL SOBRE A FIPE -->
         <div class="form-group">
-          <label>Taxa de Depreciação Anual sobre a FIPE (% a.a.)</label>
-          <input type="number" id="input-deprec-rate" class="form-input" value="8.0" step="0.5">
-          <span style="font-size: 11.5px; color: var(--text-dim);">Depreciação composta sobre a FIPE ao final do prazo</span>
+          <label class="has-tooltip" tabindex="0">
+            <span>Depreciação Anual s/ FIPE</span>
+            <span class="tooltip-icon">i</span>
+            <span class="tooltip-bubble">Percentual médio de desvalorização anual de mercado em relação à tabela FIPE (padrão 8% a.a.). Aplicado de forma composta na liquidação da frota.</span>
+          </label>
+          <input type="text" id="input-deprec-rate" class="form-input" value="8,0%">
         </div>
 
         <!-- 6. ALUGUEL MENSAL -->
         <div class="form-group">
-          <label>Aluguel Mensal por Carro (R$)</label>
-          <input type="number" id="input-rent" class="form-input" value="3000" step="100">
-          <span style="font-size: 11.5px; color: var(--text-dim);" id="rent-sub-label">Equivalente a R$ 700,00 por semana</span>
+          <label class="has-tooltip" tabindex="0">
+            <span>Aluguel Mensal por Carro</span>
+            <span class="tooltip-icon">i</span>
+            <span class="tooltip-bubble">Receita bruta de aluguel por veículo ao mês (ex: R$ 3.000,00/mês equivale a ~R$ 700,00 por semana considerando 4,3 semanas/mês).</span>
+          </label>
+          <input type="text" id="input-rent" class="form-input" value="R$ 3.000,00">
         </div>
 
         <!-- 7. UP SELL / CAUÇÃO INICIAL COM TOOLTIP -->
         <div class="form-group">
-          <label class="has-tooltip">
-            <span>Up Sell / Caução Inicial (Mês 1) por Carro</span>
+          <label class="has-tooltip" tabindex="0">
+            <span>Up Sell / Caução Inicial (Mês 1)</span>
             <span class="tooltip-icon">i</span>
             <span class="tooltip-bubble">
               <strong>Como funciona esta linha?</strong><br>
-              Reflete a média do que entra no primeiro mês com o aluguel e o caução de garantia dos veículos. A partir do 2º mês, o sistema projeta automaticamente 10% de receitas adicionais recorrentes sobre a locação (multas ressarcidas, pacotes de upsell de km livre/proteção extra e retenções de caução por quebra contratual).
+              Reflete a entrada do caução no 1º mês. A partir do 2º mês, o sistema calcula 10% de receitas adicionais recorrentes (multas ressarcidas, taxas de adesão, upsell de km e retenções de caução por quebra contratual).
             </span>
           </label>
-          <input type="number" id="input-upsell-m1" class="form-input" value="1500" step="100">
+          <input type="text" id="input-upsell-m1" class="form-input" value="R$ 1.500,00">
         </div>
 
         <!-- 8. ESTADO (UF) PARA IPVA E LICENCIAMENTO AUTOMÁTICO -->
         <div class="form-group">
-          <label for="input-uf">Estado do Veículo (IPVA & Licenciamento)</label>
+          <label for="input-uf" class="has-tooltip" tabindex="0">
+            <span>Estado (UF) para IPVA & Licenciamento</span>
+            <span class="tooltip-icon">i</span>
+            <span class="tooltip-bubble">Estado de emplacamento do veículo. Aplica automaticamente a alíquota oficial de IPVA 2026 e o licenciamento estadual do DETRAN.</span>
+          </label>
           <select id="input-uf" class="form-input">
             <!-- 27 Estados preenchidos dinamicamente -->
           </select>
@@ -1107,46 +1155,72 @@
           <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 12px;">
             
             <div class="form-group">
-              <label>Fundo de Reserva (R$/carro/mês) &bull; Editável</label>
-              <input type="number" id="input-reserve-fund" class="form-input" value="200" step="50">
-              <span style="font-size: 11.5px; color: var(--text-dim);">Reserva retida mensalmente para emergências (digite 0 se não quiser)</span>
+              <label class="has-tooltip" tabindex="0">
+                <span>Fundo de Reserva (por carro/mês)</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Provisão mensal de caixa guardada para emergências (franquia de seguro, avarias ou manutenções extraordinárias). Digite R$ 0,00 se não quiser provisionar.</span>
+              </label>
+              <input type="text" id="input-reserve-fund" class="form-input" value="R$ 200,00">
             </div>
 
             <div class="form-group">
-              <label>IPVA + Licenciamento Mensal (R$/carro/mês) &bull; Editável</label>
-              <input type="number" id="input-ipva" class="form-input" value="58.33" step="0.01">
-              <span style="font-size: 11.5px; color: var(--text-dim);">Calculado automaticamente pela UF e FIPE, ou ajuste livremente</span>
+              <label class="has-tooltip" tabindex="0">
+                <span>IPVA + Licenciamento Mensal</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Custo mensal fracionado (anual ÷ 12) calculado a partir da UF e da FIPE do veículo. Editável livremente conforme sua situação fiscal.</span>
+              </label>
+              <input type="text" id="input-ipva" class="form-input" value="R$ 58,33">
             </div>
 
             <div class="form-group">
-              <label>Rastreador (R$/carro/mês)</label>
-              <input type="number" id="input-tracker" class="form-input" value="60">
+              <label class="has-tooltip" tabindex="0">
+                <span>Rastreador (por carro/mês)</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Mensalidade do rastreador com telemetria GPS e corte de ignição remoto instalado no veículo.</span>
+              </label>
+              <input type="text" id="input-tracker" class="form-input" value="R$ 60,00">
             </div>
 
             <div class="form-group">
-              <label>Seguro (R$/carro/mês)</label>
-              <input type="number" id="input-insurance" class="form-input" value="200">
+              <label class="has-tooltip" tabindex="0">
+                <span>Seguro / Proteção (por carro/mês)</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Mensalidade da proteção veicular ou seguro compreensivo com cobertura para motoristas de aplicativo / terceiros.</span>
+              </label>
+              <input type="text" id="input-insurance" class="form-input" value="R$ 200,00">
             </div>
 
             <div class="form-group">
-              <label>Manutenção (Mês 1: Revisão / Demais: Recorrente)</label>
+              <label class="has-tooltip" tabindex="0">
+                <span>Manutenção (Mês 1 / Recorrente)</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Previsão de manutenção: Campo 1 é a revisão inicial de entrada do carro no Mês 1. Campo 2 é a manutenção preventiva dos demais meses.</span>
+              </label>
               <div style="display: flex; gap: 8px;">
-                <input type="number" id="input-maint-m1" class="form-input" value="400" placeholder="Mês 1">
-                <input type="number" id="input-maint-rec" class="form-input" value="150" placeholder="Demais">
+                <input type="text" id="input-maint-m1" class="form-input" value="R$ 400,00" placeholder="Mês 1">
+                <input type="text" id="input-maint-rec" class="form-input" value="R$ 150,00" placeholder="Demais">
               </div>
             </div>
 
             <div class="form-group">
-              <label>Contabilidade (Mês 1: Abertura / Demais: Mensal)</label>
+              <label class="has-tooltip" tabindex="0">
+                <span>Contabilidade (Mês 1 / Recorrente)</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Honorários contábeis: Campo 1 prevê os custos de estruturação/abertura no Mês 1. Campo 2 é a mensalidade contábil recorrente.</span>
+              </label>
               <div style="display: flex; gap: 8px;">
-                <input type="number" id="input-contab-m1" class="form-input" value="1000" placeholder="Mês 1">
-                <input type="number" id="input-contab-rec" class="form-input" value="350" placeholder="Demais">
+                <input type="text" id="input-contab-m1" class="form-input" value="R$ 1.000,00" placeholder="Mês 1">
+                <input type="text" id="input-contab-rec" class="form-input" value="R$ 350,00" placeholder="Demais">
               </div>
             </div>
 
             <div class="form-group">
-              <label>Alíquota Simples Nacional (%)</label>
-              <input type="number" id="input-tax" class="form-input" value="6.76" step="0.01">
+              <label class="has-tooltip" tabindex="0">
+                <span>Alíquota Simples Nacional</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">Alíquota sobre faturamento no Simples Nacional (Anexo III para Locação de Veículos — CNAE 7711-0/00). Isento de ISS.</span>
+              </label>
+              <input type="text" id="input-tax" class="form-input" value="6,76%">
             </div>
 
           </div>
@@ -1365,7 +1439,6 @@
       inputFipeVal: document.getElementById('input-fipe-val'),
       inputDeprecRate: document.getElementById('input-deprec-rate'),
       inputRent: document.getElementById('input-rent'),
-      rentSubLabel: document.getElementById('rent-sub-label'),
       inputUpsellM1: document.getElementById('input-upsell-m1'),
       inputUf: document.getElementById('input-uf'),
       ufBadgeInfo: document.getElementById('uf-badge-info'),
@@ -1500,8 +1573,8 @@
       // Consorcio default checkbox toggle
       elements.inputConsUseDefaults.addEventListener('change', () => {
         if (elements.inputConsUseDefaults.checked) {
-          elements.inputConsAdmRate.value = '15.0';
-          elements.inputConsFundRate.value = '5.0';
+          elements.inputConsAdmRate.value = '15,0%';
+          elements.inputConsFundRate.value = '5,0%';
           elements.inputConsAdmRate.disabled = true;
           elements.inputConsFundRate.disabled = true;
         } else {
@@ -1511,10 +1584,10 @@
         recalculate();
       });
 
-      // When Credit Val changes in Consorcio, update FIPE and Purchase Val for user convenience
+      // When Credit Val changes in Consorcio, sync FIPE and Purchase Val for convenience
       elements.inputConsCreditVal.addEventListener('input', () => {
-        const val = elements.inputConsCreditVal.value;
         if (activeStrategy === 'leverage') {
+          const val = elements.inputConsCreditVal.value;
           elements.inputCarVal.value = val;
           elements.inputFipeVal.value = val;
           updateUfTax();
@@ -1522,37 +1595,68 @@
         recalculate();
       });
 
-      // Input changes
-      const inputs = [
-        elements.inputCarVal, elements.inputDeprecRate, elements.inputRent, 
+      // Money inputs: select on focus, format on blur, live recalculate on input
+      const moneyInputs = [
+        elements.inputCarVal, elements.inputFipeVal, elements.inputRent, 
         elements.inputUpsellM1, elements.inputIpva, elements.inputReserveFund,
         elements.inputTracker, elements.inputInsurance, elements.inputMaintM1,
         elements.inputMaintRec, elements.inputContabM1, elements.inputContabRec,
-        elements.inputTax, elements.inputConsTerm, elements.inputConsAdmRate,
-        elements.inputConsFundRate, elements.inputConsLanceVal
+        elements.inputConsCreditVal, elements.inputConsLanceVal
       ];
 
-      inputs.forEach(inp => {
-        inp.addEventListener('input', () => {
-          if (inp === elements.inputRent) {
-            const rentVal = parseFloat(elements.inputRent.value) || 0;
-            elements.rentSubLabel.textContent = `Equivalente a R$ ${formatMoney(rentVal / 4.2857)} por semana`;
-          }
+      moneyInputs.forEach(inp => {
+        inp.addEventListener('focus', () => inp.select());
+        inp.addEventListener('blur', () => {
+          formatCurrencyInput(inp);
           recalculate();
         });
+        inp.addEventListener('input', () => {
+          if (inp === elements.inputFipeVal) updateUfTax();
+          recalculate();
+        });
+      });
+
+      // Percent inputs: select on focus, format on blur, live recalculate on input
+      const percentInputs = [
+        { el: elements.inputDeprecRate, dec: 1 },
+        { el: elements.inputTax, dec: 2 },
+        { el: elements.inputConsAdmRate, dec: 1 },
+        { el: elements.inputConsFundRate, dec: 1 }
+      ];
+
+      percentInputs.forEach(({ el, dec }) => {
+        el.addEventListener('focus', () => el.select());
+        el.addEventListener('blur', () => {
+          formatPercentInput(el, dec);
+          recalculate();
+        });
+        el.addEventListener('input', () => recalculate());
+      });
+
+      elements.inputConsTerm.addEventListener('input', () => recalculate());
+
+      // Interactive Click/Tap to toggle tooltips
+      document.addEventListener('click', (e) => {
+        const tooltip = e.target.closest('.has-tooltip');
+        document.querySelectorAll('.has-tooltip.active').forEach(el => {
+          if (el !== tooltip) el.classList.remove('active');
+        });
+        if (tooltip) {
+          tooltip.classList.toggle('active');
+        }
       });
     }
 
     function updateUfTax() {
       const uf = elements.inputUf.value || 'SP';
       const ufData = UF_TAX_DATA_2026[uf] || UF_TAX_DATA_2026.SP;
-      const fipeVal = parseFloat(elements.inputFipeVal.value) || 50000;
+      const fipeVal = parseMoney(elements.inputFipeVal.value) || 50000;
 
       const ipvaAnual = fipeVal * ufData.ipvaRate;
       const mensalIpvaELicenc = (ipvaAnual + ufData.licenciamento) / 12;
 
-      elements.inputIpva.value = mensalIpvaELicenc.toFixed(2);
-      elements.ufBadgeInfo.textContent = `${uf}: Alíquota IPVA ${(ufData.ipvaRate * 100).toFixed(1)}% (R$ ${formatMoney(ipvaAnual)}/ano) + Licenc. R$ ${formatMoney(ufData.licenciamento)} = R$ ${formatMoney(mensalIpvaELicenc)}/mês/carro`;
+      elements.inputIpva.value = formatCurrency(mensalIpvaELicenc);
+      elements.ufBadgeInfo.textContent = `${uf}: IPVA ${(ufData.ipvaRate * 100).toFixed(1)}% (${formatCurrency(ipvaAnual)}/ano) + Licenc. ${formatCurrency(ufData.licenciamento)} = ${formatCurrency(mensalIpvaELicenc)}/mês`;
     }
 
     async function handleRequestCode() {
@@ -1681,29 +1785,29 @@
       const initialCars = parseInt(elements.inputCars.value) || 1;
       
       // Separate Purchase vs FIPE
-      const carPurchaseVal = parseFloat(elements.inputCarVal.value) || 50000;
-      const fipeVal = parseFloat(elements.inputFipeVal.value) || 50000;
-      const annualDeprecRate = (parseFloat(elements.inputDeprecRate.value) || 8.0) / 100;
+      const carPurchaseVal = parseMoney(elements.inputCarVal.value) || 50000;
+      const fipeVal = parseMoney(elements.inputFipeVal.value) || 50000;
+      const annualDeprecRate = (parsePercent(elements.inputDeprecRate.value) || 8.0) / 100;
 
-      const monthlyRentPerCar = parseFloat(elements.inputRent.value) || 3000;
-      const upsellM1PerCar = parseFloat(elements.inputUpsellM1.value) || 1500;
+      const monthlyRentPerCar = parseMoney(elements.inputRent.value) || 3000;
+      const upsellM1PerCar = parseMoney(elements.inputUpsellM1.value) || 1500;
       
-      const trackerPerCar = parseFloat(elements.inputTracker.value) || 60;
-      const insurancePerCar = parseFloat(elements.inputInsurance.value) || 200;
-      const maintM1PerCar = parseFloat(elements.inputMaintM1.value) || 400;
-      const maintRecPerCar = parseFloat(elements.inputMaintRec.value) || 150;
-      const contabM1 = parseFloat(elements.inputContabM1.value) || 1000;
-      const contabRec = parseFloat(elements.inputContabRec.value) || 350;
-      const ipvaPerCar = parseFloat(elements.inputIpva.value) || 58.33;
-      const taxRate = (parseFloat(elements.inputTax.value) || 6.76) / 100;
-      const reserveFundPerCar = parseFloat(elements.inputReserveFund.value) || 0;
+      const trackerPerCar = parseMoney(elements.inputTracker.value) || 60;
+      const insurancePerCar = parseMoney(elements.inputInsurance.value) || 200;
+      const maintM1PerCar = parseMoney(elements.inputMaintM1.value) || 400;
+      const maintRecPerCar = parseMoney(elements.inputMaintRec.value) || 150;
+      const contabM1 = parseMoney(elements.inputContabM1.value) || 1000;
+      const contabRec = parseMoney(elements.inputContabRec.value) || 350;
+      const ipvaPerCar = parseMoney(elements.inputIpva.value) || 58.33;
+      const taxRate = (parsePercent(elements.inputTax.value) || 6.76) / 100;
+      const reserveFundPerCar = parseMoney(elements.inputReserveFund.value) || 0;
 
       // Consórcio Dynamic Parameters
-      const consCreditVal = parseFloat(elements.inputConsCreditVal.value) || 50000;
+      const consCreditVal = parseMoney(elements.inputConsCreditVal.value) || 50000;
       const consTermMonths = parseInt(elements.inputConsTerm.value) || 60;
-      const consAdmRate = (parseFloat(elements.inputConsAdmRate.value) || 15.0) / 100;
-      const consFundRate = (parseFloat(elements.inputConsFundRate.value) || 5.0) / 100;
-      const consLanceVal = parseFloat(elements.inputConsLanceVal.value) || 15000;
+      const consAdmRate = (parsePercent(elements.inputConsAdmRate.value) || 15.0) / 100;
+      const consFundRate = (parsePercent(elements.inputConsFundRate.value) || 5.0) / 100;
+      const consLanceVal = parseMoney(elements.inputConsLanceVal.value) || 15000;
 
       // Consórcio Installment Calculation:
       // Total com taxas = Carta * (1 + Adm + Fundo)
@@ -2117,7 +2221,7 @@
     }
 
     // ==========================================
-    // HELPERS
+    // HELPERS & MASK FORMATTERS
     // ==========================================
     function formatMoney(val) {
       if (val === undefined || isNaN(val)) return '0,00';
@@ -2127,6 +2231,36 @@
     function formatCurrency(val) {
       if (val === undefined || isNaN(val)) return 'R$ 0,00';
       return 'R$ ' + formatMoney(val);
+    }
+
+    function parseMoney(val) {
+      if (typeof val === 'number') return val;
+      if (!val) return 0;
+      let cleaned = String(val).replace(/[^\d,\.-]/g, '').trim();
+      if (cleaned.includes(',')) {
+        cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+      }
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function parsePercent(val) {
+      if (typeof val === 'number') return val;
+      if (!val) return 0;
+      let cleaned = String(val).replace(/[^\d,\.-]/g, '').trim();
+      cleaned = cleaned.replace(',', '.');
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function formatCurrencyInput(el) {
+      const val = parseMoney(el.value);
+      el.value = formatCurrency(val);
+    }
+
+    function formatPercentInput(el, decimals = 1) {
+      const val = parsePercent(el.value);
+      el.value = `${val.toFixed(decimals).replace('.', ',')}%`;
     }
   </script>
 </body>
