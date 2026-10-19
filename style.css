@@ -2405,6 +2405,27 @@ body::before {
   border-radius: 50px;
 }
 
+.percent-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.percent-input-wrapper input {
+  width: 100%;
+  padding-right: 38px !important;
+}
+
+.percent-input-suffix {
+  position: absolute;
+  right: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  pointer-events: none;
+}
+
 .variable-dre-explanation {
   margin-top: auto;
   display: flex;

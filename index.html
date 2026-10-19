@@ -353,11 +353,11 @@
               </div>
               <div class="history-card-body">
                 <div class="history-metric">
-                  <span class="history-metric-label">Desvalorização no Período</span>
+                  <span class="history-metric-label" id="history-metric-label-period">Desvalorização no Período</span>
                   <span class="history-metric-value" id="history-depreciation-value">R$ 0,00</span>
                 </div>
                 <div class="history-metric">
-                  <span class="history-metric-label">Desvalorização Total</span>
+                  <span class="history-metric-label" id="history-metric-label-total">Desvalorização Total</span>
                   <span class="history-badge" id="history-depreciation-badge">0.0%</span>
                 </div>
               </div>
@@ -710,6 +710,34 @@
                         Trata-se da <strong>manutenção preventiva</strong> do carro (troca de óleo, revisões obrigatórias, pneus, pastilhas, entre outros).
                       </span>
                     </div>
+
+                    <!-- 4. IMPOSTOS (0,1% a 100%, não obrigatório para Pessoa Física) -->
+                    <div class="form-group">
+                      <div class="deprec-label-row">
+                        <label for="cost-tax-rate" style="margin-bottom: 0;">
+                          4. Impostos (%)
+                        </label>
+                        <span class="deprec-origin-tag" id="tax-preview-tag" style="display: none;">R$ 0,00/mês</span>
+                      </div>
+                      <div class="percent-input-wrapper">
+                        <input type="text" id="cost-tax-rate" inputmode="decimal" value="" placeholder="De 0,1% a 100% (Ex: 6)">
+                        <span class="percent-input-suffix">%</span>
+                      </div>
+                      <span class="field-micro-help">
+                        <strong>Não é obrigatório</strong> se você estiver simulando como <strong>Pessoa Física</strong>, mas pode ser usado a título de informação (aceita apenas percentual de <strong>0,1% a 100%</strong>).
+                      </span>
+                    </div>
+
+                    <!-- 5. DESPESAS FIXAS (Contador, Advogado, Outros) -->
+                    <div class="form-group">
+                      <label for="cost-contabilidade">
+                        5. Despesas Fixas — Contador, Advogado, Outros (R$)
+                      </label>
+                      <input type="text" id="cost-contabilidade" value="" placeholder="Sugestão opcional (Ex: R$ 150,00)">
+                      <span class="field-micro-help">
+                        Deixe sem valor ou preencha como sugestão caso tenha despesas fixas administrativas (contador, advogado, outros).
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -753,7 +781,7 @@
                         <span class="deprec-origin-tag" id="deprec-origin-tag">Base 1ª Tela: R$ 0,00/mês</span>
                       </div>
                       <input type="text" id="cost-depreciacao" value="R$ 0,00" placeholder="R$ 0,00" required>
-                      <span class="field-micro-help" style="margin-top: 2px;">
+                      <span class="field-micro-help" id="deprec-helper-text" style="margin-top: 2px;">
                         Deseja manter a depreciação trazida na 1ª tela ou ajustar o multiplicador?
                       </span>
                       <div class="depreciation-scenarios">
@@ -782,8 +810,6 @@
 
               <!-- Campos ocultos de compatibilidade -->
               <input type="hidden" id="cost-suporte" value="R$ 0,00">
-              <input type="hidden" id="cost-contabilidade" value="R$ 0,00">
-              <input type="hidden" id="cost-tax-rate" value="0">
               <input type="checkbox" id="reserve-fund-toggle" checked style="display: none;">
               <div id="reserve-fund-input-group" style="display: none;"></div>
             </div>
@@ -834,7 +860,7 @@
                 <span class="dre-val" id="dre-receita-bruta">R$ 2.580,00</span>
               </div>
               <div class="dre-row tax" id="dre-row-impostos" style="display: none;">
-                <span>(-) Imposto (Simples Nacional)</span>
+                <span id="dre-label-impostos">(-) 4. Impostos sobre Receita</span>
                 <span class="dre-val" id="dre-impostos">R$ 0,00</span>
               </div>
               
@@ -868,8 +894,8 @@
                 <span>Sistema / Suporte Operacional</span>
                 <span class="dre-val" id="dre-suporte">R$ 0,00</span>
               </div>
-              <div class="dre-row expense dre-indent" id="dre-row-contabilidade" style="display: none;">
-                <span>Contabilidade da Operação</span>
+              <div class="dre-row expense dre-indent" id="dre-row-contabilidade">
+                <span>5. Despesas Fixas (Contador, Advogado, Outros)</span>
                 <span class="dre-val" id="dre-contabilidade">R$ 0,00</span>
               </div>
 

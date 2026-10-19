@@ -198,8 +198,10 @@ const elements = {
   costContabilidade: document.getElementById('cost-contabilidade'),
   costIpva: document.getElementById('cost-ipva'),
   costTaxRate: document.getElementById('cost-tax-rate'),
+  taxPreviewTag: document.getElementById('tax-preview-tag'),
   costDepreciacao: document.getElementById('cost-depreciacao'),
   deprecOriginTag: document.getElementById('deprec-origin-tag'),
+  deprecHelperText: document.getElementById('deprec-helper-text'),
   btnDeprec1x: document.getElementById('btn-deprec-1x'),
   btnDeprec15x: document.getElementById('btn-deprec-15x'),
   btnDeprec2x: document.getElementById('btn-deprec-2x'),
@@ -214,7 +216,10 @@ const elements = {
   dreHeaderRevenue: document.getElementById('dre-header-revenue'),
   
   dreReceitaBruta: document.getElementById('dre-receita-bruta'),
+  dreRowImpostos: document.getElementById('dre-row-impostos'),
+  dreLabelImpostos: document.getElementById('dre-label-impostos'),
   dreImpostos: document.getElementById('dre-impostos'),
+  dreRowReceitaLiquida: document.getElementById('dre-row-receita-liquida'),
   dreReceitaLiquida: document.getElementById('dre-receita-liquida'),
   dreCustosRecorrentesTotal: document.getElementById('dre-custos-recorrentes-total'),
   dreRastreador: document.getElementById('dre-rastreador'),
@@ -222,6 +227,7 @@ const elements = {
   dreManutencao: document.getElementById('dre-manutencao'),
   dreManutencaoExtra: document.getElementById('dre-manutencao-extra'),
   dreSuporte: document.getElementById('dre-suporte'),
+  dreRowContabilidade: document.getElementById('dre-row-contabilidade'),
   dreContabilidade: document.getElementById('dre-contabilidade'),
   dreIpva: document.getElementById('dre-ipva'),
   dreProvisoesTotal: document.getElementById('dre-provisoes-total'),
@@ -286,6 +292,18 @@ const utils = {
     // Replace "R$", all thousands separators (dots) and replace comma with dot
     let clean = value.replace(/[^\d,]/g, '').replace(',', '.');
     return parseFloat(clean) || 0;
+  },
+
+  /**
+   * Parses a percentage string (e.g. "6,5" or "10.5") into a float (6.5 or 10.5), or null if empty
+   */
+  parseTaxPercent(value) {
+    if (value === undefined || value === null) return null;
+    const trimmed = String(value).replace(/[^\d.,]/g, '').trim();
+    if (!trimmed) return null;
+    const normalized = trimmed.replace(',', '.');
+    const num = parseFloat(normalized);
+    return Number.isNaN(num) ? null : num;
   },
 
   /**
@@ -1080,6 +1098,35 @@ function bindEvents() {
     });
   });
 
+  // Step 4: 4. Impostos (%) input mask & live preview (accepts only 0,1 to 100%)
+  if (elements.costTaxRate) {
+    elements.costTaxRate.addEventListener('input', (e) => {
+      // Allow only digits and a single comma or dot
+      let raw = e.target.value.replace(/[^\d.,]/g, '');
+      const parts = raw.split(/[.,]/);
+      if (parts.length > 2) {
+        raw = parts[0] + ',' + parts.slice(1).join('');
+      }
+      e.target.value = raw;
+      elements.costTaxRate.style.borderColor = '';
+      updateTaxPreviewTag();
+    });
+
+    elements.costTaxRate.addEventListener('blur', (e) => {
+      const pct = utils.parseTaxPercent(e.target.value);
+      if (pct === null || pct === 0) {
+        e.target.value = '';
+        updateTaxPreviewTag();
+        return;
+      }
+      let clamped = pct;
+      if (clamped < 0.1) clamped = 0.1;
+      if (clamped > 100) clamped = 100;
+      e.target.value = String(clamped).replace('.', ',');
+      updateTaxPreviewTag();
+    });
+  }
+
   // App logo returns home (to Landing Page)
   elements.appLogo.addEventListener('click', (e) => {
     e.preventDefault();
@@ -1262,10 +1309,25 @@ function validateStep4() {
     }
   }
 
+  // Validate optional 4. Impostos (%) — if filled, must be between 0,1% and 100%
+  if (elements.costTaxRate) {
+    elements.costTaxRate.style.borderColor = '';
+    const rawTax = elements.costTaxRate.value.trim();
+    if (rawTax !== '') {
+      const pct = utils.parseTaxPercent(rawTax);
+      if (pct === null || pct < 0.1 || pct > 100) {
+        elements.costTaxRate.style.borderColor = 'var(--color-danger)';
+        alert('O campo "4. Impostos (%)" aceita apenas percentual de 0,1% a 100% (ou deixe em branco caso esteja simulando como Pessoa Física).');
+        isValid = false;
+      }
+    }
+  }
+
   const fields = [
     elements.costRastreador,
     elements.costSeguro,
     elements.costManutencao,
+    elements.costContabilidade,
     elements.costManutencaoExtra,
     elements.costFundoReserva,
     elements.costDepreciacao
@@ -1335,6 +1397,7 @@ function goToStep(step) {
     recalculateStateIpvaAndLicenciamento();
     recalculateSeguroFromFipe();
     recalculateDepreciationFromFirstScreen();
+    updateTaxPreviewTag();
   }
 }
 
@@ -1427,6 +1490,7 @@ function resetSimulationState() {
   syncIpvaModeButtons();
   if (elements.ufTaxBreakdownPanel) elements.ufTaxBreakdownPanel.style.display = 'none';
   if (elements.locadoraSavingsBox) elements.locadoraSavingsBox.style.display = 'none';
+  if (elements.taxPreviewTag) elements.taxPreviewTag.style.display = 'none';
 
   const deprecBtns = [elements.btnDeprec1x, elements.btnDeprec15x, elements.btnDeprec2x, elements.btnDeprecManual];
   deprecBtns.forEach(btn => {
@@ -1479,6 +1543,8 @@ function renderFipeCard(data) {
       const deprecVal = document.getElementById('history-depreciation-value');
       const deprecBadge = document.getElementById('history-depreciation-badge');
       const deprecNote = document.getElementById('history-depreciation-note');
+      const labelPeriod = document.getElementById('history-metric-label-period');
+      const labelTotal = document.getElementById('history-metric-label-total');
       
       deprecVal.textContent = data.historicoDepreciacaoBrl;
       deprecBadge.textContent = data.historicoDepreciacaoPct;
@@ -1488,10 +1554,14 @@ function renderFipeCard(data) {
         historyCard.classList.add('appreciated');
         deprecBadge.className = 'history-badge appreciated';
         historyCard.querySelector('.history-card-header span').textContent = 'Histórico de Valorização Real (Últimos 2 Anos)';
+        if (labelPeriod) labelPeriod.textContent = 'Valorização no Período';
+        if (labelTotal) labelTotal.textContent = 'Valorização Total';
       } else {
         historyCard.classList.remove('appreciated');
         deprecBadge.className = 'history-badge';
         historyCard.querySelector('.history-card-header span').textContent = 'Histórico de Depreciação Real (Últimos 2 Anos)';
+        if (labelPeriod) labelPeriod.textContent = 'Desvalorização no Período';
+        if (labelTotal) labelTotal.textContent = 'Desvalorização Total';
       }
     } else {
       historyCard.style.display = 'none';
@@ -1564,6 +1634,24 @@ function renderComparisonBanner() {
 }
 
 /**
+ * Updates the live monthly R$ preview badge next to "4. Impostos (%)"
+ */
+function updateTaxPreviewTag() {
+  if (!elements.taxPreviewTag || !elements.costTaxRate) return;
+  const pct = utils.parseTaxPercent(elements.costTaxRate.value);
+  if (pct === null || pct <= 0) {
+    elements.taxPreviewTag.style.display = 'none';
+    return;
+  }
+  const valorSemanal = utils.parseCurrency(elements.valorSemanalInput.value);
+  const semanasMes = parseFloat(elements.semanasMesInput.value) || 4.3;
+  const receitaBruta = valorSemanal * semanasMes;
+  const impostoMensal = receitaBruta * (pct / 100);
+  elements.taxPreviewTag.style.display = 'inline-block';
+  elements.taxPreviewTag.textContent = `${utils.formatCurrency(impostoMensal)}/mês (${String(pct).replace('.', ',')}%)`;
+}
+
+/**
  * Pre-fills 1. Seguro Mensal with 0.34% of the vehicle's FIPE value (editable by the user)
  */
 function recalculateSeguroFromFipe() {
@@ -1585,27 +1673,44 @@ function recalculateSeguroFromFipe() {
 /**
  * Calculates base monthly depreciation brought from Step 2 (1st vehicle screen)
  * and applies the chosen multiplier (1x, 1.5x, 2x) unless in 'manual' mode.
+ * If the vehicle did NOT depreciate in the last 24 months on Screen 1, the suggested base is R$ 0,00/mês.
  */
 function recalculateDepreciationFromFirstScreen() {
-  const valorPago = utils.parseCurrency(elements.valorPagoInput.value);
-  const valorFipe = utils.parseCurrency(elements.valorFipeInput.value);
-  const baseValue = valorFipe > 0 ? valorFipe : valorPago;
-
   let baseDeprecMensal = 0;
+
   if (!state.vehicle.isManual && state.vehicle.historicoDepreciacaoMensal > 0) {
+    // Vehicle depreciated over the last 24 months on Screen 1
     baseDeprecMensal = state.vehicle.historicoDepreciacaoMensal;
     if (elements.deprecOriginTag) {
       elements.deprecOriginTag.textContent = `Base 1ª Tela (FIPE): ${utils.formatCurrency(baseDeprecMensal)}/mês`;
     }
-  } else if (baseValue > 0) {
-    // Fallback if manual vehicle, 0km, or vehicle appreciated in last 24m
-    baseDeprecMensal = (baseValue * 0.095) / 12;
+    if (elements.deprecHelperText) {
+      elements.deprecHelperText.innerHTML =
+        `Depreciação trazida da 1ª tela: <strong>${utils.formatCurrency(baseDeprecMensal)}/mês</strong>. Escolha se deseja manter (1x), aumentar (1,5x ou 2x) ou digitar Manual.`;
+    }
+  } else if (!state.vehicle.isManual && state.vehicle.historicoMeses > 0 && state.vehicle.historicoDepreciacaoMensal <= 0) {
+    // Vehicle appreciated or had zero depreciation in the last 2 years on Screen 1 -> suggest R$ 0,00!
+    baseDeprecMensal = 0;
     if (elements.deprecOriginTag) {
-      elements.deprecOriginTag.textContent = `Base Estimada: ${utils.formatCurrency(baseDeprecMensal)}/mês`;
+      elements.deprecOriginTag.textContent = `1ª Tela: Não depreciou (R$ 0,00/mês)`;
+    }
+    if (elements.deprecHelperText) {
+      elements.deprecHelperText.innerHTML =
+        `Na 1ª tela este veículo <strong>não depreciou nos últimos 2 anos</strong> (valorizou no período), por isso a sugestão é <strong>R$ 0,00/mês</strong>. Se quiser provisionar um valor por cautela, clique em <strong>Manual</strong>.`;
+    }
+  } else {
+    // Manual vehicle or 0km without 24m history
+    baseDeprecMensal = 0;
+    if (elements.deprecOriginTag) {
+      elements.deprecOriginTag.textContent = `Base 1ª Tela: R$ 0,00/mês`;
+    }
+    if (elements.deprecHelperText) {
+      elements.deprecHelperText.innerHTML =
+        `Sem histórico de desvalorização nos últimos 2 anos (<strong>R$ 0,00/mês</strong>). Clique em <strong>Manual</strong> caso queira informar uma depreciação estimada.`;
     }
   }
 
-  if (state.costs.deprecMultiplier !== 'manual' && baseDeprecMensal > 0) {
+  if (state.costs.deprecMultiplier !== 'manual') {
     const mult = Number(state.costs.deprecMultiplier) || 1;
     const finalDeprecMensal = baseDeprecMensal * mult;
     elements.costDepreciacao.value = utils.formatCurrency(finalDeprecMensal);
@@ -1692,6 +1797,9 @@ function shareSimulationOnWhatsApp() {
 // ==========================================================================
 
 function runCalculationsAndRender() {
+  const parsedTaxPct = elements.costTaxRate ? utils.parseTaxPercent(elements.costTaxRate.value) : null;
+  const aliquotaImposto = parsedTaxPct !== null && parsedTaxPct > 0 ? (parsedTaxPct / 100) : 0;
+
   // Collect data from forms
   const data = {
     valorPago: utils.parseCurrency(elements.valorPagoInput.value),
@@ -1712,7 +1820,7 @@ function runCalculationsAndRender() {
     contabilidade: elements.costContabilidade ? utils.parseCurrency(elements.costContabilidade.value) : 0,
     ipvaLicenciamento: utils.parseCurrency(elements.costIpva.value),
     
-    aliquotaImposto: elements.costTaxRate ? ((parseFloat(elements.costTaxRate.value) || 0) / 100) : 0,
+    aliquotaImposto,
     depreciacaoMensal: utils.parseCurrency(elements.costDepreciacao.value),
     fundoReserva: utils.parseCurrency(elements.costFundoReserva.value),
     manutencaoExtra: elements.costManutencaoExtra ? utils.parseCurrency(elements.costManutencaoExtra.value) : 0
@@ -1736,6 +1844,17 @@ function runCalculationsAndRender() {
   elements.dreReceitaBruta.textContent = utils.formatCurrency(results.receitaBrutaMensal);
   elements.dreImpostos.textContent = `R$ -${utils.formatCurrency(results.impostosSimplesNacional).replace('R$', '').trim()}`;
   elements.dreReceitaLiquida.textContent = utils.formatCurrency(results.receitaLiquidaMensal);
+
+  if (results.impostosSimplesNacional > 0) {
+    if (elements.dreRowImpostos) elements.dreRowImpostos.style.display = 'flex';
+    if (elements.dreRowReceitaLiquida) elements.dreRowReceitaLiquida.style.display = 'flex';
+    if (elements.dreLabelImpostos) {
+      elements.dreLabelImpostos.textContent = `(-) 4. Impostos (${utils.formatPercent(aliquotaImposto)})`;
+    }
+  } else {
+    if (elements.dreRowImpostos) elements.dreRowImpostos.style.display = 'none';
+    if (elements.dreRowReceitaLiquida) elements.dreRowReceitaLiquida.style.display = 'none';
+  }
   
   elements.dreCustosRecorrentesTotal.textContent = `R$ -${utils.formatCurrency(results.custosOperacionaisRecorrentes).replace('R$', '').trim()}`;
   elements.dreRastreador.textContent = `R$ -${utils.formatCurrency(results.custosDetalhados.rastreador).replace('R$', '').trim()}`;
