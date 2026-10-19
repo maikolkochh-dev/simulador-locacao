@@ -710,22 +710,206 @@ const CURATED_CAR_PHOTOS = [
   { match: /\bdolphin\b/i, wikiQuery: 'BYD Dolphin' }
 ];
 
-async function queryWikipediaImage(searchQuery, lang = 'pt') {
+/**
+ * Searches Wikimedia Commons for multiple candidate exterior photos of the car model,
+ * prioritizing white cars and rejecting red cars or interior/detail shots.
+ */
+async function queryCommonsCandidateImages(searchQuery, limit = 12) {
   try {
-    const endpoint = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail|original&pithumbsize=800&generator=search&gsrlimit=3&gsrsearch=${encodeURIComponent(searchQuery)}`;
+    const endpoint = `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=${limit}&gsrsearch=${encodeURIComponent(searchQuery)}&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=800`;
     const res = await fetch(endpoint);
-    if (!res.ok) return null;
+    if (!res.ok) return [];
     const data = await res.json();
     const pages = data?.query?.pages;
-    if (!pages) return null;
+    if (!pages) return [];
+
+    const candidates = [];
+    for (const page of Object.values(pages)) {
+      const title = String(page?.title || '');
+      const info = page?.imageinfo?.[0];
+      const imgUrl = info?.thumburl || info?.url;
+      if (!imgUrl) continue;
+
+      const desc = String(info?.extmetadata?.ImageDescription?.value || '').replace(/<[^>]+>/g, '');
+      const combinedText = `${title} ${desc}`.toLowerCase();
+
+      // Reject non-photos, interiors, closeups, or explicitly red cars in metadata
+      if (/\.(svg|gif|pdf|tif|tiff|webp)$/i.test(title)) continue;
+      if (/\b(interior|cockpit|dashboard|steering|uconnect|engine|motor|logo|badge|emblem|bumper|lamp|headlight|taillight|wheel|rim|sketch|diagram|map)\b/i.test(combinedText)) continue;
+      if (/\b(red|vermelho|vermelha|rojo|roja|rosso|rot|rouge|crimson)\b/i.test(combinedText)) continue;
+
+      let metaPriority = 0;
+      if (/\b(white|branco|branca|blanco|blanca|blanc|bianco|weiss|weiß)\b/i.test(combinedText)) {
+        metaPriority += 100; // Prefer white first
+      } else if (/\b(silver|prata|gray|grey|cinza|black|preto|preta|blue|azul)\b/i.test(combinedText)) {
+        metaPriority += 50;
+      }
+      if (/\b(front|2021|2022|2023|2024|2025)\b/i.test(combinedText)) {
+        metaPriority += 15;
+      }
+
+      candidates.push({ url: imgUrl, title, metaPriority, index: page.index || 99 });
+    }
+
+    return candidates.sort((a, b) => (b.metaPriority - a.metaPriority) || (a.index - b.index));
+  } catch (e) {
+    return [];
+  }
+}
+
+async function queryWikipediaFallbackImages(searchQuery, lang = 'pt') {
+  try {
+    const endpoint = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail|original&pithumbsize=800&generator=search&gsrlimit=4&gsrsearch=${encodeURIComponent(searchQuery)}`;
+    const res = await fetch(endpoint);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const pages = data?.query?.pages;
+    if (!pages) return [];
     const sortedPages = Object.values(pages).sort((a, b) => (a.index || 99) - (b.index || 99));
+    const urls = [];
     for (const page of sortedPages) {
       const imgUrl = page?.thumbnail?.source || page?.original?.source;
       if (imgUrl && !/\.svg$/i.test(imgUrl) && !/logo|icon|flag|emblem/i.test(imgUrl)) {
-        return imgUrl;
+        urls.push({ url: imgUrl, title: page.title || '', metaPriority: 0 });
       }
     }
-    return null;
+    return urls;
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * Inspects the actual pixels of a candidate car image using an offscreen <canvas>.
+ * - Detects if the car has red paint (`isRedCar`)
+ * - Measures how much of the car body is white (`whiteScore`) or neutral silver/gray (`neutralScore`)
+ * - Also provides `convertRedToWhiteDataUrl(img)` so if no non-red photo exists, red paint is converted to pearl white!
+ */
+function inspectCarImageColors(imgUrl) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    const timeout = setTimeout(() => resolve(null), 4500);
+
+    img.onload = () => {
+      clearTimeout(timeout);
+      try {
+        const sampleW = 140;
+        const sampleH = 95;
+        const canvas = document.createElement('canvas');
+        canvas.width = sampleW;
+        canvas.height = sampleH;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, sampleW, sampleH);
+
+        // Sample the center region where the vehicle body sits (x: 18%..82%, y: 24%..82%)
+        const startX = Math.floor(sampleW * 0.18);
+        const endX = Math.floor(sampleW * 0.82);
+        const startY = Math.floor(sampleH * 0.24);
+        const endY = Math.floor(sampleH * 0.82);
+
+        const imgData = ctx.getImageData(startX, startY, endX - startX, endY - startY).data;
+        let totalPixels = 0;
+        let redPixels = 0;
+        let whitePixels = 0;
+        let neutralPixels = 0;
+
+        for (let i = 0; i < imgData.length; i += 4) {
+          const r = imgData[i];
+          const g = imgData[i + 1];
+          const b = imgData[i + 2];
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          const chroma = max - min;
+
+          totalPixels++;
+
+          // Detect red / crimson / burgundy / orange-red paint
+          if (r > 105 && chroma > 30 && r === max && (r - Math.max(g, b)) > 24 && g < 135) {
+            redPixels++;
+          } else if (r > 175 && g > 175 && b > 175 && chroma < 28) {
+            // Bright white / pearl white car paint
+            whitePixels++;
+          } else if (chroma < 26 && max >= 35 && max <= 185) {
+            // Silver / gray / black neutral paint
+            neutralPixels++;
+          }
+        }
+
+        const redRatio = totalPixels > 0 ? (redPixels / totalPixels) : 0;
+        const whiteRatio = totalPixels > 0 ? (whitePixels / totalPixels) : 0;
+        const neutralRatio = totalPixels > 0 ? (neutralPixels / totalPixels) : 0;
+
+        resolve({
+          url: imgUrl,
+          imgElement: img,
+          isRedCar: redRatio > 0.042, // Reject if > 4.2% of center area has red paint
+          redRatio,
+          whiteRatio,
+          neutralRatio
+        });
+      } catch (e) {
+        // If CORS prevents reading pixels, treat as unknown/low priority
+        resolve({
+          url: imgUrl,
+          imgElement: img,
+          isRedCar: false,
+          redRatio: 0,
+          whiteRatio: 0,
+          neutralRatio: 0
+        });
+      }
+    };
+
+    img.onerror = () => {
+      clearTimeout(timeout);
+      resolve(null);
+    };
+
+    img.src = imgUrl;
+  });
+}
+
+/**
+ * Fallback converter: if a rare car model only has red photos available,
+ * converts all red paint pixels on the car into clean Pearl White / Silver!
+ */
+function convertRedCarToWhiteDataUrl(img) {
+  try {
+    const maxW = 760;
+    const scale = img.naturalWidth > maxW ? (maxW / img.naturalWidth) : 1;
+    const w = Math.max(1, Math.round(img.naturalWidth * scale));
+    const h = Math.max(1, Math.round(img.naturalHeight * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      const chroma = max - min;
+
+      // Target red / reddish pixels and convert smoothly to pearl white / bright silver
+      if (r > 75 && chroma > 20 && r === max && (r - Math.max(g, b)) > 16) {
+        const redness = Math.min(1, (r - Math.max(g, b)) / 65);
+        const pearlVal = Math.min(248, Math.round(r * 0.90 + 38));
+        data[i] = Math.round(r * (1 - redness) + pearlVal * redness);
+        data[i + 1] = Math.round(g * (1 - redness) + pearlVal * redness);
+        data[i + 2] = Math.round(b * (1 - redness) + Math.min(255, pearlVal + 3) * redness);
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return canvas.toDataURL('image/jpeg', 0.9);
   } catch (e) {
     return null;
   }
@@ -748,16 +932,59 @@ async function fetchVehicleImageAutomatically(brandName, modelName) {
     }
   }
 
-  let foundUrl = await queryWikipediaImage(targetQuery, 'pt');
-  if (!foundUrl) {
-    foundUrl = await queryWikipediaImage(targetQuery, 'en');
-  }
-  if (!foundUrl && cleanModelFirstWord) {
-    foundUrl = await queryWikipediaImage(`${cleanBrand} ${cleanModelFirstWord} automobile`, 'en');
+  // 1. Gather candidate photos: first search specifically for white, then general model photos on Wikimedia Commons
+  const [whiteCandidates, modelCandidates, wikiPtCandidates] = await Promise.all([
+    queryCommonsCandidateImages(`${targetQuery} white`, 6),
+    queryCommonsCandidateImages(targetQuery, 12),
+    queryWikipediaFallbackImages(targetQuery, 'pt')
+  ]);
+
+  // Deduplicate candidate URLs keeping white-tagged candidates first
+  const seenUrls = new Set();
+  const allCandidates = [];
+  for (const cand of [...whiteCandidates, ...modelCandidates, ...wikiPtCandidates]) {
+    if (cand && cand.url && !seenUrls.has(cand.url)) {
+      seenUrls.add(cand.url);
+      allCandidates.push(cand);
+    }
   }
 
-  if (foundUrl && !state.vehicle.isCustomPhoto) {
-    state.vehicle.photoUrl = foundUrl;
+  if (allCandidates.length === 0) return;
+
+  // 2. Inspect top candidates' pixels in parallel to guarantee NEVER picking a red car and preferring white
+  const topToInspect = allCandidates.slice(0, 8);
+  const inspectedList = (await Promise.all(topToInspect.map(async (cand) => {
+    const res = await inspectCarImageColors(cand.url);
+    if (!res) return null;
+    return {
+      ...res,
+      metaPriority: cand.metaPriority || 0
+    };
+  }))).filter(Boolean);
+
+  if (inspectedList.length === 0) return;
+
+  // Filter out any red cars!
+  const nonRedCars = inspectedList.filter(item => !item.isRedCar);
+
+  let finalPhotoUrl = null;
+
+  if (nonRedCars.length > 0) {
+    // Sort non-red cars so the whitest car photo wins first!
+    nonRedCars.sort((a, b) => {
+      const scoreA = (a.whiteRatio * 3.0) + (a.neutralRatio * 1.2) + (a.metaPriority * 0.002) - (a.redRatio * 5.0);
+      const scoreB = (b.whiteRatio * 3.0) + (b.neutralRatio * 1.2) + (b.metaPriority * 0.002) - (b.redRatio * 5.0);
+      return scoreB - scoreA;
+    });
+    finalPhotoUrl = nonRedCars[0].url;
+  } else {
+    // Every candidate had red paint -> convert the best candidate's red paint into Pearl White on Canvas!
+    const convertedWhiteUrl = convertRedCarToWhiteDataUrl(inspectedList[0].imgElement);
+    finalPhotoUrl = convertedWhiteUrl || inspectedList[0].url;
+  }
+
+  if (finalPhotoUrl && !state.vehicle.isCustomPhoto) {
+    state.vehicle.photoUrl = finalPhotoUrl;
     state.vehicle.photoLicense = `Imagem automática: ${targetQuery}`;
     syncVehiclePhotoUI();
   }
