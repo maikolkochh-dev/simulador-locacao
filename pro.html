@@ -1009,7 +1009,7 @@
     <div class="hero-banner">
       <div class="hero-title-group">
         <h2 id="main-hero-title">Simulação Executiva de Escala (24 Meses)</h2>
-        <p>Projete seu fluxo de caixa real, aquisição progressiva de frotas, DRE mês a mês e alavancagem com consórcio contemplado.</p>
+        <p id="main-hero-desc">Projete seu fluxo de caixa real, aquisição progressiva de frotas, DRE mês a mês e alavancagem com consórcio contemplado.</p>
       </div>
     </div>
 
@@ -1024,6 +1024,14 @@
       <button type="button" class="tab-btn tab-leverage" id="tab-leverage">
         3. DRE Alavancagem (Consórcio)
       </button>
+    </div>
+
+    <!-- Automatic Synchronization Status Pill -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: -12px; margin-bottom: 22px; font-size: 12.5px; color: #34D399; font-weight: 600;">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+      </svg>
+      <span id="sync-status-text">Valores sincronizados automaticamente entre as Telas 1, 2 e 3</span>
     </div>
 
     <!-- Layout: Controls + KPIs -->
@@ -1494,6 +1502,8 @@
 
       // Dynamic Headers
       mainHeroTitle: document.getElementById('main-hero-title'),
+      mainHeroDesc: document.getElementById('main-hero-desc'),
+      syncStatusText: document.getElementById('sync-status-text'),
       chartTitle: document.getElementById('chart-title'),
       dreTableTitle: document.getElementById('dre-table-title'),
 
@@ -1575,7 +1585,9 @@
       }
 
       setupEvents();
+      loadSavedSimulationState();
       updateUfTax();
+      syncCarValToConsorcio();
       recalculate();
     });
 
@@ -1588,6 +1600,115 @@
         if (sigla === 'SP') opt.selected = true;
         elements.inputUf.appendChild(opt);
       }
+    }
+
+    // Synchronize Car Purchase Value from Tela 1 to Consórcio Carta & Lance in Tela 3
+    function syncCarValToConsorcio() {
+      const carVal = parseMoney(elements.inputCarVal.value);
+      if (carVal > 0) {
+        const prevCredit = parseMoney(elements.inputConsCreditVal.value) || 50000;
+        const prevLance = parseMoney(elements.inputConsLanceVal.value) || 15000;
+        const lancePct = prevCredit > 0 ? (prevLance / prevCredit) : 0.30;
+        
+        elements.inputConsCreditVal.value = formatCurrency(carVal);
+        elements.inputConsLanceVal.value = formatCurrency(carVal * (lancePct > 0 ? lancePct : 0.30));
+      }
+    }
+
+    function loadSavedSimulationState() {
+      try {
+        const saved = localStorage.getItem('pro_simulation_params');
+        if (saved) {
+          const p = JSON.parse(saved);
+          if (p.horizon) elements.inputHorizon.value = p.horizon;
+          if (p.cars) {
+            elements.inputCars.value = p.cars;
+            elements.badgeCars.textContent = p.cars;
+          }
+          if (p.carVal) elements.inputCarVal.value = p.carVal;
+          if (p.fipeVal) elements.inputFipeVal.value = p.fipeVal;
+          if (p.deprecRate) elements.inputDeprecRate.value = p.deprecRate;
+          if (p.rent) elements.inputRent.value = p.rent;
+          if (p.upsellM1) elements.inputUpsellM1.value = p.upsellM1;
+          if (p.uf) elements.inputUf.value = p.uf;
+          if (p.ipva) elements.inputIpva.value = p.ipva;
+          if (p.reserveFund) elements.inputReserveFund.value = p.reserveFund;
+          if (p.tracker) elements.inputTracker.value = p.tracker;
+          if (p.insurance) elements.inputInsurance.value = p.insurance;
+          if (p.maintM1) elements.inputMaintM1.value = p.maintM1;
+          if (p.maintRec) elements.inputMaintRec.value = p.maintRec;
+          if (p.contabM1) elements.inputContabM1.value = p.contabM1;
+          if (p.contabRec) elements.inputContabRec.value = p.contabRec;
+          if (p.tax) elements.inputTax.value = p.tax;
+          if (p.consCreditVal) elements.inputConsCreditVal.value = p.consCreditVal;
+          if (p.consTerm) elements.inputConsTerm.value = p.consTerm;
+          if (typeof p.consUseDefaults === 'boolean') {
+            elements.inputConsUseDefaults.checked = p.consUseDefaults;
+            elements.inputConsAdmRate.disabled = p.consUseDefaults;
+            elements.inputConsFundRate.disabled = p.consUseDefaults;
+          }
+          if (p.consAdmRate) elements.inputConsAdmRate.value = p.consAdmRate;
+          if (p.consFundRate) elements.inputConsFundRate.value = p.consFundRate;
+          if (p.consLanceVal) elements.inputConsLanceVal.value = p.consLanceVal;
+          return;
+        }
+
+        // Seamless bridge from public simulator (index.html)
+        const publicSim = localStorage.getItem('locador_last_simulation');
+        if (publicSim) {
+          const ps = JSON.parse(publicSim);
+          if (ps.carPurchaseVal) elements.inputCarVal.value = formatCurrency(ps.carPurchaseVal);
+          if (ps.fipeVal) elements.inputFipeVal.value = formatCurrency(ps.fipeVal);
+          if (ps.rentVal) elements.inputRent.value = formatCurrency(ps.rentVal);
+          if (ps.upsellM1Val) elements.inputUpsellM1.value = formatCurrency(ps.upsellM1Val);
+          if (ps.uf) elements.inputUf.value = ps.uf;
+          if (ps.ipvaVal) elements.inputIpva.value = formatCurrency(ps.ipvaVal);
+          if (ps.trackerVal) elements.inputTracker.value = formatCurrency(ps.trackerVal);
+          if (ps.insuranceVal) elements.inputInsurance.value = formatCurrency(ps.insuranceVal);
+          if (ps.maintRecVal) elements.inputMaintRec.value = formatCurrency(ps.maintRecVal);
+          if (ps.contabRecVal) elements.inputContabRec.value = formatCurrency(ps.contabRecVal);
+          if (ps.reserveFundVal) elements.inputReserveFund.value = formatCurrency(ps.reserveFundVal);
+          if (ps.taxRate) elements.inputTax.value = formatPercent(ps.taxRate, 2);
+          if (ps.deprecRate) elements.inputDeprecRate.value = formatPercent(ps.deprecRate, 1);
+          if (ps.horizon) elements.inputHorizon.value = ps.horizon;
+
+          const carPrice = ps.carPurchaseVal || ps.fipeVal || 50000;
+          elements.inputConsCreditVal.value = formatCurrency(carPrice);
+          elements.inputConsLanceVal.value = formatCurrency(carPrice * 0.30);
+        }
+      } catch(e) {}
+    }
+
+    function saveSimulationState() {
+      try {
+        const stateObj = {
+          horizon: elements.inputHorizon.value,
+          cars: elements.inputCars.value,
+          carVal: elements.inputCarVal.value,
+          fipeVal: elements.inputFipeVal.value,
+          deprecRate: elements.inputDeprecRate.value,
+          rent: elements.inputRent.value,
+          upsellM1: elements.inputUpsellM1.value,
+          uf: elements.inputUf.value,
+          ipva: elements.inputIpva.value,
+          reserveFund: elements.inputReserveFund.value,
+          tracker: elements.inputTracker.value,
+          insurance: elements.inputInsurance.value,
+          maintM1: elements.inputMaintM1.value,
+          maintRec: elements.inputMaintRec.value,
+          contabM1: elements.inputContabM1.value,
+          contabRec: elements.inputContabRec.value,
+          tax: elements.inputTax.value,
+          consCreditVal: elements.inputConsCreditVal.value,
+          consTerm: elements.inputConsTerm.value,
+          consUseDefaults: elements.inputConsUseDefaults.checked,
+          consAdmRate: elements.inputConsAdmRate.value,
+          consFundRate: elements.inputConsFundRate.value,
+          consLanceVal: elements.inputConsLanceVal.value,
+          activeStrategy
+        };
+        localStorage.setItem('pro_simulation_params', JSON.stringify(stateObj));
+      } catch(e) {}
     }
 
     function setupEvents() {
@@ -1631,9 +1752,10 @@
         recalculate();
       });
 
-      // When FIPE changes, update IPVA
+      // When FIPE changes, update IPVA & sync
       elements.inputFipeVal.addEventListener('input', () => {
         updateUfTax();
+        syncCarValToConsorcio();
         recalculate();
       });
 
@@ -1651,14 +1773,12 @@
         recalculate();
       });
 
-      // When Credit Val changes in Consorcio, sync FIPE and Purchase Val for convenience
+      // When Credit Val changes in Consorcio, sync FIPE and Purchase Val across screens
       elements.inputConsCreditVal.addEventListener('input', () => {
-        if (activeStrategy === 'leverage') {
-          const val = elements.inputConsCreditVal.value;
-          elements.inputCarVal.value = val;
-          elements.inputFipeVal.value = val;
-          updateUfTax();
-        }
+        const val = elements.inputConsCreditVal.value;
+        elements.inputCarVal.value = val;
+        elements.inputFipeVal.value = val;
+        updateUfTax();
         recalculate();
       });
 
@@ -1827,9 +1947,42 @@
       if (strategy === 'leverage') {
         elements.consorcioTopPanel.style.display = 'block';
         elements.groupCarVal.style.display = 'none'; // in consorcio, initial purchase is defined by the lance!
+        
+        // Auto-ensure Consórcio Carta is synchronized to Car Value from Tela 1
+        const carVal = parseMoney(elements.inputCarVal.value);
+        if (carVal > 0) {
+          const currentCredit = parseMoney(elements.inputConsCreditVal.value);
+          if (currentCredit !== carVal) {
+            elements.inputConsCreditVal.value = formatCurrency(carVal);
+            const currentLance = parseMoney(elements.inputConsLanceVal.value);
+            const lancePct = currentCredit > 0 ? (currentLance / currentCredit) : 0.30;
+            elements.inputConsLanceVal.value = formatCurrency(carVal * (lancePct > 0 ? lancePct : 0.30));
+          }
+        }
+        if (elements.mainHeroDesc) {
+          elements.mainHeroDesc.textContent = 'Tela 3: DRE Alavancagem (Consórcio) — carta de crédito e despesas operacionais preenchidas da Tela 1, projetando parcelas, lance e quitação final.';
+        }
+        if (elements.syncStatusText) {
+          elements.syncStatusText.textContent = 'Tela 3 ativa: Carta de consórcio e custos operacionais integrados da Tela 1';
+        }
+      } else if (strategy === 'snowball') {
+        elements.consorcioTopPanel.style.display = 'none';
+        elements.groupCarVal.style.display = 'flex';
+        if (elements.mainHeroDesc) {
+          elements.mainHeroDesc.textContent = 'Tela 2: DRE Reinvestindo (Bola de Neve) — reinveste o lucro gerado na compra de novos carros, mantendo todos os parâmetros da Tela 1.';
+        }
+        if (elements.syncStatusText) {
+          elements.syncStatusText.textContent = 'Tela 2 ativa: Parâmetros operacionais e valor de compra sincronizados da Tela 1';
+        }
       } else {
         elements.consorcioTopPanel.style.display = 'none';
         elements.groupCarVal.style.display = 'flex';
+        if (elements.mainHeroDesc) {
+          elements.mainHeroDesc.textContent = 'Tela 1: DRE e Fluxo de Caixa Real — receitas, custos operacionais detalhados, ROI mensal e liquidação final da frota.';
+        }
+        if (elements.syncStatusText) {
+          elements.syncStatusText.textContent = 'Tela 1: Preencha aqui para alimentar automaticamente as Telas 2 (Bola de Neve) e 3 (Consórcio)';
+        }
       }
 
       recalculate();
@@ -2112,6 +2265,9 @@
 
       // 10. RENDER CHART
       renderEquityChart(monthData, fipeVal, annualDeprecRate);
+
+      // 11. PERSIST SIMULATION STATE
+      saveSimulationState();
     }
 
     // ==========================================

@@ -2509,6 +2509,29 @@ function runCalculationsAndRender(options = {}) {
   const results = simulationService.calculate(data);
   const hSel = results.horizonteSelecionado;
 
+  // Persist simulation parameters so PRO module screens automatically inherit all numbers
+  try {
+    const monthlyRent = (data.valorSemanal * (data.semanasMes || 4.3));
+    localStorage.setItem('locador_last_simulation', JSON.stringify({
+      carPurchaseVal: data.valorPago,
+      fipeVal: data.valorFipe,
+      rentVal: monthlyRent,
+      upsellM1Val: data.valorCaucao,
+      uf: state.selectedUf || 'SP',
+      ipvaVal: data.ipvaLicenciamento,
+      trackerVal: data.rastreador,
+      insuranceVal: data.seguro,
+      maintRecVal: data.manutencao,
+      contabRecVal: data.contabilidade || 0,
+      taxRate: data.aliquotaImposto || 0,
+      reserveFundVal: data.fundoReserva || 0,
+      deprecRate: (results.depreciacaoAnualEstimada || 8),
+      horizon: data.prazoAnaliseMeses || 24
+    }));
+  } catch (e) {
+    // Ignore localStorage storage errors
+  }
+
   // Header Date
   if (elements.reportGeneratedDate) {
     elements.reportGeneratedDate.textContent = `Data: ${new Date().toLocaleDateString('pt-BR')}`;
