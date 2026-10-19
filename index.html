@@ -374,6 +374,59 @@
             </div>
           </div>
 
+          <!-- OPERAÇÃO ALAVANCADA (FINANCIAMENTO) -->
+          <div class="leverage-section">
+            <div class="leverage-header-row">
+              <div class="leverage-label-group">
+                <span class="leverage-title">Operação Alavancada?</span>
+                <span class="leverage-subtitle">Informe se o veículo será adquirido via financiamento / crédito</span>
+              </div>
+              <div class="leverage-toggle-group" role="group" aria-label="Operação Alavancada">
+                <button type="button" class="leverage-option-btn" id="btn-leverage-sim" data-value="sim">SIM</button>
+                <button type="button" class="leverage-option-btn active" id="btn-leverage-nao" data-value="nao">NÃO</button>
+              </div>
+            </div>
+
+            <!-- Collapsible Financing Fields -->
+            <div class="leverage-fields-wrapper" id="leverage-fields-container" style="display: none;">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="leverage-entrada">Valor de Entrada (R$)</label>
+                  <input type="text" id="leverage-entrada" placeholder="R$ 0,00" value="R$ 0,00">
+                </div>
+
+                <div class="form-group">
+                  <label for="leverage-financiado">Valor Financiado (R$)</label>
+                  <input type="text" id="leverage-financiado" placeholder="R$ 0,00" value="R$ 0,00">
+                </div>
+
+                <div class="form-group">
+                  <label for="leverage-qtd-parcelas">Quantidade de Parcelas</label>
+                  <input type="number" id="leverage-qtd-parcelas" min="1" max="120" step="1" placeholder="Ex: 48">
+                </div>
+
+                <div class="form-group">
+                  <label for="leverage-valor-parcela">Valor da Parcela (R$)</label>
+                  <input type="text" id="leverage-valor-parcela" placeholder="R$ 0,00" value="R$ 0,00">
+                </div>
+              </div>
+
+              <!-- CCB / CET Legal Advisory Alert -->
+              <div class="leverage-ccb-alert">
+                <div class="leverage-ccb-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                </div>
+                <p class="leverage-ccb-text">
+                  Não esqueça de solicitar a <strong>CCB</strong> ou <strong>CET</strong> em caso de operação financeira e verifique quais os produtos e tarifas que estão sendo cobradas além das taxas de impostos que são calculados, esses dois documentos são por direito e necessários serem apresentados ao <strong>LOCADOR</strong> antes de confirmar a operação de crédito.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div class="btn-row">
             <button type="button" class="btn btn-secondary btn-prev">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -642,6 +695,16 @@
                 <span class="dre-val" id="dre-depreciacao">R$ -692,50</span>
               </div>
 
+              <div class="dre-row opex-header" id="dre-financiamento-header" style="display: none; font-weight: 600; padding: 6px 14px 2px 14px; font-size: 13px; color: var(--text-muted)">
+                <span>(-) FINANCIAMENTO / ALAVANCAGEM</span>
+                <span id="dre-financiamento-total">R$ 0,00</span>
+              </div>
+
+              <div class="dre-row expense dre-indent" id="dre-financiamento-row" style="display: none;">
+                <span id="dre-financiamento-label">Parcela do Financiamento</span>
+                <span class="dre-val" id="dre-financiamento-val">R$ 0,00</span>
+              </div>
+
               <div class="dre-row total-expenses">
                 <span>(-) TOTAL DE SAÍDAS</span>
                 <span class="dre-val" id="dre-saidas-total">R$ -1.570,97</span>
@@ -700,7 +763,7 @@
 
             <!-- Monthly ROI -->
             <div class="metric-card success" id="metric-card-roi">
-              <span class="metric-label">Retorno Mensal (ROI)</span>
+              <span class="metric-label" id="kpi-roi-label">Retorno Mensal (ROI)</span>
               <span class="metric-value" id="kpi-roi-mensal">2.18%</span>
               <span class="metric-subtext" id="kpi-roi-anual">Taxa Anual Equivalente: 26.16%</span>
             </div>
@@ -709,7 +772,7 @@
             <div class="metric-card" id="metric-card-payback">
               <span class="metric-label">Payback (Retorno Capital)</span>
               <span class="metric-value" id="kpi-payback">45.8 meses</span>
-              <span class="metric-subtext">Tempo estimado para recuperar o valor pago</span>
+              <span class="metric-subtext" id="kpi-payback-subtext">Tempo estimado para recuperar o valor pago</span>
             </div>
 
             <!-- Margem Líquida -->

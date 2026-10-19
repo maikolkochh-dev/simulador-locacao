@@ -36,6 +36,14 @@ export const simulationService = {
     const valorCaucao = Number(data.valorCaucao) || 0;
     const valorSemanal = Number(data.valorSemanal) || 0;
     const semanasMes = Number(data.semanasMes) || this.DEFAULTS.WEEKS_PER_MONTH;
+
+    // Leveraged Operation (Financing)
+    const isLeveraged = Boolean(data.isLeveraged);
+    const valorEntrada = isLeveraged ? (Number(data.valorEntrada) || 0) : 0;
+    const valorFinanciado = isLeveraged ? (Number(data.valorFinanciado) || 0) : 0;
+    const qtdParcelas = isLeveraged ? (Number(data.qtdParcelas) || 0) : 0;
+    const valorParcela = isLeveraged ? (Number(data.valorParcela) || 0) : 0;
+    const parcelaFinanciamento = isLeveraged ? valorParcela : 0;
     
     // Revenue calculations
     const receitaBrutaMensal = valorSemanal * semanasMes;
@@ -75,18 +83,21 @@ export const simulationService = {
 
     const totalProvisoes = fundoReserva + depreciacaoMensal;
 
-    // DRE Totals
-    const custosTotaisMensais = impostosSimplesNacional + custosOperacionaisRecorrentes + totalProvisoes;
+    // DRE Totals (includes financing installment when leveraged)
+    const custosTotaisMensais = impostosSimplesNacional + custosOperacionaisRecorrentes + totalProvisoes + parcelaFinanciamento;
     
     // Profit lines
     const lucroOperacional = receitaLiquidaMensal - custosOperacionaisRecorrentes;
     const lucroLiquido = receitaBrutaMensal - custosTotaisMensais;
     
+    // Capital base for ROI & Payback: Valor de Entrada (own capital) when leveraged, fallback to Valor Pago
+    const capitalInvestido = (isLeveraged && valorEntrada > 0) ? valorEntrada : valorPago;
+
     // Indicators
     const margemLiquida = receitaBrutaMensal > 0 ? (lucroLiquido / receitaBrutaMensal) : 0;
-    const roiMensal = valorPago > 0 ? (lucroLiquido / valorPago) : 0;
+    const roiMensal = capitalInvestido > 0 ? (lucroLiquido / capitalInvestido) : 0;
     const roiAnual = roiMensal * 12;
-    const paybackMeses = lucroLiquido > 0 ? (valorPago / lucroLiquido) : Infinity;
+    const paybackMeses = (lucroLiquido > 0 && capitalInvestido > 0) ? (capitalInvestido / lucroLiquido) : Infinity;
     
     // Comparison with FIPE (Discount or Premium)
     const descontoSobreFipe = valorFipe > 0 ? ((valorFipe - valorPago) / valorFipe) : 0;
@@ -100,6 +111,7 @@ export const simulationService = {
       receitaLiquidaMensal,
       custosOperacionaisRecorrentes,
       totalProvisoes,
+      parcelaFinanciamento,
       custosTotaisMensais,
       lucroOperacional,
       lucroLiquido,
@@ -107,6 +119,8 @@ export const simulationService = {
       roiMensal,
       roiAnual,
       paybackMeses,
+      capitalInvestido,
+      isLeveraged,
       descontoSobreFipe,
       fundoReserva,
       depreciacaoMensal,
@@ -118,7 +132,12 @@ export const simulationService = {
         valorFipe,
         valorCaucao,
         valorSemanal,
-        semanasMes
+        semanasMes,
+        isLeveraged,
+        valorEntrada,
+        valorFinanciado,
+        qtdParcelas,
+        valorParcela
       },
       custosDetalhados: {
         rastreador,
@@ -129,7 +148,8 @@ export const simulationService = {
         ipvaLicenciamento,
         impostosSimplesNacional,
         fundoReserva,
-        depreciacaoMensal
+        depreciacaoMensal,
+        parcelaFinanciamento
       }
     };
   },

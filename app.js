@@ -21,7 +21,13 @@ const state = {
     yearName: '',
     valorFipe: 0,
     valorPago: 0,
-    isManual: false
+    isManual: false,
+    isLeveraged: false,
+    valorEntrada: 0,
+    valorFinanciado: 0,
+    qtdParcelas: 0,
+    valorParcela: 0,
+    isFinanciadoManual: false
   },
   rental: {
     valorCaucao: 0,
@@ -79,6 +85,7 @@ const elements = {
   linkGoToRegister: document.getElementById('link-go-to-register'),
 
   // Step 2: Vehicle & FIPE
+  vehicleForm: document.getElementById('vehicle-form'),
   fipeManualToggle: document.getElementById('fipe-manual-toggle'),
   fipeSelectorsGrid: document.getElementById('fipe-selectors-grid'),
   manualVehicleGrid: document.getElementById('manual-vehicle-grid'),
@@ -89,6 +96,13 @@ const elements = {
   manualModel: document.getElementById('manual-model'),
   valorFipeInput: document.getElementById('vehicle-valor-fipe'),
   valorPagoInput: document.getElementById('vehicle-valor-pago'),
+  btnLeverageSim: document.getElementById('btn-leverage-sim'),
+  btnLeverageNao: document.getElementById('btn-leverage-nao'),
+  leverageFieldsContainer: document.getElementById('leverage-fields-container'),
+  leverageEntradaInput: document.getElementById('leverage-entrada'),
+  leverageFinanciadoInput: document.getElementById('leverage-financiado'),
+  leverageQtdParcelasInput: document.getElementById('leverage-qtd-parcelas'),
+  leverageValorParcelaInput: document.getElementById('leverage-valor-parcela'),
   fipeFeedbackArea: document.getElementById('fipe-feedback-area'),
   fipeSpinner: document.getElementById('fipe-spinner'),
   fipePreviewCard: document.getElementById('fipe-preview-card'),
@@ -139,6 +153,11 @@ const elements = {
   dreProvisoesTotal: document.getElementById('dre-provisoes-total'),
   dreFundoReserva: document.getElementById('dre-fundo-reserva'),
   dreDepreciacao: document.getElementById('dre-depreciacao'),
+  dreFinanciamentoHeader: document.getElementById('dre-financiamento-header'),
+  dreFinanciamentoTotal: document.getElementById('dre-financiamento-total'),
+  dreFinanciamentoRow: document.getElementById('dre-financiamento-row'),
+  dreFinanciamentoLabel: document.getElementById('dre-financiamento-label'),
+  dreFinanciamentoVal: document.getElementById('dre-financiamento-val'),
   dreSaidasTotal: document.getElementById('dre-saidas-total'),
   dreLucroLiquido: document.getElementById('dre-lucro-liquido'),
 
@@ -148,9 +167,11 @@ const elements = {
   riskBadge: document.getElementById('risk-badge'),
   riskDesc: document.getElementById('risk-desc'),
   metricCardRoi: document.getElementById('metric-card-roi'),
+  kpiRoiLabel: document.getElementById('kpi-roi-label'),
   kpiRoiMensal: document.getElementById('kpi-roi-mensal'),
   kpiRoiAnual: document.getElementById('kpi-roi-anual'),
   kpiPayback: document.getElementById('kpi-payback'),
+  kpiPaybackSubtext: document.getElementById('kpi-payback-subtext'),
   kpiMargem: document.getElementById('kpi-margem'),
   kpiFipeDesconto: document.getElementById('kpi-fipe-desconto'),
   kpiFipeDetalhe: document.getElementById('kpi-fipe-detalhe'),
@@ -283,6 +304,9 @@ function init() {
   utils.setupPhoneMask(elements.regTelefone);
   utils.setupCurrencyMask(elements.valorFipeInput);
   utils.setupCurrencyMask(elements.valorPagoInput);
+  if (elements.leverageEntradaInput) utils.setupCurrencyMask(elements.leverageEntradaInput);
+  if (elements.leverageFinanciadoInput) utils.setupCurrencyMask(elements.leverageFinanciadoInput);
+  if (elements.leverageValorParcelaInput) utils.setupCurrencyMask(elements.leverageValorParcelaInput);
   utils.setupCurrencyMask(elements.valorCaucaoInput);
   utils.setupCurrencyMask(elements.valorSemanalInput);
   utils.setupCurrencyMask(elements.costRastreador);
@@ -311,6 +335,20 @@ function init() {
 
   // Load the Landing Page at first loading
   showLandingPage();
+}
+
+/**
+ * Helper to auto-calculate Valor Financiado = max(0, Valor Pago - Valor de Entrada)
+ */
+function updateAutoFinanciado() {
+  if (!state.vehicle.isLeveraged || state.vehicle.isFinanciadoManual) return;
+  const valorPago = utils.parseCurrency(elements.valorPagoInput.value);
+  const valorEntrada = utils.parseCurrency(elements.leverageEntradaInput.value);
+  if (valorPago > 0) {
+    const financiado = Math.max(0, valorPago - valorEntrada);
+    elements.leverageFinanciadoInput.value = financiado > 0 ? utils.formatCurrency(financiado) : 'R$ 0,00';
+    state.vehicle.valorFinanciado = financiado;
+  }
 }
 
 /**
@@ -493,7 +531,8 @@ function bindEvents() {
     elements.userWidget.style.display = 'none';
     
     // Clear forms and reset state
-    elements.authForm.reset();
+    if (elements.registerForm) elements.registerForm.reset();
+    if (elements.loginForm) elements.loginForm.reset();
     resetSimulationState();
     goToStep(1);
   });
@@ -616,11 +655,50 @@ function bindEvents() {
   // Smart defaults triggers
   elements.valorPagoInput.addEventListener('blur', () => {
     triggerSmartDefaults();
+    updateAutoFinanciado();
+  });
+
+  elements.valorPagoInput.addEventListener('input', () => {
+    updateAutoFinanciado();
   });
 
   elements.valorFipeInput.addEventListener('blur', () => {
     triggerSmartDefaults();
   });
+
+  // Operação Alavancada (SIM / NÃO) Toggle & Inputs
+  if (elements.btnLeverageSim && elements.btnLeverageNao) {
+    elements.btnLeverageSim.addEventListener('click', () => {
+      state.vehicle.isLeveraged = true;
+      elements.btnLeverageSim.classList.add('active');
+      elements.btnLeverageNao.classList.remove('active');
+      elements.leverageFieldsContainer.style.display = 'block';
+      updateAutoFinanciado();
+    });
+
+    elements.btnLeverageNao.addEventListener('click', () => {
+      state.vehicle.isLeveraged = false;
+      elements.btnLeverageNao.classList.add('active');
+      elements.btnLeverageSim.classList.remove('active');
+      elements.leverageFieldsContainer.style.display = 'none';
+    });
+  }
+
+  if (elements.leverageEntradaInput) {
+    elements.leverageEntradaInput.addEventListener('input', () => {
+      state.vehicle.isFinanciadoManual = false;
+      updateAutoFinanciado();
+    });
+    elements.leverageEntradaInput.addEventListener('blur', () => {
+      updateAutoFinanciado();
+    });
+  }
+
+  if (elements.leverageFinanciadoInput) {
+    elements.leverageFinanciadoInput.addEventListener('input', () => {
+      state.vehicle.isFinanciadoManual = true;
+    });
+  }
 
   // Step 4 Costs: Optional Reserve Fund Toggle
   elements.reserveFundToggle.addEventListener('change', (e) => {
@@ -754,6 +832,10 @@ function validateStep2() {
   elements.fipeYear.style.borderColor = '';
   elements.manualBrand.style.borderColor = '';
   elements.manualModel.style.borderColor = '';
+  if (elements.leverageEntradaInput) elements.leverageEntradaInput.style.borderColor = '';
+  if (elements.leverageFinanciadoInput) elements.leverageFinanciadoInput.style.borderColor = '';
+  if (elements.leverageQtdParcelasInput) elements.leverageQtdParcelasInput.style.borderColor = '';
+  if (elements.leverageValorParcelaInput) elements.leverageValorParcelaInput.style.borderColor = '';
 
   const valorPago = utils.parseCurrency(elements.valorPagoInput.value);
   if (valorPago <= 0) {
@@ -789,6 +871,30 @@ function validateStep2() {
     }
     if (!elements.fipeYear.value) {
       elements.fipeYear.style.borderColor = 'var(--color-danger)';
+      isValid = false;
+    }
+  }
+
+  if (state.vehicle.isLeveraged) {
+    const entrada = utils.parseCurrency(elements.leverageEntradaInput.value);
+    const financiado = utils.parseCurrency(elements.leverageFinanciadoInput.value);
+    const qtdParcelas = parseInt(elements.leverageQtdParcelasInput.value, 10) || 0;
+    const valorParcela = utils.parseCurrency(elements.leverageValorParcelaInput.value);
+
+    if (entrada < 0) {
+      elements.leverageEntradaInput.style.borderColor = 'var(--color-danger)';
+      isValid = false;
+    }
+    if (financiado <= 0) {
+      elements.leverageFinanciadoInput.style.borderColor = 'var(--color-danger)';
+      isValid = false;
+    }
+    if (qtdParcelas <= 0) {
+      elements.leverageQtdParcelasInput.style.borderColor = 'var(--color-danger)';
+      isValid = false;
+    }
+    if (valorParcela <= 0) {
+      elements.leverageValorParcelaInput.style.borderColor = 'var(--color-danger)';
       isValid = false;
     }
   }
@@ -947,7 +1053,7 @@ async function loadBrands() {
  * Resets vehicle dropdown selections and calculations
  */
 function resetSimulationState() {
-  elements.vehicleForm.reset();
+  if (elements.vehicleForm) elements.vehicleForm.reset();
   elements.rentalForm.reset();
   elements.costsForm.reset();
   
@@ -960,8 +1066,20 @@ function resetSimulationState() {
     yearName: '',
     valorFipe: 0,
     valorPago: 0,
-    isManual: false
+    isManual: false,
+    isLeveraged: false,
+    valorEntrada: 0,
+    valorFinanciado: 0,
+    qtdParcelas: 0,
+    valorParcela: 0,
+    isFinanciadoManual: false
   };
+
+  if (elements.btnLeverageSim && elements.btnLeverageNao) {
+    elements.btnLeverageNao.classList.add('active');
+    elements.btnLeverageSim.classList.remove('active');
+    elements.leverageFieldsContainer.style.display = 'none';
+  }
 
   state.costs = {
     rastreador: 50,
@@ -1224,11 +1342,19 @@ function shareSimulationOnWhatsApp() {
   const roi = elements.kpiRoiAnual.textContent;
   const payback = elements.kpiPayback.textContent;
 
+  let leverageText = '';
+  if (state.vehicle.isLeveraged) {
+    const entrada = elements.leverageEntradaInput.value || 'R$ 0,00';
+    const qtd = elements.leverageQtdParcelasInput.value || '0';
+    const parcela = elements.leverageValorParcelaInput.value || 'R$ 0,00';
+    leverageText = `\n*Operação Alavancada:* Entrada ${entrada} + ${qtd}x de ${parcela}`;
+  }
+
   const message = 
 `🚗 *LOCADOR NÔMADE - SIMULAÇÃO FINANCEIRA DE LOCAÇÃO* 🚗
 
 *Veículo:* ${brand} ${model}
-*Preço FIPE:* ${fipe} | *Pago:* ${pago}
+*Preço FIPE:* ${fipe} | *Pago:* ${pago}${leverageText}
 *Valor da Locação:* ${semanal} por semana
 
 *--- RESULTADO DRE MENSAL ---*
@@ -1244,7 +1370,7 @@ function shareSimulationOnWhatsApp() {
 👉 *@locadornomade*
 
 *Faça sua própria simulação em:*
-👉 http://localhost:3000`;
+👉 https://simulador.locadornomade.com`;
 
   const encodedMessage = encodeURIComponent(message);
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
@@ -1262,6 +1388,11 @@ function runCalculationsAndRender() {
   const data = {
     valorPago: utils.parseCurrency(elements.valorPagoInput.value),
     valorFipe: utils.parseCurrency(elements.valorFipeInput.value),
+    isLeveraged: state.vehicle.isLeveraged,
+    valorEntrada: state.vehicle.isLeveraged ? utils.parseCurrency(elements.leverageEntradaInput.value) : 0,
+    valorFinanciado: state.vehicle.isLeveraged ? utils.parseCurrency(elements.leverageFinanciadoInput.value) : 0,
+    qtdParcelas: state.vehicle.isLeveraged ? (parseInt(elements.leverageQtdParcelasInput.value, 10) || 0) : 0,
+    valorParcela: state.vehicle.isLeveraged ? utils.parseCurrency(elements.leverageValorParcelaInput.value) : 0,
     valorCaucao: utils.parseCurrency(elements.valorCaucaoInput.value),
     valorSemanal: utils.parseCurrency(elements.valorSemanalInput.value),
     semanasMes: parseFloat(elements.semanasMesInput.value) || 4.3,
@@ -1309,6 +1440,23 @@ function runCalculationsAndRender() {
   elements.dreFundoReserva.textContent = `R$ -${utils.formatCurrency(results.fundoReserva).replace('R$', '').trim()}`;
   elements.dreDepreciacao.textContent = `R$ -${utils.formatCurrency(results.depreciacaoMensal).replace('R$', '').trim()}`;
 
+  // Financing / Leverage rows in DRE
+  if (results.isLeveraged && results.parcelaFinanciamento > 0) {
+    if (elements.dreFinanciamentoHeader) elements.dreFinanciamentoHeader.style.display = 'flex';
+    if (elements.dreFinanciamentoRow) elements.dreFinanciamentoRow.style.display = 'flex';
+    const parcelaFormatted = `R$ -${utils.formatCurrency(results.parcelaFinanciamento).replace('R$', '').trim()}`;
+    if (elements.dreFinanciamentoTotal) elements.dreFinanciamentoTotal.textContent = parcelaFormatted;
+    if (elements.dreFinanciamentoVal) elements.dreFinanciamentoVal.textContent = parcelaFormatted;
+    if (elements.dreFinanciamentoLabel) {
+      elements.dreFinanciamentoLabel.textContent = results.inputs.qtdParcelas > 0
+        ? `Parcela do Financiamento (${results.inputs.qtdParcelas}x)`
+        : 'Parcela do Financiamento';
+    }
+  } else {
+    if (elements.dreFinanciamentoHeader) elements.dreFinanciamentoHeader.style.display = 'none';
+    if (elements.dreFinanciamentoRow) elements.dreFinanciamentoRow.style.display = 'none';
+  }
+
   elements.dreSaidasTotal.textContent = `R$ -${utils.formatCurrency(results.custosTotaisMensais).replace('R$', '').trim()}`;
   
   // Format net profit depending on it being positive or negative
@@ -1329,6 +1477,11 @@ function runCalculationsAndRender() {
 
   // KPI Scorecards
   // ROI
+  if (elements.kpiRoiLabel) {
+    elements.kpiRoiLabel.textContent = (results.isLeveraged && results.inputs.valorEntrada > 0)
+      ? 'ROI MENSAL / ANUAL (SOBRE ENTRADA)'
+      : 'ROI MENSAL / ANUAL';
+  }
   elements.kpiRoiMensal.textContent = utils.formatPercent(results.roiMensal);
   elements.kpiRoiAnual.textContent = `Taxa Anual Equivalente: ${utils.formatPercent(results.roiAnual)}`;
   elements.metricCardRoi.className = `metric-card ${r.status}`;
@@ -1338,6 +1491,11 @@ function runCalculationsAndRender() {
     elements.kpiPayback.textContent = 'N/A';
   } else {
     elements.kpiPayback.textContent = `${results.paybackMeses.toFixed(1)} meses`;
+  }
+  if (elements.kpiPaybackSubtext) {
+    elements.kpiPaybackSubtext.textContent = (results.isLeveraged && results.inputs.valorEntrada > 0)
+      ? `Retorno sobre Entrada (${utils.formatCurrency(results.inputs.valorEntrada)})`
+      : 'Retorno total do capital investido';
   }
   
   // Margem Líquida
@@ -1373,10 +1531,10 @@ function renderDistributionChart(results) {
     return;
   }
 
-  // Calculate slices ratios
+  // Calculate slices ratios (including financing installment in OPEX slice)
   const profitPct = results.lucroLiquido / rev;
   const taxesPct = results.impostosSimplesNacional / rev;
-  const opexPct = results.custosOperacionaisRecorrentes / rev;
+  const opexPct = (results.custosOperacionaisRecorrentes + (results.parcelaFinanciamento || 0)) / rev;
   const provPct = results.totalProvisoes / rev;
 
   elements.sliceProfit.style.width = `${profitPct * 100}%`;

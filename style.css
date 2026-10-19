@@ -1830,6 +1830,127 @@ body::before {
 }
 
 /* ==========================================================================
+   OPERAÇÃO ALAVANCADA (FINANCIAMENTO) SECTION
+   ========================================================================== */
+.leverage-section {
+  margin-top: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  transition: all 0.25s ease;
+}
+
+.leverage-section.active-leverage {
+  border-color: rgba(0, 242, 254, 0.3);
+  background: rgba(0, 242, 254, 0.02);
+  box-shadow: 0 8px 25px -10px rgba(0, 242, 254, 0.1);
+}
+
+.leverage-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.leverage-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.leverage-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.leverage-subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.leverage-toggle-group {
+  display: inline-flex;
+  background: rgba(8, 12, 20, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  gap: 6px;
+}
+
+.leverage-option-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.04em;
+}
+
+.leverage-option-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.leverage-option-btn.active[data-value="sim"] {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.18);
+}
+
+.leverage-option-btn.active[data-value="nao"] {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text-main);
+}
+
+.leverage-fields-wrapper {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  animation: fadeIn 0.25s ease;
+}
+
+.leverage-ccb-alert {
+  margin-top: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(245, 158, 11, 0.07);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.leverage-ccb-icon {
+  color: var(--color-warning);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.leverage-ccb-text {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #E2E8F0;
+  margin: 0;
+}
+
+.leverage-ccb-text strong {
+  color: var(--color-warning);
+  font-weight: 700;
+}
+
+/* ==========================================================================
    CONSULTANCY CARD, PRINT & SHARE BUTTONS
    ========================================================================== */
 .btn-print {
