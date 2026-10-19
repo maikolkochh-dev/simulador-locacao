@@ -1759,20 +1759,19 @@ body::before {
 
 /* Future Depreciation Scenario Selectors */
 .depreciation-scenarios {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin-top: 8px;
   width: 100%;
 }
 
 .scenario-btn {
-  flex: 1 1 calc(25% - 8px);
-  min-width: 100px;
+  width: 100%;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  padding: 9px 8px;
   color: var(--text-muted);
   font-size: 11.5px;
   font-weight: 600;
@@ -1780,6 +1779,10 @@ body::before {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .scenario-btn:hover {
