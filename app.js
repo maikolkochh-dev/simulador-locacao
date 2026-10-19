@@ -660,56 +660,69 @@ function recalculateStateIpvaAndLicenciamento(options = {}) {
 // BUSCA AUTOMÁTICA DA IMAGEM DO VEÍCULO (WIKIPEDIA API + BANCO CURADO)
 // ==========================================================================
 const CURATED_CAR_PHOTOS = [
-  { match: /\bmobi\b/i, wikiQuery: 'Fiat Mobi' },
-  { match: /\bkwid\b/i, wikiQuery: 'Renault Kwid' },
-  { match: /\bonix\b/i, wikiQuery: 'Chevrolet Onix' },
-  { match: /\bprisma\b/i, wikiQuery: 'Chevrolet Prisma' },
-  { match: /\bhb20s?\b/i, wikiQuery: 'Hyundai HB20' },
-  { match: /\bargo\b/i, wikiQuery: 'Fiat Argo' },
-  { match: /\bcronos\b/i, wikiQuery: 'Fiat Cronos' },
-  { match: /\bstrada\b/i, wikiQuery: 'Fiat Strada' },
-  { match: /\buno\b/i, wikiQuery: 'Fiat Novo Uno' },
-  { match: /\bpulse\b/i, wikiQuery: 'Fiat Pulse' },
-  { match: /\bfastback\b/i, wikiQuery: 'Fiat Fastback' },
-  { match: /\btoro\b/i, wikiQuery: 'Fiat Toro' },
-  { match: /\bsiena\b/i, wikiQuery: 'Fiat Grand Siena' },
-  { match: /\bpalio\b/i, wikiQuery: 'Fiat Palio' },
-  { match: /\bgol\b/i, wikiQuery: 'Volkswagen Gol' },
-  { match: /\bvoyage\b/i, wikiQuery: 'Volkswagen Voyage' },
-  { match: /\bpolo\b/i, wikiQuery: 'Volkswagen Polo' },
-  { match: /\bvirtus\b/i, wikiQuery: 'Volkswagen Virtus' },
-  { match: /\bt-?cross\b/i, wikiQuery: 'Volkswagen T-Cross' },
-  { match: /\bnivus\b/i, wikiQuery: 'Volkswagen Nivus' },
-  { match: /\bsaveiro\b/i, wikiQuery: 'Volkswagen Saveiro' },
-  { match: /\bup!?\b/i, wikiQuery: 'Volkswagen Up' },
-  { match: /\bfox\b/i, wikiQuery: 'Volkswagen Fox' },
-  { match: /\bsandero\b/i, wikiQuery: 'Renault Sandero' },
-  { match: /\blogan\b/i, wikiQuery: 'Renault Logan' },
-  { match: /\bduster\b/i, wikiQuery: 'Renault Duster' },
-  { match: /\bkardian\b/i, wikiQuery: 'Renault Kardian' },
-  { match: /\b208\b/i, wikiQuery: 'Peugeot 208' },
-  { match: /\b2008\b/i, wikiQuery: 'Peugeot 2008' },
-  { match: /\bc3\b/i, wikiQuery: 'Citroën C3' },
-  { match: /\bc4\s*cactus\b/i, wikiQuery: 'Citroën C4 Cactus' },
-  { match: /\bka\b/i, wikiQuery: 'Ford Ka' },
-  { match: /\bfiesta\b/i, wikiQuery: 'Ford Fiesta' },
-  { match: /\becosport\b/i, wikiQuery: 'Ford EcoSport' },
-  { match: /\betios\b/i, wikiQuery: 'Toyota Etios' },
-  { match: /\byaris\b/i, wikiQuery: 'Toyota Yaris' },
-  { match: /\bcorolla\b/i, wikiQuery: 'Toyota Corolla' },
-  { match: /\bmarch\b/i, wikiQuery: 'Nissan Micra' },
-  { match: /\bversa\b/i, wikiQuery: 'Nissan Versa' },
-  { match: /\bkicks\b/i, wikiQuery: 'Nissan Kicks' },
-  { match: /\bfit\b/i, wikiQuery: 'Honda Fit' },
-  { match: /\bcity\b/i, wikiQuery: 'Honda City' },
-  { match: /\bhr-?v\b/i, wikiQuery: 'Honda HR-V' },
-  { match: /\brenegade\b/i, wikiQuery: 'Jeep Renegade' },
-  { match: /\bcompass\b/i, wikiQuery: 'Jeep Compass' },
-  { match: /\bspin\b/i, wikiQuery: 'Chevrolet Spin' },
-  { match: /\btracker\b/i, wikiQuery: 'Chevrolet Tracker' },
-  { match: /\bcobalt\b/i, wikiQuery: 'Chevrolet Cobalt' },
-  { match: /\bmontana\b/i, wikiQuery: 'Chevrolet Montana' },
-  { match: /\bdolphin\b/i, wikiQuery: 'BYD Dolphin' }
+  // Submodelos específicos primeiro (para não colidir com modelos-base)
+  { match: /\bdolphin\s*mini\b|\bseagull\b/i, wikiQuery: 'BYD Seagull', catalog: { title: 'BYD_Seagull', lang: 'en', displayName: 'BYD Dolphin Mini' } },
+  { match: /\bonix\s*plus\b/i, wikiQuery: 'Chevrolet Onix Plus', catalog: { title: 'Chevrolet_Onix_Plus', lang: 'pt', displayName: 'Chevrolet Onix Plus' } },
+  { match: /\bpolo\s*track\b/i, wikiQuery: 'Volkswagen Polo Track', catalog: { title: 'Volkswagen_Polo', lang: 'en', displayName: 'Volkswagen Polo Track' } },
+  { match: /\bhb20s\b/i, wikiQuery: 'Hyundai HB20S', catalog: { title: 'Hyundai_HB20', lang: 'pt', displayName: 'Hyundai HB20S' } },
+  { match: /\bcorolla\s*cross\b/i, wikiQuery: 'Toyota Corolla Cross', catalog: { title: 'Toyota_Corolla_Cross', lang: 'en', displayName: 'Toyota Corolla Cross' } },
+  { match: /\bc4\s*cactus\b/i, wikiQuery: 'Citroën C4 Cactus', catalog: { title: 'Citroën_C4_Cactus', lang: 'en', displayName: 'Citroën C4 Cactus' } },
+  { match: /\bgrand\s*siena\b/i, wikiQuery: 'Fiat Grand Siena', catalog: { title: 'Fiat_Siena', lang: 'en', displayName: 'Fiat Grand Siena' } },
+  { match: /\byuan\s*plus\b|\batto\s*3\b/i, wikiQuery: 'BYD Atto 3', catalog: { title: 'BYD_Atto_3', lang: 'en', displayName: 'BYD Yuan Plus' } },
+  { match: /\bsong\s*plus\b/i, wikiQuery: 'BYD Song Plus', catalog: { title: 'BYD_Song_Plus', lang: 'en', displayName: 'BYD Song Plus' } },
+  { match: /\bseal\b/i, wikiQuery: 'BYD Seal', catalog: { title: 'BYD_Seal', lang: 'en', displayName: 'BYD Seal' } },
+
+  // Modelos de entrada / hatches e sedans compactos mais alugados
+  { match: /\bmobi\b/i, wikiQuery: 'Fiat Mobi', catalog: { title: 'Fiat_Mobi', lang: 'en', displayName: 'Fiat Mobi' } },
+  { match: /\bkwid\b/i, wikiQuery: 'Renault Kwid', catalog: { title: 'Renault_Kwid', lang: 'en', displayName: 'Renault Kwid' } },
+  { match: /\bonix\b/i, wikiQuery: 'Chevrolet Onix', catalog: { title: 'Chevrolet_Onix', lang: 'en', displayName: 'Chevrolet Onix' } },
+  { match: /\bprisma\b/i, wikiQuery: 'Chevrolet Prisma', catalog: { title: 'Chevrolet_Prisma', lang: 'en', displayName: 'Chevrolet Prisma' } },
+  { match: /\bhb20\b/i, wikiQuery: 'Hyundai HB20', catalog: { title: 'Hyundai_HB20', lang: 'pt', displayName: 'Hyundai HB20' } },
+  { match: /\bargo\b/i, wikiQuery: 'Fiat Argo', catalog: { title: 'Fiat_Argo', lang: 'en', displayName: 'Fiat Argo' } },
+  { match: /\bcronos\b/i, wikiQuery: 'Fiat Cronos', catalog: { title: 'Fiat_Cronos', lang: 'pt', displayName: 'Fiat Cronos' } },
+  { match: /\bstrada\b/i, wikiQuery: 'Fiat Strada', catalog: { title: 'Fiat_Strada', lang: 'en', displayName: 'Fiat Strada' } },
+  { match: /\buno\b/i, wikiQuery: 'Fiat Uno', catalog: { title: 'Fiat_Uno', lang: 'en', displayName: 'Fiat Uno' } },
+  { match: /\bpulse\b/i, wikiQuery: 'Fiat Pulse', catalog: { title: 'Fiat_Pulse', lang: 'en', displayName: 'Fiat Pulse' } },
+  { match: /\bfastback\b/i, wikiQuery: 'Fiat Fastback', catalog: { title: 'Fiat_Fastback', lang: 'en', displayName: 'Fiat Fastback' } },
+  { match: /\btoro\b/i, wikiQuery: 'Fiat Toro', catalog: { title: 'Fiat_Toro', lang: 'en', displayName: 'Fiat Toro' } },
+  { match: /\bsiena\b/i, wikiQuery: 'Fiat Siena', catalog: { title: 'Fiat_Siena', lang: 'en', displayName: 'Fiat Siena' } },
+  { match: /\bpalio\b/i, wikiQuery: 'Fiat Palio', catalog: { title: 'Fiat_Palio', lang: 'en', displayName: 'Fiat Palio' } },
+  { match: /\bgol\b/i, wikiQuery: 'Volkswagen Gol', catalog: { title: 'Volkswagen_Gol', lang: 'en', displayName: 'Volkswagen Gol' } },
+  { match: /\bvoyage\b/i, wikiQuery: 'Volkswagen Voyage', catalog: { title: 'Volkswagen_Voyage', lang: 'pt', displayName: 'Volkswagen Voyage' } },
+  { match: /\bpolo\b/i, wikiQuery: 'Volkswagen Polo', catalog: { title: 'Volkswagen_Polo', lang: 'en', displayName: 'Volkswagen Polo' } },
+  { match: /\bvirtus\b/i, wikiQuery: 'Volkswagen Virtus', catalog: { title: 'Volkswagen_Virtus', lang: 'en', displayName: 'Volkswagen Virtus' } },
+  { match: /\bt-?cross\b/i, wikiQuery: 'Volkswagen T-Cross', catalog: { title: 'Volkswagen_T-Cross', lang: 'en', displayName: 'Volkswagen T-Cross' } },
+  { match: /\bnivus\b/i, wikiQuery: 'Volkswagen Taigo', catalog: { title: 'Volkswagen_Taigo', lang: 'en', displayName: 'Volkswagen Nivus' } },
+  { match: /\bsaveiro\b/i, wikiQuery: 'Volkswagen Saveiro', catalog: { title: 'Volkswagen_Saveiro', lang: 'pt', displayName: 'Volkswagen Saveiro' } },
+  { match: /\bup!?\b/i, wikiQuery: 'Volkswagen Up', catalog: { title: 'Volkswagen_Up', lang: 'en', displayName: 'Volkswagen Up' } },
+  { match: /\bfox\b/i, wikiQuery: 'Volkswagen Fox', catalog: { title: 'Volkswagen_Fox', lang: 'en', displayName: 'Volkswagen Fox' } },
+  { match: /\bsandero\b/i, wikiQuery: 'Renault Sandero', catalog: { title: 'Renault_Sandero', lang: 'en', displayName: 'Renault Sandero' } },
+  { match: /\blogan\b/i, wikiQuery: 'Renault Logan', catalog: { title: 'Renault_Logan', lang: 'en', displayName: 'Renault Logan' } },
+  { match: /\bduster\b/i, wikiQuery: 'Renault Duster', catalog: { title: 'Renault_Duster', lang: 'en', displayName: 'Renault Duster' } },
+  { match: /\bkardian\b/i, wikiQuery: 'Renault Kardian', catalog: { title: 'Renault_Kardian', lang: 'en', displayName: 'Renault Kardian' } },
+  { match: /\b208\b/i, wikiQuery: 'Peugeot 208', catalog: { title: 'Peugeot_208', lang: 'en', displayName: 'Peugeot 208' } },
+  { match: /\b2008\b/i, wikiQuery: 'Peugeot 2008', catalog: { title: 'Peugeot_2008', lang: 'en', displayName: 'Peugeot 2008' } },
+  { match: /\bc3\b/i, wikiQuery: 'Citroën C3', catalog: { title: 'Citroën_C3', lang: 'en', displayName: 'Citroën C3' } },
+  { match: /\bka\b/i, wikiQuery: 'Ford Ka', catalog: { title: 'Ford_Ka', lang: 'en', displayName: 'Ford Ka' } },
+  { match: /\bfiesta\b/i, wikiQuery: 'Ford Fiesta', catalog: { title: 'Ford_Fiesta', lang: 'en', displayName: 'Ford Fiesta' } },
+  { match: /\becosport\b/i, wikiQuery: 'Ford EcoSport', catalog: { title: 'Ford_EcoSport', lang: 'en', displayName: 'Ford EcoSport' } },
+  { match: /\betios\b/i, wikiQuery: 'Toyota Etios', catalog: { title: 'Toyota_Etios', lang: 'en', displayName: 'Toyota Etios' } },
+  { match: /\byaris\b/i, wikiQuery: 'Toyota Yaris', catalog: { title: 'Toyota_Yaris_(XP150)', lang: 'en', displayName: 'Toyota Yaris' } },
+  { match: /\bcorolla\b/i, wikiQuery: 'Toyota Corolla', catalog: { title: 'Toyota_Corolla_(E210)', lang: 'en', displayName: 'Toyota Corolla' } },
+  { match: /\bmarch\b/i, wikiQuery: 'Nissan Micra', catalog: { title: 'Nissan_Micra', lang: 'en', displayName: 'Nissan March' } },
+  { match: /\bversa\b/i, wikiQuery: 'Nissan Versa', catalog: { title: 'Nissan_Versa', lang: 'en', displayName: 'Nissan Versa' } },
+  { match: /\bkicks\b/i, wikiQuery: 'Nissan Kicks', catalog: { title: 'Nissan_Kicks', lang: 'en', displayName: 'Nissan Kicks' } },
+  { match: /\bfit\b/i, wikiQuery: 'Honda Fit', catalog: { title: 'Honda_Fit', lang: 'en', displayName: 'Honda Fit' } },
+  { match: /\bcity\b/i, wikiQuery: 'Honda City', catalog: { title: 'Honda_City', lang: 'en', displayName: 'Honda City' } },
+  { match: /\bhr-?v\b/i, wikiQuery: 'Honda HR-V', catalog: { title: 'Honda_HR-V', lang: 'en', displayName: 'Honda HR-V' } },
+  { match: /\brenegade\b/i, wikiQuery: 'Jeep Renegade', catalog: { title: 'Jeep_Renegade', lang: 'en', displayName: 'Jeep Renegade' } },
+  { match: /\bcompass\b/i, wikiQuery: 'Jeep Compass', catalog: { title: 'Jeep_Compass', lang: 'en', displayName: 'Jeep Compass' } },
+  { match: /\bcreta\b/i, wikiQuery: 'Hyundai Creta', catalog: { title: 'Hyundai_Creta', lang: 'en', displayName: 'Hyundai Creta' } },
+  { match: /\bspin\b/i, wikiQuery: 'Chevrolet Spin', catalog: { title: 'Chevrolet_Spin', lang: 'pt', displayName: 'Chevrolet Spin' } },
+  { match: /\btracker\b/i, wikiQuery: 'Chevrolet Tracker', catalog: { title: 'Chevrolet_Tracker', lang: 'pt', displayName: 'Chevrolet Tracker' } },
+  { match: /\bcobalt\b/i, wikiQuery: 'Chevrolet Cobalt', catalog: { title: 'Chevrolet_Cobalt', lang: 'pt', displayName: 'Chevrolet Cobalt' } },
+  { match: /\bmontana\b/i, wikiQuery: 'Chevrolet Montana', catalog: { title: 'Chevrolet_Montana', lang: 'pt', displayName: 'Chevrolet Montana' } },
+  { match: /\bdolphin\b/i, wikiQuery: 'BYD Dolphin', catalog: { title: 'BYD_Dolphin', lang: 'en', displayName: 'BYD Dolphin' } }
 ];
 
 /**
@@ -927,21 +940,54 @@ async function fetchVehicleImageAutomatically(brandName, modelName) {
   if (!fullLabel) return;
 
   let targetQuery = `${cleanBrand} ${cleanModelFirstWord}`.trim();
+  let matchedItem = null;
   for (const item of CURATED_CAR_PHOTOS) {
     if (item.match.test(fullLabel)) {
+      matchedItem = item;
       targetQuery = item.wikiQuery;
       break;
     }
   }
 
-  // 1. Gather candidate photos: first search specifically for white, then general model photos on Wikimedia Commons
+  // 1. TIER 1: Foto Oficial de Catálogo / Estúdio de Montadora (Lead Studio Press Shot)
+  if (matchedItem && matchedItem.catalog) {
+    try {
+      const { title, lang = 'en', displayName } = matchedItem.catalog;
+      const endpoint = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=960&origin=*`;
+      const res = await fetch(endpoint);
+      if (res.ok) {
+        const data = await res.json();
+        const pages = data?.query?.pages || {};
+        const firstPage = Object.values(pages)[0];
+        const catalogThumb = firstPage?.thumbnail?.source;
+        if (catalogThumb) {
+          const inspected = await inspectCarImageColors(catalogThumb);
+          let finalCatalogUrl = catalogThumb;
+          if (inspected && inspected.isRedCar) {
+            const converted = convertRedCarToWhiteDataUrl(inspected.imgElement);
+            if (converted) finalCatalogUrl = converted;
+          }
+          if (!state.vehicle.isCustomPhoto) {
+            state.vehicle.photoUrl = finalCatalogUrl;
+            state.vehicle.photoLicense = `Foto de Catálogo Oficial: ${displayName || targetQuery}`;
+            syncVehiclePhotoUI();
+            return; // Imagem oficial de estúdio aplicada com sucesso!
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Fallback catálogo oficial -> buscando commons:', e);
+    }
+  }
+
+  // 2. TIER 2: Busca por candidatos no Wikimedia Commons e Wikipedia Search
   const [whiteCandidates, modelCandidates, wikiPtCandidates] = await Promise.all([
     queryCommonsCandidateImages(`${targetQuery} white`, 6),
     queryCommonsCandidateImages(targetQuery, 12),
     queryWikipediaFallbackImages(targetQuery, 'pt')
   ]);
 
-  // Deduplicate candidate URLs keeping white-tagged candidates first
+  // Deduplica URLs candidatas mantendo candidatas com tag branca no topo
   const seenUrls = new Set();
   const allCandidates = [];
   for (const cand of [...whiteCandidates, ...modelCandidates, ...wikiPtCandidates]) {
@@ -953,7 +999,7 @@ async function fetchVehicleImageAutomatically(brandName, modelName) {
 
   if (allCandidates.length === 0) return;
 
-  // 2. Inspect top candidates' pixels in parallel to guarantee NEVER picking a red car and preferring white
+  // 3. Inspeciona pixels dos melhores candidatos em paralelo para banir carros vermelhos e priorizar branco
   const topToInspect = allCandidates.slice(0, 8);
   const inspectedList = (await Promise.all(topToInspect.map(async (cand) => {
     const res = await inspectCarImageColors(cand.url);
@@ -966,13 +1012,13 @@ async function fetchVehicleImageAutomatically(brandName, modelName) {
 
   if (inspectedList.length === 0) return;
 
-  // Filter out any red cars!
+  // Filtra qualquer carro vermelho
   const nonRedCars = inspectedList.filter(item => !item.isRedCar);
 
   let finalPhotoUrl = null;
 
   if (nonRedCars.length > 0) {
-    // Sort non-red cars so the whitest car photo wins first!
+    // Ordena de modo que a foto com carro mais branco/prata vença
     nonRedCars.sort((a, b) => {
       const scoreA = (a.whiteRatio * 3.0) + (a.neutralRatio * 1.2) + (a.metaPriority * 0.002) - (a.redRatio * 5.0);
       const scoreB = (b.whiteRatio * 3.0) + (b.neutralRatio * 1.2) + (b.metaPriority * 0.002) - (b.redRatio * 5.0);
@@ -980,7 +1026,7 @@ async function fetchVehicleImageAutomatically(brandName, modelName) {
     });
     finalPhotoUrl = nonRedCars[0].url;
   } else {
-    // Every candidate had red paint -> convert the best candidate's red paint into Pearl White on Canvas!
+    // Se todos os candidatos forem vermelhos, converte a lataria vermelha em Branco Pérola via Canvas
     const convertedWhiteUrl = convertRedCarToWhiteDataUrl(inspectedList[0].imgElement);
     finalPhotoUrl = convertedWhiteUrl || inspectedList[0].url;
   }
