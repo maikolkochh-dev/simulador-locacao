@@ -2592,7 +2592,7 @@ function runCalculationsAndRender(options = {}) {
 
   // 2. Depreciação em cima da FIPE nesse período escolhido
   if (elements.periodDepreciacaoFipe) {
-    elements.periodDepreciacaoFipe.textContent = `- ${utils.formatCurrency(hSel.depreciacaoPeriodoFipe)}`;
+    elements.periodDepreciacaoFipe.textContent = `-\u00A0${utils.formatCurrency(hSel.depreciacaoPeriodoFipe)}`;
   }
   if (elements.periodDepreciacaoFipeSub) {
     elements.periodDepreciacaoFipeSub.textContent =
