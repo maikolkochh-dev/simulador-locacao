@@ -1812,11 +1812,14 @@
 
             <div class="form-group">
               <label class="has-tooltip" tabindex="0">
-                <span>Seguro / Proteção (por carro/mês)</span>
+                <span>Seguro / Proteção (0,34% FIPE / mês)</span>
                 <span class="tooltip-icon">i</span>
-                <span class="tooltip-bubble">Mensalidade da proteção veicular ou seguro compreensivo com cobertura para motoristas de aplicativo / terceiros.</span>
+                <span class="tooltip-bubble">Calculado automaticamente com base na média oficial de mercado de 0,34% sobre o valor da Tabela FIPE do veículo (ex: FIPE R$ 50.000 = R$ 170,00/mês). Editável livremente caso sua cotação seja diferente.</span>
               </label>
-              <input type="text" id="input-insurance" class="form-input" value="R$ 200,00">
+              <input type="text" id="input-insurance" class="form-input" value="R$ 170,00">
+              <div id="insurance-fipe-hint" style="font-size: 11px; color: #94A3B8; margin-top: 4px;">
+                Média de <strong>0,34% sobre a FIPE</strong> (R$ 170,00/mês) &bull; Editável
+              </div>
             </div>
 
             <div class="form-group">
@@ -2109,6 +2112,7 @@
     let currentStudent = null;
     let equityChartInstance = null;
     let currentVacancy = 0; // percentage: 0, 5, 10, 15, 20, 25, 30, 35
+    let isInsuranceManual = false;
 
     const VACANCY_INFO = {
       0: {
@@ -2195,6 +2199,7 @@
       inputReserveFund: document.getElementById('input-reserve-fund'),
       inputTracker: document.getElementById('input-tracker'),
       inputInsurance: document.getElementById('input-insurance'),
+      insuranceFipeHint: document.getElementById('insurance-fipe-hint'),
       inputMaintM1: document.getElementById('input-maint-m1'),
       inputMaintRec: document.getElementById('input-maint-rec'),
       inputContabM1: document.getElementById('input-contab-m1'),
@@ -2275,6 +2280,7 @@
       setupEvents();
       loadSavedSimulationState();
       updateUfTax();
+      updateInsuranceFromFipe(false);
       syncCarValToConsorcio();
       updateFipeDiffBadge();
       initFipeQuickSelector();
@@ -2408,6 +2414,8 @@
 
           updateFipeDiffBadge();
           updateUfTax();
+          isInsuranceManual = false;
+          updateInsuranceFromFipe(true);
           syncCarValToConsorcio();
           recalculate();
 
@@ -2511,7 +2519,14 @@
           if (p.ipva) elements.inputIpva.value = p.ipva;
           if (p.reserveFund) elements.inputReserveFund.value = p.reserveFund;
           if (p.tracker) elements.inputTracker.value = p.tracker;
-          if (p.insurance) elements.inputInsurance.value = p.insurance;
+          if (typeof p.isInsuranceManual === 'boolean') {
+            isInsuranceManual = p.isInsuranceManual;
+          }
+          if (p.insurance) {
+            elements.inputInsurance.value = p.insurance;
+          } else {
+            updateInsuranceFromFipe(false);
+          }
           if (p.maintM1) elements.inputMaintM1.value = p.maintM1;
           if (p.maintRec) elements.inputMaintRec.value = p.maintRec;
           if (p.contabM1) elements.inputContabM1.value = p.contabM1;
@@ -2555,7 +2570,13 @@
           if (ps.uf) elements.inputUf.value = ps.uf;
           if (ps.ipvaVal) elements.inputIpva.value = formatCurrency(ps.ipvaVal);
           if (ps.trackerVal) elements.inputTracker.value = formatCurrency(ps.trackerVal);
-          if (ps.insuranceVal) elements.inputInsurance.value = formatCurrency(ps.insuranceVal);
+          if (ps.insuranceVal) {
+            elements.inputInsurance.value = formatCurrency(ps.insuranceVal);
+            isInsuranceManual = true;
+          } else {
+            isInsuranceManual = false;
+            updateInsuranceFromFipe(true);
+          }
           if (ps.maintRecVal) elements.inputMaintRec.value = formatCurrency(ps.maintRecVal);
           if (ps.contabRecVal) elements.inputContabRec.value = formatCurrency(ps.contabRecVal);
           if (ps.reserveFundVal) elements.inputReserveFund.value = formatCurrency(ps.reserveFundVal);
@@ -2587,6 +2608,7 @@
           reserveFund: elements.inputReserveFund.value,
           tracker: elements.inputTracker.value,
           insurance: elements.inputInsurance.value,
+          isInsuranceManual: isInsuranceManual,
           maintM1: elements.inputMaintM1.value,
           maintRec: elements.inputMaintRec.value,
           contabM1: elements.inputContabM1.value,
@@ -2708,12 +2730,24 @@
         if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value;
         updateFipeDiffBadge();
         updateUfTax();
+        updateInsuranceFromFipe(false);
         syncCarValToConsorcio();
         recalculate();
       });
       elements.inputFipeVal.addEventListener('blur', () => {
         if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value;
         updateFipeDiffBadge();
+        updateInsuranceFromFipe(false);
+        recalculate();
+      });
+
+      // When Insurance is manually typed, mark as manual
+      elements.inputInsurance.addEventListener('input', () => {
+        isInsuranceManual = true;
+        if (elements.insuranceFipeHint) {
+          const fipeVal = parseMoney(elements.inputFipeVal.value) || 50000;
+          elements.insuranceFipeHint.innerHTML = `Valor personalizado informado manualmente &bull; Média 0,34%: ${formatCurrency(fipeVal * 0.0034)}/mês`;
+        }
         recalculate();
       });
 
@@ -2740,6 +2774,7 @@
         if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = val;
         updateFipeDiffBadge();
         updateUfTax();
+        updateInsuranceFromFipe(false);
         recalculate();
       });
 
@@ -2805,6 +2840,19 @@
 
       elements.inputIpva.value = formatCurrency(mensalIpvaELicenc);
       elements.ufBadgeInfo.textContent = `${uf}: IPVA ${(ufData.ipvaRate * 100).toFixed(1)}% (${formatCurrency(ipvaAnual)}/ano) + Licenc. ${formatCurrency(ufData.licenciamento)} = ${formatCurrency(mensalIpvaELicenc)}/mês`;
+    }
+
+    function updateInsuranceFromFipe(force = false) {
+      const fipeVal = parseMoney(elements.inputFipeVal.value) || 50000;
+      const seguroSugerido = fipeVal * 0.0034; // 0,34% sobre a FIPE (média de mercado oficial)
+
+      if (elements.insuranceFipeHint) {
+        elements.insuranceFipeHint.innerHTML = `Média de <strong>0,34% sobre a FIPE</strong> (${formatCurrency(seguroSugerido)}/mês) &bull; Editável`;
+      }
+
+      if (force || !isInsuranceManual) {
+        elements.inputInsurance.value = formatCurrency(seguroSugerido);
+      }
     }
 
     async function handleRequestCode() {
@@ -2980,7 +3028,7 @@
       const upsellM1PerCar = parseMoney(elements.inputUpsellM1.value) || 1500;
       
       const trackerPerCar = parseMoney(elements.inputTracker.value) || 60;
-      const insurancePerCar = parseMoney(elements.inputInsurance.value) || 200;
+      const insurancePerCar = parseMoney(elements.inputInsurance.value) || (fipeVal * 0.0034);
       const maintM1PerCar = parseMoney(elements.inputMaintM1.value) || 400;
       const maintRecPerCar = parseMoney(elements.inputMaintRec.value) || 150;
       const contabM1 = parseMoney(elements.inputContabM1.value) || 1000;
@@ -3272,7 +3320,13 @@
         },
         { label: '(-) Despesas Operacionais Totais', key: 'totalOpExpenses', isMoney: true, isDanger: true },
         { label: '    (-) Rastreador', key: 'costTracker', isMoney: true },
-        { label: '    (-) Seguro', key: 'costInsurance', isMoney: true },
+        { 
+          label: '    (-) Seguro (0,34% FIPE)', 
+          key: 'costInsurance', 
+          isMoney: true,
+          hasTooltip: true,
+          tooltipText: 'Mensalidade do seguro ou proteção veicular calculada com base na média oficial de mercado de 0,34% sobre o valor da FIPE do veículo.'
+        },
         { label: '    (-) Manutenção', key: 'costMaint', isMoney: true },
         { label: '    (-) Contabilidade', key: 'costContab', isMoney: true },
         { label: '    (-) IPVA / Licenciamento', key: 'costIpva', isMoney: true },
