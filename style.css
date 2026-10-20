@@ -2282,6 +2282,154 @@ body::before {
   color: #40dfaa;
 }
 
+/* Auth Auxiliary & Forgot Password Styles */
+.auth-aux-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+  margin-bottom: 2px;
+}
+
+.auth-forgot-link {
+  font-size: 13px;
+  color: #34D399;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.auth-forgot-link:hover {
+  color: #00F2FE;
+  text-decoration: underline;
+}
+
+.auth-code-sent-badge {
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 8px;
+  padding: 12px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.auth-code-sent-badge strong {
+  color: var(--accent-primary);
+  font-size: 14.5px;
+}
+
+.code-input-lg {
+  text-align: center !important;
+  font-family: var(--font-display) !important;
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  letter-spacing: 8px !important;
+}
+
+.auth-divider-text {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 14px 0 10px 0;
+  color: var(--text-dark);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.auth-divider-text::before,
+.auth-divider-text::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.auth-divider-text span {
+  padding: 0 10px;
+}
+
+.btn-auth-secondary {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 14px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.btn-auth-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.auth-aux-resend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.btn-link-action {
+  background: none;
+  border: none;
+  color: #00F2FE;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.btn-link-action:hover {
+  color: #34D399;
+}
+
+/* Light Mode Overrides for Forgot Password elements */
+body.theme-light .auth-forgot-link {
+  color: #0284C7 !important;
+}
+body.theme-light .auth-forgot-link:hover {
+  color: #0369A1 !important;
+}
+body.theme-light .auth-code-sent-badge {
+  background: #F0F9FF !important;
+  border-color: #BAE6FD !important;
+  color: #334155 !important;
+}
+body.theme-light .auth-code-sent-badge strong {
+  color: #0284C7 !important;
+}
+body.theme-light .btn-auth-secondary {
+  background: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+body.theme-light .btn-auth-secondary:hover {
+  background: #E2E8F0 !important;
+  border-color: #94A3B8 !important;
+}
+body.theme-light .btn-link-action {
+  color: #0284C7 !important;
+}
+body.theme-light .btn-link-action:hover {
+  color: #0369A1 !important;
+}
+
 /* ==========================================================================
    PREMIUM SEARCHABLE DROPDOWNS (COMBOBOX)
    ========================================================================== */

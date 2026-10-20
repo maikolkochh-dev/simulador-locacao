@@ -252,6 +252,10 @@
               <label for="login-senha">Senha</label>
               <input type="password" id="login-senha" placeholder="••••••" required>
             </div>
+
+            <div class="auth-aux-row">
+              <a href="#" id="link-go-to-forgot" class="auth-forgot-link">Esqueci a senha / Entrar por código</a>
+            </div>
             
             <button type="submit" class="btn-auth-action" id="btn-login-submit">
               Entrar
@@ -261,6 +265,76 @@
               Não tem conta? <a href="#" id="link-go-to-register">Criar conta</a>
             </p>
           </form>
+        </div>
+
+        <!-- FORGOT PASSWORD / EMAIL CODE VIEW -->
+        <div class="auth-container" id="auth-forgot-view" style="display: none;">
+          <div class="auth-logo-header">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <h2>LOCADOR NÔMADE</h2>
+          </div>
+          
+          <h1 class="auth-title">Recuperar Acesso</h1>
+          <p class="auth-subtitle" id="forgot-view-subtitle">Receba um código de 6 dígitos via e-mail para entrar ou redefinir sua senha.</p>
+
+          <!-- STAGE 1: INFORMAR E-MAIL -->
+          <form id="forgot-request-form" class="auth-form-block" novalidate>
+            <div class="form-group">
+              <label for="forgot-email">Seu E-mail Cadastrado</label>
+              <input type="email" id="forgot-email" placeholder="voce@email.com" required>
+            </div>
+            
+            <button type="submit" class="btn-auth-action" id="btn-forgot-send-code">
+              Enviar Código por E-mail
+            </button>
+            
+            <p class="auth-toggle-text">
+              Lembrou a senha? <a href="#" id="link-forgot-back-login">Voltar ao login</a>
+            </p>
+          </form>
+
+          <!-- STAGE 2: INSERIR CÓDIGO E ACESSAR (INICIALMENTE OCULTO) -->
+          <div id="forgot-verify-block" class="auth-form-block" style="display: none;">
+            <div class="auth-code-sent-badge">
+              <span>Código de 6 dígitos enviado para:</span>
+              <strong id="forgot-target-email-display">voce@email.com</strong>
+            </div>
+
+            <div class="form-group">
+              <label for="forgot-code">Digite o Código de 6 Dígitos</label>
+              <input type="text" id="forgot-code" class="code-input-lg" placeholder="123456" maxlength="6" inputmode="numeric" autocomplete="one-time-code" required>
+            </div>
+
+            <button type="button" class="btn-auth-action" id="btn-login-with-code">
+              Entrar Direto com Código
+            </button>
+
+            <!-- Opção de redefinir senha -->
+            <div class="auth-divider-text">
+              <span>OU DEFINA UMA NOVA SENHA</span>
+            </div>
+
+            <div class="form-group">
+              <label for="forgot-new-password">Nova Senha</label>
+              <input type="password" id="forgot-new-password" placeholder="Mínimo 4 caracteres">
+            </div>
+
+            <button type="button" class="btn-auth-secondary" id="btn-reset-and-login">
+              Salvar Nova Senha e Entrar
+            </button>
+
+            <div class="auth-aux-resend">
+              <span id="forgot-timer-msg">Não recebeu o código?</span>
+              <button type="button" id="btn-forgot-resend" class="btn-link-action">Reenviar código</button>
+            </div>
+
+            <p class="auth-toggle-text" style="margin-top: 14px;">
+              <a href="#" id="link-forgot-restart">Trocar e-mail / Voltar ao login</a>
+            </p>
+          </div>
         </div>
 
       </section>

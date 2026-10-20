@@ -516,6 +516,316 @@ app.post('/api/login', (req, res) => {
   }
 });
 
+// ==========================================
+// API: PASSWORD RECOVERY & EMAIL CODE LOGIN
+// ==========================================
+const authVerificationCodes = new Map();
+
+async function sendAuthCodeEmail(userEmail, userName, code) {
+  try {
+    console.log(`\n[AUTH CODE EMAIL] Enviando código de recuperação para: ${userEmail}...`);
+    const transporter = await getMailTransporter();
+
+    const emailHtml = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <title>Seu Código de Acesso - LOCADOR NÔMADE</title>
+        <style>
+          body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #080C14;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 40px 20px;
+          }
+          .email-container {
+            max-width: 580px;
+            margin: 0 auto;
+            background: #0D1424;
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+          }
+          .email-header {
+            background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 50%, #34D399 100%);
+            padding: 30px 20px;
+            text-align: center;
+          }
+          .email-header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #042F1A;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+          }
+          .email-header p {
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: #042F1A;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+          }
+          .email-body {
+            padding: 35px 30px;
+            line-height: 1.6;
+          }
+          .email-body h2 {
+            font-size: 19px;
+            color: #FFFFFF;
+            margin-top: 0;
+          }
+          .email-body p {
+            color: #94A3B8;
+            font-size: 14.5px;
+          }
+          .code-box {
+            background: rgba(0, 242, 254, 0.06);
+            border: 2px dashed rgba(0, 242, 254, 0.4);
+            border-radius: 12px;
+            padding: 22px;
+            text-align: center;
+            margin: 24px 0;
+          }
+          .code-box .code-label {
+            font-size: 11.5px;
+            color: #00F2FE;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: block;
+          }
+          .code-box .code-val {
+            font-size: 38px;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: 8px;
+            font-family: monospace;
+          }
+          .email-footer {
+            background: rgba(255,255,255,0.02);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 18px;
+            text-align: center;
+            font-size: 11.5px;
+            color: #64748B;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="email-container">
+          <div class="email-header">
+            <h1>LOCADOR NÔMADE</h1>
+            <p>Sistemas Essenciais &bull; Código de Acesso</p>
+          </div>
+          <div class="email-body">
+            <h2>Olá, <span style="color: #00F2FE;">${userName || 'Locador'}</span>!</h2>
+            <p>Recebemos uma solicitação de acesso para a sua conta. Utilize o código de 6 dígitos abaixo para entrar diretamente ou redefinir sua senha:</p>
+            
+            <div class="code-box">
+              <span class="code-label">Código de Verificação</span>
+              <div class="code-val">${code}</div>
+            </div>
+
+            <p style="font-size: 13px; color: #64748B;">Este código é de uso pessoal e intransferível, válido por 15 minutos. Se você não solicitou este acesso, ignore esta mensagem.</p>
+          </div>
+          <div class="email-footer">
+            &copy; 2026 LOCADOR NÔMADE - Sistemas Essenciais. Todos os direitos reservados.
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || '"LOCADOR NÔMADE" <adm@locadornomade.com>',
+      to: userEmail,
+      subject: `Código de Acesso: ${code} - LOCADOR NÔMADE`,
+      html: emailHtml
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[AUTH CODE ENVIADO!] ID: ${info.messageId} para ${userEmail}`);
+    return true;
+  } catch (error) {
+    console.error('[AUTH CODE EMAIL ERROR]:', error.message);
+    return false;
+  }
+}
+
+// POST /api/auth/send-code
+app.post('/api/auth/send-code', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, error: 'O e-mail é obrigatório.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const users = readUsers();
+    const user = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'E-mail não encontrado em nossa base de usuários. Verifique a digitação ou crie uma conta.'
+      });
+    }
+
+    // Gerar código de 6 dígitos
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutos
+
+    authVerificationCodes.set(cleanEmail, {
+      code,
+      expiresAt,
+      userName: user.nome || 'Usuário',
+      email: cleanEmail
+    });
+
+    console.log(`\n======================================================`);
+    console.log(`[AUTH CODE GERADO] E-mail: ${cleanEmail} | Código: ${code}`);
+    console.log(`======================================================\n`);
+
+    // Enviar por e-mail via SMTP
+    await sendAuthCodeEmail(cleanEmail, user.nome, code);
+
+    res.json({
+      success: true,
+      message: 'Código de 6 dígitos enviado com sucesso para seu e-mail!',
+      email: cleanEmail
+    });
+  } catch (error) {
+    console.error('Erro em /api/auth/send-code:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/auth/verify-code-login
+app.post('/api/auth/verify-code-login', (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ success: false, error: 'E-mail e código são obrigatórios.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.trim();
+
+    const stored = authVerificationCodes.get(cleanEmail);
+    if (!stored) {
+      return res.status(400).json({
+        success: false,
+        error: 'Nenhum código ativo para este e-mail ou o código expirou. Solicite um novo código.'
+      });
+    }
+
+    if (Date.now() > stored.expiresAt) {
+      authVerificationCodes.delete(cleanEmail);
+      return res.status(400).json({
+        success: false,
+        error: 'Este código expirou (limite de 15 minutos). Solicite um novo código.'
+      });
+    }
+
+    if (stored.code !== cleanCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Código de verificação incorreto. Verifique os 6 dígitos recebidos.'
+      });
+    }
+
+    // Sucesso! Obter dados do usuário
+    const users = readUsers();
+    const user = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    authVerificationCodes.delete(cleanEmail);
+
+    res.json({
+      success: true,
+      message: 'Autenticação por código realizada com sucesso!',
+      user: {
+        nome: user.nome,
+        telefone: user.telefone,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/auth/reset-password
+app.post('/api/auth/reset-password', (req, res) => {
+  try {
+    const { email, code, novaSenha } = req.body;
+    if (!email || !code || !novaSenha) {
+      return res.status(400).json({ success: false, error: 'Todos os campos são obrigatórios.' });
+    }
+
+    if (novaSenha.trim().length < 4) {
+      return res.status(400).json({ success: false, error: 'A nova senha deve ter no mínimo 4 caracteres.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.trim();
+
+    const stored = authVerificationCodes.get(cleanEmail);
+    if (!stored) {
+      return res.status(400).json({
+        success: false,
+        error: 'Nenhum código ativo para este e-mail. Solicite um novo código.'
+      });
+    }
+
+    if (Date.now() > stored.expiresAt) {
+      authVerificationCodes.delete(cleanEmail);
+      return res.status(400).json({
+        success: false,
+        error: 'Este código expirou. Solicite um novo código.'
+      });
+    }
+
+    if (stored.code !== cleanCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Código incorreto.'
+      });
+    }
+
+    // Atualiza a senha no banco users.json
+    const users = readUsers();
+    const userIndex = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
+
+    if (userIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Usuário não encontrado.' });
+    }
+
+    users[userIndex].senha = novaSenha.trim();
+    writeUsers(users);
+
+    authVerificationCodes.delete(cleanEmail);
+
+    console.log(`[SENHA REDEFINIDA] E-mail: ${cleanEmail}`);
+
+    res.json({
+      success: true,
+      message: 'Senha redefinida com sucesso!',
+      user: {
+        nome: users[userIndex].nome,
+        telefone: users[userIndex].telefone,
+        email: users[userIndex].email
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // GET /admin
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));

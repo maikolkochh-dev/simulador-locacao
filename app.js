@@ -142,6 +142,22 @@ const elements = {
   linkGoToLogin: document.getElementById('link-go-to-login'),
   linkGoToRegister: document.getElementById('link-go-to-register'),
 
+  // Step 1: Forgot Password & Email Code Recovery Elements
+  authForgotView: document.getElementById('auth-forgot-view'),
+  linkGoToForgot: document.getElementById('link-go-to-forgot'),
+  linkForgotBackLogin: document.getElementById('link-forgot-back-login'),
+  forgotRequestForm: document.getElementById('forgot-request-form'),
+  forgotEmail: document.getElementById('forgot-email'),
+  btnForgotSendCode: document.getElementById('btn-forgot-send-code'),
+  forgotVerifyBlock: document.getElementById('forgot-verify-block'),
+  forgotTargetEmailDisplay: document.getElementById('forgot-target-email-display'),
+  forgotCode: document.getElementById('forgot-code'),
+  btnLoginWithCode: document.getElementById('btn-login-with-code'),
+  forgotNewPassword: document.getElementById('forgot-new-password'),
+  btnResetAndLogin: document.getElementById('btn-reset-and-login'),
+  btnForgotResend: document.getElementById('btn-forgot-resend'),
+  linkForgotRestart: document.getElementById('link-forgot-restart'),
+
   // Step 2: Vehicle & FIPE
   vehicleForm: document.getElementById('vehicle-form'),
   fipeManualToggle: document.getElementById('fipe-manual-toggle'),
@@ -1094,18 +1110,53 @@ async function fetchVehicleImageAutomatically(brandName, modelName) {
  * Binds DOM triggers to state modifiers
  */
 function bindEvents() {
-  // Toggle Acesso / Registar Views
+  // Toggle Acesso / Registar / Recuperar Senha Views
   elements.linkGoToLogin.addEventListener('click', (e) => {
     e.preventDefault();
     elements.authRegisterView.style.display = 'none';
+    if (elements.authForgotView) elements.authForgotView.style.display = 'none';
     elements.authLoginView.style.display = 'block';
   });
 
   elements.linkGoToRegister.addEventListener('click', (e) => {
     e.preventDefault();
-    elements.authRegisterView.style.display = 'block';
     elements.authLoginView.style.display = 'none';
+    if (elements.authForgotView) elements.authForgotView.style.display = 'none';
+    elements.authRegisterView.style.display = 'block';
   });
+
+  if (elements.linkGoToForgot) {
+    elements.linkGoToForgot.addEventListener('click', (e) => {
+      e.preventDefault();
+      elements.authRegisterView.style.display = 'none';
+      elements.authLoginView.style.display = 'none';
+      elements.authForgotView.style.display = 'block';
+      if (elements.forgotRequestForm) elements.forgotRequestForm.style.display = 'flex';
+      if (elements.forgotVerifyBlock) elements.forgotVerifyBlock.style.display = 'none';
+      if (elements.forgotEmail && elements.loginEmail && elements.loginEmail.value.trim()) {
+        elements.forgotEmail.value = elements.loginEmail.value.trim();
+      }
+      if (elements.forgotEmail) elements.forgotEmail.focus();
+    });
+  }
+
+  if (elements.linkForgotBackLogin) {
+    elements.linkForgotBackLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      elements.authForgotView.style.display = 'none';
+      elements.authLoginView.style.display = 'block';
+    });
+  }
+
+  if (elements.linkForgotRestart) {
+    elements.linkForgotRestart.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (elements.forgotRequestForm) elements.forgotRequestForm.style.display = 'flex';
+      if (elements.forgotVerifyBlock) elements.forgotVerifyBlock.style.display = 'none';
+      elements.authForgotView.style.display = 'none';
+      elements.authLoginView.style.display = 'block';
+    });
+  }
 
   // Step 1: Register Form Submit
   elements.registerForm.addEventListener('submit', async (e) => {
@@ -1225,6 +1276,208 @@ function bindEvents() {
       alert('Servidor de login offline. Por favor, utilize o cadastro para simular localmente.');
     }
   });
+
+  // Step 1: Solicitação de Código por E-mail (Esqueci a Senha / Acesso por Código)
+  if (elements.forgotRequestForm) {
+    elements.forgotRequestForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = elements.forgotEmail ? elements.forgotEmail.value.trim() : '';
+
+      if (elements.forgotEmail) elements.forgotEmail.style.borderColor = '';
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailPattern.test(email)) {
+        if (elements.forgotEmail) elements.forgotEmail.style.borderColor = 'var(--color-danger)';
+        alert('Por favor, informe um endereço de e-mail válido.');
+        return;
+      }
+
+      const origBtnText = elements.btnForgotSendCode ? elements.btnForgotSendCode.textContent : 'Enviar Código';
+      if (elements.btnForgotSendCode) {
+        elements.btnForgotSendCode.disabled = true;
+        elements.btnForgotSendCode.textContent = 'Enviando código...';
+      }
+
+      try {
+        const response = await fetch('/api/auth/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Erro ao enviar código.');
+          if (elements.forgotEmail) elements.forgotEmail.style.borderColor = 'var(--color-danger)';
+          return;
+        }
+
+        // Sucesso ao enviar o código! Passa para a etapa 2
+        if (elements.forgotTargetEmailDisplay) {
+          elements.forgotTargetEmailDisplay.textContent = email;
+        }
+        if (elements.forgotRequestForm) elements.forgotRequestForm.style.display = 'none';
+        if (elements.forgotVerifyBlock) elements.forgotVerifyBlock.style.display = 'flex';
+        if (elements.forgotCode) {
+          elements.forgotCode.value = '';
+          elements.forgotCode.focus();
+        }
+      } catch (err) {
+        console.error('Erro ao enviar código de acesso:', err);
+        alert('Falha na comunicação com o servidor. Tente novamente.');
+      } finally {
+        if (elements.btnForgotSendCode) {
+          elements.btnForgotSendCode.disabled = false;
+          elements.btnForgotSendCode.textContent = origBtnText;
+        }
+      }
+    });
+  }
+
+  // Step 1: Entrar Diretamente com Código de 6 Dígitos
+  if (elements.btnLoginWithCode) {
+    elements.btnLoginWithCode.addEventListener('click', async () => {
+      const email = elements.forgotEmail ? elements.forgotEmail.value.trim() : '';
+      const code = elements.forgotCode ? elements.forgotCode.value.trim() : '';
+
+      if (elements.forgotCode) elements.forgotCode.style.borderColor = '';
+
+      if (!code || code.length !== 6) {
+        if (elements.forgotCode) elements.forgotCode.style.borderColor = 'var(--color-danger)';
+        alert('Por favor, digite o código de 6 dígitos recebido por e-mail.');
+        return;
+      }
+
+      const origText = elements.btnLoginWithCode.textContent;
+      elements.btnLoginWithCode.disabled = true;
+      elements.btnLoginWithCode.textContent = 'Verificando código...';
+
+      try {
+        const response = await fetch('/api/auth/verify-code-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Código incorreto ou expirado.');
+          if (elements.forgotCode) elements.forgotCode.style.borderColor = 'var(--color-danger)';
+          return;
+        }
+
+        // Autenticado com sucesso!
+        state.currentUser = data.user;
+        localStorage.setItem('locasim_user', JSON.stringify(data.user));
+        renderLoggedInWidget();
+        goToStep(2);
+      } catch (err) {
+        console.error('Erro na autenticação por código:', err);
+        alert('Falha na comunicação com o servidor.');
+      } finally {
+        elements.btnLoginWithCode.disabled = false;
+        elements.btnLoginWithCode.textContent = origText;
+      }
+    });
+  }
+
+  // Step 1: Redefinir Senha e Entrar
+  if (elements.btnResetAndLogin) {
+    elements.btnResetAndLogin.addEventListener('click', async () => {
+      const email = elements.forgotEmail ? elements.forgotEmail.value.trim() : '';
+      const code = elements.forgotCode ? elements.forgotCode.value.trim() : '';
+      const novaSenha = elements.forgotNewPassword ? elements.forgotNewPassword.value.trim() : '';
+
+      if (elements.forgotCode) elements.forgotCode.style.borderColor = '';
+      if (elements.forgotNewPassword) elements.forgotNewPassword.style.borderColor = '';
+
+      if (!code || code.length !== 6) {
+        if (elements.forgotCode) elements.forgotCode.style.borderColor = 'var(--color-danger)';
+        alert('Por favor, digite o código de 6 dígitos.');
+        return;
+      }
+
+      if (!novaSenha || novaSenha.length < 4) {
+        if (elements.forgotNewPassword) elements.forgotNewPassword.style.borderColor = 'var(--color-danger)';
+        alert('A nova senha deve ter no mínimo 4 caracteres.');
+        return;
+      }
+
+      const origText = elements.btnResetAndLogin.textContent;
+      elements.btnResetAndLogin.disabled = true;
+      elements.btnResetAndLogin.textContent = 'Salvando nova senha...';
+
+      try {
+        const response = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code, novaSenha })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Falha ao redefinir senha.');
+          return;
+        }
+
+        alert('Senha redefinida com sucesso! Você já está autenticado.');
+        state.currentUser = data.user;
+        localStorage.setItem('locasim_user', JSON.stringify(data.user));
+        renderLoggedInWidget();
+        goToStep(2);
+      } catch (err) {
+        console.error('Erro ao redefinir senha:', err);
+        alert('Falha ao comunicar com o servidor.');
+      } finally {
+        elements.btnResetAndLogin.disabled = false;
+        elements.btnResetAndLogin.textContent = origText;
+      }
+    });
+  }
+
+  // Step 1: Reenviar Código
+  if (elements.btnForgotResend) {
+    elements.btnForgotResend.addEventListener('click', async () => {
+      const email = elements.forgotEmail ? elements.forgotEmail.value.trim() : '';
+      if (!email) {
+        alert('E-mail não informado.');
+        return;
+      }
+
+      elements.btnForgotResend.disabled = true;
+      elements.btnForgotResend.textContent = 'Enviando...';
+
+      try {
+        const response = await fetch('/api/auth/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Falha ao reenviar código.');
+          return;
+        }
+
+        alert('Novo código de 6 dígitos enviado para seu e-mail!');
+        if (elements.forgotCode) {
+          elements.forgotCode.value = '';
+          elements.forgotCode.focus();
+        }
+      } catch (err) {
+        console.error('Erro ao reenviar código:', err);
+        alert('Erro ao reenviar código.');
+      } finally {
+        elements.btnForgotResend.disabled = false;
+        elements.btnForgotResend.textContent = 'Reenviar código';
+      }
+    });
+  }
 
   // Prevent accidental native form submissions on wizard steps 2, 3, and 4
   [elements.vehicleForm, elements.rentalForm, elements.costsForm].forEach(formEl => {
