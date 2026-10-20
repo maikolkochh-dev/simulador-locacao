@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Módulo PRO Mentoria | LOCADOR NÔMADE - Escala de Frotas Multi-Períodos</title>
+  <title>Módulo PRO | LOCADOR NÔMADE - Escala de Frotas Multi-Períodos</title>
+  <script>document.title = "Módulo PRO | LOCADOR NÔMADE - Escala de Frotas Multi-Períodos";</script>
   <link rel="icon" type="image/jpeg" href="/logo.jpg">
   <link rel="apple-touch-icon" href="/logo.jpg">
   
@@ -2043,7 +2044,6 @@
         <div class="brand-text">
           <h1>LOCADOR NÔMADE <span>MÓDULO PRO</span></h1>
         </div>
-        <span class="badge-vip">Mentoria VIP</span>
       </a>
 
       <div class="header-actions">
@@ -2110,7 +2110,7 @@
             Simulação DRE consolidada por ano para análise de viabilidade e captação de investimento.
           </p>
         </div>
-        <span class="print-badge">Mentoria VIP PRO</span>
+        <span class="print-badge">Módulo PRO</span>
       </div>
       <div class="print-meta-grid" id="print-meta-info">
         <!-- Filled dynamically by JS -->
@@ -4092,12 +4092,12 @@
 
       // 11. UPDATE PRINT EXECUTIVE METADATA
       if (elements.printMetaInfo) {
-        const studentEmail = currentStudent?.email || 'Investidor Mentoria PRO';
+        const studentEmail = currentStudent?.email || 'Investidor Módulo PRO';
         const stratName = activeStrategy === 'cashflow' 
           ? '1. Renda Passiva' 
           : (activeStrategy === 'snowball' ? '2. Bola de Neve' : '3. Alavancagem Consórcio');
         elements.printMetaInfo.innerHTML = `
-          <div><strong>Aluno Mentoria:</strong> ${studentEmail}</div>
+          <div><strong>Aluno:</strong> ${studentEmail}</div>
           <div><strong>Data da Simulação:</strong> ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
           <div><strong>Estratégia:</strong> ${stratName}</div>
           <div><strong>Veículo (FIPE):</strong> ${elements.inputFipeVal.value}</div>
