@@ -714,7 +714,13 @@ const CURATED_CAR_PHOTOS = [
   { match: /\bonix\b/i, wikiQuery: 'Chevrolet Onix', catalog: { title: 'Chevrolet_Onix', lang: 'en', displayName: 'Chevrolet Onix' } },
   { match: /\bprisma\b/i, wikiQuery: 'Chevrolet Prisma', catalog: { title: 'Chevrolet_Prisma', lang: 'en', displayName: 'Chevrolet Prisma' } },
   { match: /\bhb20\b/i, wikiQuery: 'Hyundai HB20', catalog: { title: 'Hyundai_HB20', lang: 'pt', displayName: 'Hyundai HB20' } },
-  { match: /\bargo\b/i, wikiQuery: 'Fiat Argo', catalog: { title: 'Fiat_Argo', lang: 'en', displayName: 'Fiat Argo' } },
+  { 
+    match: /\bargo\b/i, 
+    wikiQuery: 'Fiat Argo', 
+    directPhotoUrl: 'https://blog.deltafiat.com.br/wp-content/uploads/2023/11/fiat-argo-2024.jpg',
+    fallbackLocalUrl: '/fiat-argo-2024.jpg',
+    displayName: 'Fiat Argo'
+  },
   { match: /\bcronos\b/i, wikiQuery: 'Fiat Cronos', catalog: { title: 'Fiat_Cronos', lang: 'pt', displayName: 'Fiat Cronos' } },
   { match: /\bstrada\b/i, wikiQuery: 'Fiat Strada', catalog: { title: 'Fiat_Strada', lang: 'en', displayName: 'Fiat Strada' } },
   { match: /\buno\b/i, wikiQuery: 'Fiat Uno', catalog: { title: 'Fiat_Uno', lang: 'en', displayName: 'Fiat Uno' } },
@@ -982,6 +988,16 @@ async function fetchVehicleImageAutomatically(brandName, modelName) {
       matchedItem = item;
       targetQuery = item.wikiQuery;
       break;
+    }
+  }
+
+  // 0. TIER 0: Foto Oficial Fixa Definida (Ex.: Fiat Argo base solicitada)
+  if (matchedItem && matchedItem.directPhotoUrl) {
+    if (!state.vehicle.isCustomPhoto) {
+      state.vehicle.photoUrl = matchedItem.directPhotoUrl;
+      state.vehicle.photoLicense = `Foto Oficial: ${matchedItem.displayName || targetQuery}`;
+      syncVehiclePhotoUI();
+      return;
     }
   }
 
@@ -1771,6 +1787,13 @@ function syncVehiclePhotoUI() {
     elements.vehiclePhotoImg.src = state.vehicle.photoUrl;
     elements.vehiclePhotoImg.style.display = 'block';
     elements.vehiclePhotoFallback.style.display = 'none';
+
+    elements.vehiclePhotoImg.onerror = () => {
+      if (elements.vehiclePhotoImg.src.includes('blog.deltafiat.com.br')) {
+        elements.vehiclePhotoImg.src = '/fiat-argo-2024.jpg';
+      }
+    };
+
     if (elements.btnVehiclePhotoRemove) {
       elements.btnVehiclePhotoRemove.style.display = state.vehicle.isCustomPhoto ? 'inline-block' : 'none';
     }
