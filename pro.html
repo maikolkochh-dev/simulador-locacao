@@ -736,6 +736,296 @@
       line-height: 1.4;
     }
 
+    /* BLOCO PEQUENO: SELEÇÃO FIPE & VALOR PAGO (ACIMA DOS BLOCOS DE KPIS) */
+    .quick-fipe-card {
+      background: rgba(18, 26, 44, 0.48);
+      backdrop-filter: blur(32px) saturate(190%);
+      -webkit-backdrop-filter: blur(32px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-top: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 20px;
+      padding: 18px 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+      transition: all 0.3s ease;
+    }
+
+    .quick-fipe-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .quick-fipe-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .quick-fipe-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 14px rgba(0, 242, 254, 0.15);
+    }
+
+    .quick-fipe-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      color: #FFFFFF;
+      display: block;
+      letter-spacing: -0.01em;
+    }
+
+    .quick-fipe-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 1px;
+    }
+
+    .quick-fipe-toggle-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-fipe-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #E2E8F0;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 14px;
+      border-radius: 50px;
+      transition: all 0.25s ease;
+      user-select: none;
+    }
+
+    .toggle-fipe-label:hover {
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .toggle-fipe-label input {
+      display: none;
+    }
+
+    .toggle-fipe-custom {
+      width: 34px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      position: relative;
+      transition: background 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .toggle-fipe-custom::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .toggle-fipe-label input:checked + .toggle-fipe-custom {
+      background: var(--accent-cyan);
+    }
+
+    .toggle-fipe-label input:checked + .toggle-fipe-custom::after {
+      transform: translateX(16px);
+      background: #080C14;
+    }
+
+    .quick-fipe-body {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .quick-fipe-selectors-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .quick-fipe-selectors-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quick-fipe-col {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .quick-field-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .quick-select {
+      font-size: 13px !important;
+      padding: 10px 12px !important;
+      background: rgba(8, 12, 20, 0.7) !important;
+      border-radius: 10px !important;
+    }
+
+    .quick-fipe-values-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .quick-fipe-values-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quick-val-card {
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+
+    .fipe-official-card {
+      background: rgba(0, 242, 254, 0.04);
+      border: 1px solid rgba(0, 242, 254, 0.22);
+      border-top: 1px solid rgba(0, 242, 254, 0.4);
+    }
+
+    .purchase-real-card {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-top: 1px solid rgba(16, 185, 129, 0.45);
+    }
+
+    .quick-val-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quick-val-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94A3B8;
+    }
+
+    .quick-fipe-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      color: var(--accent-cyan);
+    }
+
+    .quick-purchase-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34D399;
+      transition: all 0.2s ease;
+    }
+
+    .quick-purchase-badge.badge-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #F87171;
+    }
+
+    .quick-purchase-badge.badge-neutral {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.35);
+      color: #93C5FD;
+    }
+
+    .quick-val-amount {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .quick-purchase-input-wrapper {
+      position: relative;
+    }
+
+    .quick-car-input {
+      font-family: var(--font-display) !important;
+      font-size: 20px !important;
+      font-weight: 800 !important;
+      padding: 8px 14px !important;
+      height: 44px !important;
+      background: rgba(8, 12, 20, 0.8) !important;
+      border: 1px solid rgba(16, 185, 129, 0.35) !important;
+      color: #34D399 !important;
+    }
+
+    .quick-car-input:focus {
+      border-color: #10B981 !important;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25) !important;
+    }
+
+    .quick-val-sub {
+      font-size: 11.5px;
+      color: var(--text-dim);
+      line-height: 1.35;
+    }
+
+    .quick-fipe-note {
+      font-size: 11.5px;
+      color: #94A3B8;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 8px 12px;
+      line-height: 1.4;
+    }
+
     /* GRID CONTROLS & KPIS */
     .dashboard-layout {
       display: grid;
@@ -1569,6 +1859,90 @@
 
       <!-- KPIS & RESULTS -->
       <div>
+        
+        <!-- BLOCO PEQUENO: CONSULTA FIPE & PREÇO PAGO (ACIMA DOS BLOCOS DE KPIS) -->
+        <div class="quick-fipe-card" id="quick-fipe-card">
+          <div class="quick-fipe-header">
+            <div class="quick-fipe-title-group">
+              <div class="quick-fipe-icon-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 10.7 2 11 2 11.4V16c0 .6.4 1 1 1h2"></path>
+                  <circle cx="7" cy="17" r="2"></circle>
+                  <path d="M9 17h6"></path>
+                  <circle cx="17" cy="17" r="2"></circle>
+                </svg>
+              </div>
+              <div>
+                <span class="quick-fipe-title">Referência do Veículo (Tabela FIPE) &amp; Valor Pago</span>
+                <span class="quick-fipe-subtitle">Deseja selecionar o carro pela FIPE para puxar o valor oficial e informar ao lado o valor real de compra?</span>
+              </div>
+            </div>
+
+            <div class="quick-fipe-toggle-wrapper">
+              <label class="toggle-fipe-label">
+                <input type="checkbox" id="toggle-enable-fipe" checked>
+                <span class="toggle-fipe-custom"></span>
+                <span class="toggle-fipe-text">Consultar FIPE</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="quick-fipe-body" class="quick-fipe-body">
+            
+            <!-- LINHA DE SELEÇÃO: MARCA, MODELO E ANO -->
+            <div class="quick-fipe-selectors-row" id="quick-fipe-selectors">
+              <div class="quick-fipe-col">
+                <label class="quick-field-label">Marca</label>
+                <select id="quick-fipe-brand" class="form-input quick-select">
+                  <option value="">Carregando marcas...</option>
+                </select>
+              </div>
+              <div class="quick-fipe-col">
+                <label class="quick-field-label">Modelo</label>
+                <select id="quick-fipe-model" class="form-input quick-select" disabled>
+                  <option value="">Selecione a marca primeiro</option>
+                </select>
+              </div>
+              <div class="quick-fipe-col">
+                <label class="quick-field-label">Ano / Combustível</label>
+                <select id="quick-fipe-year" class="form-input quick-select" disabled>
+                  <option value="">Selecione o modelo primeiro</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- VALORES LADO A LADO: FIPE OFICIAL E VALOR CORRETO DE COMPRA -->
+            <div class="quick-fipe-values-row">
+              <!-- LADO 1: FIPE OFICIAL -->
+              <div class="quick-val-card fipe-official-card">
+                <div class="quick-val-header">
+                  <span class="quick-val-label">Valor Tabela FIPE (Oficial)</span>
+                  <span class="quick-fipe-badge" id="quick-fipe-ref-badge">Referência Oficial</span>
+                </div>
+                <div class="quick-val-amount" id="quick-fipe-display-val">R$ 50.000,00</div>
+                <div class="quick-val-sub" id="quick-fipe-sub-info">Base oficial para cálculo de IPVA estadual e depreciação final</div>
+              </div>
+
+              <!-- LADO 2: VALOR CORRETO PAGO (AO LADO) -->
+              <div class="quick-val-card purchase-real-card">
+                <div class="quick-val-header">
+                  <span class="quick-val-label">Valor Real Pago por Carro (Correto)</span>
+                  <span class="quick-purchase-badge" id="quick-diff-badge">100% da FIPE</span>
+                </div>
+                <div class="quick-purchase-input-wrapper">
+                  <input type="text" id="quick-car-val-input" class="form-input quick-car-input" value="R$ 50.000,00" placeholder="R$ 0,00">
+                </div>
+                <div class="quick-val-sub" id="quick-diff-description">Capital desembolsado por veículo (define o Investimento Inicial e o ROI)</div>
+              </div>
+            </div>
+
+            <div id="quick-fipe-status-note" class="quick-fipe-note">
+              Selecione o veículo acima pela Tabela FIPE ou informe o valor correto pago ao lado para atualizar instantaneamente todos os KPIs e o DRE.
+            </div>
+
+          </div>
+        </div>
+
         <div class="kpi-grid">
           
           <div class="kpi-card">
@@ -1862,7 +2236,23 @@
 
       // DRE
       dreHeaderRow: document.getElementById('dre-header-row'),
-      dreTbody: document.getElementById('dre-tbody')
+      dreTbody: document.getElementById('dre-tbody'),
+
+      // Quick FIPE Card
+      quickFipeCard: document.getElementById('quick-fipe-card'),
+      toggleEnableFipe: document.getElementById('toggle-enable-fipe'),
+      quickFipeBody: document.getElementById('quick-fipe-body'),
+      quickFipeSelectors: document.getElementById('quick-fipe-selectors'),
+      quickFipeBrand: document.getElementById('quick-fipe-brand'),
+      quickFipeModel: document.getElementById('quick-fipe-model'),
+      quickFipeYear: document.getElementById('quick-fipe-year'),
+      quickFipeRefBadge: document.getElementById('quick-fipe-ref-badge'),
+      quickFipeDisplayVal: document.getElementById('quick-fipe-display-val'),
+      quickFipeSubInfo: document.getElementById('quick-fipe-sub-info'),
+      quickDiffBadge: document.getElementById('quick-diff-badge'),
+      quickCarValInput: document.getElementById('quick-car-val-input'),
+      quickDiffDescription: document.getElementById('quick-diff-description'),
+      quickFipeStatusNote: document.getElementById('quick-fipe-status-note')
     };
 
     // ==========================================
@@ -1886,6 +2276,8 @@
       loadSavedSimulationState();
       updateUfTax();
       syncCarValToConsorcio();
+      updateFipeDiffBadge();
+      initFipeQuickSelector();
       recalculate();
     });
 
@@ -1897,6 +2289,160 @@
         opt.textContent = `${sigla} - ${data.nome}`;
         if (sigla === 'SP') opt.selected = true;
         elements.inputUf.appendChild(opt);
+      }
+    }
+
+    // ==========================================
+    // FIPE QUICK SELECTOR & COMPARISON ENGINE
+    // ==========================================
+    let fipeServiceModule = null;
+    let currentFipeData = null;
+
+    async function initFipeQuickSelector() {
+      try {
+        const module = await import('/fipeService.js');
+        fipeServiceModule = module.fipeService;
+        await loadFipeBrands();
+      } catch (err) {
+        console.error('Erro ao inicializar fipeService no módulo PRO:', err);
+        if (elements.quickFipeBrand) {
+          elements.quickFipeBrand.innerHTML = '<option value="">Digitação manual ativa</option>';
+        }
+      }
+    }
+
+    async function loadFipeBrands() {
+      if (!fipeServiceModule || !elements.quickFipeBrand) return;
+      elements.quickFipeBrand.innerHTML = '<option value="">Carregando marcas...</option>';
+      try {
+        const brands = await fipeServiceModule.getBrands();
+        elements.quickFipeBrand.innerHTML = '<option value="">Selecione a marca do veículo</option>';
+        brands.forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b.codigo;
+          opt.textContent = b.nome;
+          elements.quickFipeBrand.appendChild(opt);
+        });
+      } catch (err) {
+        elements.quickFipeBrand.innerHTML = '<option value="">Falha ao buscar marcas</option>';
+      }
+    }
+
+    async function handleFipeBrandChange() {
+      const brandId = elements.quickFipeBrand.value;
+      elements.quickFipeModel.innerHTML = '<option value="">Carregando modelos...</option>';
+      elements.quickFipeModel.disabled = true;
+      elements.quickFipeYear.innerHTML = '<option value="">Selecione o modelo primeiro</option>';
+      elements.quickFipeYear.disabled = true;
+
+      if (!brandId) {
+        elements.quickFipeModel.innerHTML = '<option value="">Selecione a marca primeiro</option>';
+        return;
+      }
+
+      try {
+        const models = await fipeServiceModule.getModels(brandId);
+        elements.quickFipeModel.innerHTML = '<option value="">Selecione o modelo</option>';
+        models.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.codigo;
+          opt.textContent = m.nome;
+          elements.quickFipeModel.appendChild(opt);
+        });
+        elements.quickFipeModel.disabled = false;
+      } catch (err) {
+        elements.quickFipeModel.innerHTML = '<option value="">Falha ao buscar modelos</option>';
+      }
+    }
+
+    async function handleFipeModelChange() {
+      const brandId = elements.quickFipeBrand.value;
+      const modelId = elements.quickFipeModel.value;
+      elements.quickFipeYear.innerHTML = '<option value="">Carregando anos...</option>';
+      elements.quickFipeYear.disabled = true;
+
+      if (!modelId) {
+        elements.quickFipeYear.innerHTML = '<option value="">Selecione o modelo primeiro</option>';
+        return;
+      }
+
+      try {
+        const years = await fipeServiceModule.getYears(brandId, modelId);
+        elements.quickFipeYear.innerHTML = '<option value="">Selecione o ano / versão</option>';
+        years.forEach(y => {
+          const opt = document.createElement('option');
+          opt.value = y.codigo;
+          opt.textContent = y.nome;
+          elements.quickFipeYear.appendChild(opt);
+        });
+        elements.quickFipeYear.disabled = false;
+      } catch (err) {
+        elements.quickFipeYear.innerHTML = '<option value="">Falha ao buscar anos</option>';
+      }
+    }
+
+    async function handleFipeYearChange() {
+      const brandId = elements.quickFipeBrand.value;
+      const modelId = elements.quickFipeModel.value;
+      const yearId = elements.quickFipeYear.value;
+
+      if (!yearId) return;
+
+      elements.quickFipeDisplayVal.textContent = 'Buscando FIPE...';
+      elements.quickFipeStatusNote.textContent = 'Consultando tabela FIPE oficial na API fipeX...';
+
+      try {
+        const priceDetails = await fipeServiceModule.getPrice(brandId, modelId, yearId);
+        if (priceDetails && priceDetails.Valor) {
+          currentFipeData = priceDetails;
+          const fipeParsed = parseMoney(priceDetails.Valor);
+
+          elements.quickFipeDisplayVal.textContent = formatCurrency(fipeParsed);
+          elements.inputFipeVal.value = formatCurrency(fipeParsed);
+
+          elements.quickFipeRefBadge.textContent = priceDetails.MesReferencia || 'FIPE Oficial';
+          elements.quickFipeSubInfo.innerHTML = `${priceDetails.Marca} ${priceDetails.Modelo} &bull; Cód: ${priceDetails.CodigoFipe || 'Oficial'}`;
+          
+          elements.quickCarValInput.value = formatCurrency(fipeParsed);
+          elements.inputCarVal.value = formatCurrency(fipeParsed);
+
+          updateFipeDiffBadge();
+          updateUfTax();
+          syncCarValToConsorcio();
+          recalculate();
+
+          elements.quickFipeStatusNote.innerHTML = `Veículo <strong>${priceDetails.Marca} ${priceDetails.Modelo} (${priceDetails.AnoModelo})</strong> carregado! Caso tenha pago com desconto ou ágio, ajuste o <em>Valor Real Pago</em> ao lado.`;
+        }
+      } catch (err) {
+        elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value || 'R$ 50.000,00';
+        elements.quickFipeStatusNote.textContent = 'Erro ao consultar cotação oficial da FIPE. Você pode digitar o valor manualmente.';
+      }
+    }
+
+    function updateFipeDiffBadge() {
+      if (!elements.quickCarValInput || !elements.quickFipeDisplayVal) return;
+      const fipeVal = parseMoney(elements.quickFipeDisplayVal.textContent) || parseMoney(elements.inputFipeVal.value) || 50000;
+      const paidVal = parseMoney(elements.quickCarValInput.value) || parseMoney(elements.inputCarVal.value) || 50000;
+
+      const diff = paidVal - fipeVal;
+      const diffPct = fipeVal > 0 ? ((diff / fipeVal) * 100) : 0;
+
+      elements.quickDiffBadge.className = 'quick-purchase-badge';
+
+      if (diff < -50) {
+        const absDiff = Math.abs(diff);
+        const absPct = Math.abs(diffPct).toFixed(1);
+        elements.quickDiffBadge.textContent = `${formatCurrency(absDiff)} abaixo da FIPE (-${absPct}%)`;
+        elements.quickDiffDescription.textContent = `Você está comprando ${absPct}% abaixo da FIPE (Margem positiva de ${formatCurrency(absDiff)}/carro na entrada).`;
+      } else if (diff > 50) {
+        const absPct = Math.abs(diffPct).toFixed(1);
+        elements.quickDiffBadge.classList.add('badge-danger');
+        elements.quickDiffBadge.textContent = `${formatCurrency(diff)} acima da FIPE (+${absPct}%)`;
+        elements.quickDiffDescription.textContent = `Compra com ágio de ${formatCurrency(diff)} (+${absPct}%) acima do valor de tabela FIPE.`;
+      } else {
+        elements.quickDiffBadge.classList.add('badge-neutral');
+        elements.quickDiffBadge.textContent = '100% da FIPE (Valor de Mercado)';
+        elements.quickDiffDescription.textContent = 'Valor pago idêntico à cotação oficial de mercado (FIPE cheia).';
       }
     }
 
@@ -1942,8 +2488,14 @@
             elements.inputCars.value = p.cars;
             elements.badgeCars.textContent = p.cars;
           }
-          if (p.carVal) elements.inputCarVal.value = p.carVal;
-          if (p.fipeVal) elements.inputFipeVal.value = p.fipeVal;
+          if (p.carVal) {
+            elements.inputCarVal.value = p.carVal;
+            if (elements.quickCarValInput) elements.quickCarValInput.value = p.carVal;
+          }
+          if (p.fipeVal) {
+            elements.inputFipeVal.value = p.fipeVal;
+            if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = p.fipeVal;
+          }
           if (p.deprecRate) elements.inputDeprecRate.value = p.deprecRate;
           if (p.rentWeek) {
             elements.inputRentWeek.value = p.rentWeek;
@@ -1975,6 +2527,7 @@
           if (p.consAdmRate) elements.inputConsAdmRate.value = p.consAdmRate;
           if (p.consFundRate) elements.inputConsFundRate.value = p.consFundRate;
           if (p.consLanceVal) elements.inputConsLanceVal.value = p.consLanceVal;
+          updateFipeDiffBadge();
           return;
         }
 
@@ -1982,8 +2535,14 @@
         const publicSim = localStorage.getItem('locador_last_simulation');
         if (publicSim) {
           const ps = JSON.parse(publicSim);
-          if (ps.carPurchaseVal) elements.inputCarVal.value = formatCurrency(ps.carPurchaseVal);
-          if (ps.fipeVal) elements.inputFipeVal.value = formatCurrency(ps.fipeVal);
+          if (ps.carPurchaseVal) {
+            elements.inputCarVal.value = formatCurrency(ps.carPurchaseVal);
+            if (elements.quickCarValInput) elements.quickCarValInput.value = formatCurrency(ps.carPurchaseVal);
+          }
+          if (ps.fipeVal) {
+            elements.inputFipeVal.value = formatCurrency(ps.fipeVal);
+            if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = formatCurrency(ps.fipeVal);
+          }
           if (ps.weeklyRent) {
             elements.inputRentWeek.value = formatCurrency(ps.weeklyRent);
           } else if (ps.rentVal) {
@@ -2007,6 +2566,7 @@
           const carPrice = ps.carPurchaseVal || ps.fipeVal || 50000;
           elements.inputConsCreditVal.value = formatCurrency(carPrice);
           elements.inputConsLanceVal.value = formatCurrency(carPrice * 0.30);
+          updateFipeDiffBadge();
         }
       } catch(e) {}
     }
@@ -2068,6 +2628,43 @@
       elements.tabSnowball.addEventListener('click', () => switchStrategy('snowball'));
       elements.tabLeverage.addEventListener('click', () => switchStrategy('leverage'));
 
+      // Quick FIPE Toggle
+      if (elements.toggleEnableFipe) {
+        elements.toggleEnableFipe.addEventListener('change', () => {
+          if (elements.quickFipeSelectors) {
+            elements.quickFipeSelectors.style.display = elements.toggleEnableFipe.checked ? 'grid' : 'none';
+          }
+        });
+      }
+
+      // Quick FIPE Dropdowns
+      if (elements.quickFipeBrand) {
+        elements.quickFipeBrand.addEventListener('change', handleFipeBrandChange);
+      }
+      if (elements.quickFipeModel) {
+        elements.quickFipeModel.addEventListener('change', handleFipeModelChange);
+      }
+      if (elements.quickFipeYear) {
+        elements.quickFipeYear.addEventListener('change', handleFipeYearChange);
+      }
+
+      // Quick Car Value Input (Valor Real Pago ao Lado)
+      if (elements.quickCarValInput) {
+        elements.quickCarValInput.addEventListener('input', () => {
+          elements.inputCarVal.value = elements.quickCarValInput.value;
+          updateFipeDiffBadge();
+          syncCarValToConsorcio();
+          recalculate();
+        });
+        elements.quickCarValInput.addEventListener('blur', () => {
+          formatCurrencyInput(elements.quickCarValInput);
+          elements.inputCarVal.value = elements.quickCarValInput.value;
+          updateFipeDiffBadge();
+          recalculate();
+        });
+        elements.quickCarValInput.addEventListener('focus', () => elements.quickCarValInput.select());
+      }
+
       // Vacancy ruler buttons
       document.querySelectorAll('.btn-vacancy').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2093,10 +2690,30 @@
         recalculate();
       });
 
-      // When FIPE changes, update IPVA & sync
+      // When Purchase Val changes in sidebar, sync to Quick Car Val input
+      elements.inputCarVal.addEventListener('input', () => {
+        if (elements.quickCarValInput) elements.quickCarValInput.value = elements.inputCarVal.value;
+        updateFipeDiffBadge();
+        syncCarValToConsorcio();
+        recalculate();
+      });
+      elements.inputCarVal.addEventListener('blur', () => {
+        if (elements.quickCarValInput) elements.quickCarValInput.value = elements.inputCarVal.value;
+        updateFipeDiffBadge();
+        recalculate();
+      });
+
+      // When FIPE changes in sidebar, update IPVA & sync to Quick FIPE display
       elements.inputFipeVal.addEventListener('input', () => {
+        if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value;
+        updateFipeDiffBadge();
         updateUfTax();
         syncCarValToConsorcio();
+        recalculate();
+      });
+      elements.inputFipeVal.addEventListener('blur', () => {
+        if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value;
+        updateFipeDiffBadge();
         recalculate();
       });
 
@@ -2119,13 +2736,16 @@
         const val = elements.inputConsCreditVal.value;
         elements.inputCarVal.value = val;
         elements.inputFipeVal.value = val;
+        if (elements.quickCarValInput) elements.quickCarValInput.value = val;
+        if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = val;
+        updateFipeDiffBadge();
         updateUfTax();
         recalculate();
       });
 
       // Money inputs: select on focus, format on blur, live recalculate on input
       const moneyInputs = [
-        elements.inputCarVal, elements.inputFipeVal, elements.inputRentWeek, 
+        elements.inputCarVal, elements.inputFipeVal, elements.quickCarValInput, elements.inputRentWeek, 
         elements.inputUpsellM1, elements.inputIpva, elements.inputReserveFund,
         elements.inputTracker, elements.inputInsurance, elements.inputMaintM1,
         elements.inputMaintRec, elements.inputContabM1, elements.inputContabRec,
