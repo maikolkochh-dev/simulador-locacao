@@ -478,8 +478,44 @@ function init() {
   // Initialize Apple-style translucent tooltips (triggered only after > 1s hover on titles)
   initAppleDelayedTooltips();
 
+  // Initialize Global Theme (Light & Dark)
+  initGlobalTheme();
+
   // Load the Landing Page at first loading
   showLandingPage();
+}
+
+function initGlobalTheme() {
+  const savedTheme = localStorage.getItem('locador_theme') || 'dark';
+  applyGlobalTheme(savedTheme);
+
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const isLight = document.body.classList.contains('theme-light');
+      applyGlobalTheme(isLight ? 'dark' : 'light');
+    });
+  }
+}
+
+function applyGlobalTheme(theme) {
+  const text = document.getElementById('theme-toggle-text');
+  const sun = document.getElementById('theme-icon-sun');
+  const moon = document.getElementById('theme-icon-moon');
+
+  if (theme === 'light') {
+    document.body.classList.add('theme-light');
+    localStorage.setItem('locador_theme', 'light');
+    if (text) text.textContent = 'Modo Escuro';
+    if (sun) sun.style.display = 'none';
+    if (moon) moon.style.display = 'block';
+  } else {
+    document.body.classList.remove('theme-light');
+    localStorage.setItem('locador_theme', 'dark');
+    if (text) text.textContent = 'Modo Claro';
+    if (sun) sun.style.display = 'block';
+    if (moon) moon.style.display = 'none';
+  }
 }
 
 /**
@@ -2431,7 +2467,7 @@ function shareSimulationOnWhatsApp() {
   const roi = elements.kpiRoiMensal ? elements.kpiRoiMensal.textContent : '';
 
   const message = 
-`🚗 *LOCADOR NÔMADE — RESUMO DA OPERAÇÃO (${prazo} MESES)* 🚗
+`*LOCADOR NÔMADE — RESUMO DA OPERAÇÃO (${prazo} MESES)*
 
 *Veículo:* ${brand} ${model}
 *FIPE:* ${fipe} | *Compra:* ${pago}
@@ -2442,7 +2478,7 @@ function shareSimulationOnWhatsApp() {
 *Lucro Operacional + Venda do Veículo (${prazo}m):* ${lucroMaisVenda}
 *ROI Mensal:* ${roi}
 
-👉 *@locadornomade*`;
+*@locadornomade*`;
 
   const encodedMessage = encodeURIComponent(message);
   window.open(`https://api.whatsapp.com/send?text=${encodedMessage}`, '_blank');

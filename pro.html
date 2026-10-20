@@ -64,20 +64,46 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* APPLE MINIMAL TRANSLUCENT SCROLLBAR */
+    /* APPLE TRANSLUCENT & HIGH CONTRAST VISIBLE SCROLLBARS */
     ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
+      width: 10px;
+      height: 10px;
     }
     ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 10px;
     }
+    ::-webkit-scrollbar-thumb {
+      background: #94A3B8;
+      border-radius: 10px;
+      border: 2px solid #0B101D;
+    }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.28);
+      background: #CBD5E1;
+    }
+
+    /* SPECIFIC ULTRA-VISIBLE SCROLLBAR FOR TABLE WRAPPER */
+    .table-wrapper {
+      scrollbar-color: #CBD5E1 rgba(255, 255, 255, 0.12);
+      scrollbar-width: thin;
+    }
+    .table-wrapper::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+    .table-wrapper::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      margin: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 10px;
+      border: 2.5px solid #0E1628;
+    }
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #FFFFFF;
     }
 
     /* Ambient Lighting */
@@ -1371,26 +1397,573 @@
       box-shadow: 0 6px 25px rgba(0, 242, 254, 0.45);
     }
 
-    /* PRINT STYLES */
+    /* ==========================================================================
+       LIGHT THEME (APPLE CLEAN MINIMAL AESTHETIC)
+       ========================================================================== */
+    body.theme-light {
+      --bg-primary: #F8FAFC;
+      --bg-secondary: #EDF2F7;
+      --bg-card: rgba(255, 255, 255, 0.90);
+      --bg-card-hover: #FFFFFF;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-specular: rgba(0, 0, 0, 0.12);
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --text-dim: #94A3B8;
+      background-color: #F8FAFC;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.06) 0px, transparent 40%),
+        radial-gradient(circle at 85% 10%, rgba(245, 158, 11, 0.05) 0px, transparent 40%),
+        radial-gradient(circle at 50% 60%, rgba(139, 92, 246, 0.04) 0px, transparent 50%);
+      color: #0F172A;
+    }
+
+    body.theme-light header {
+      background: rgba(255, 255, 255, 0.85);
+      border-bottom-color: rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    body.theme-light .brand-text h1 {
+      color: #0F172A;
+    }
+
+    body.theme-light .btn-header {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.10);
+      border-top-color: rgba(0, 0, 0, 0.16);
+      color: #0F172A;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    body.theme-light .btn-header:hover {
+      background: rgba(0, 0, 0, 0.08);
+      border-color: rgba(0, 0, 0, 0.18);
+    }
+
+    body.theme-light .student-badge {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.10);
+      color: #0F172A;
+    }
+
+    body.theme-light .sidebar-card,
+    body.theme-light .chart-container-card,
+    body.theme-light .dre-table-card,
+    body.theme-light .kpi-card,
+    body.theme-light .quick-fipe-card,
+    body.theme-light .consorcio-top-panel,
+    body.theme-light .athos-promo-banner,
+    body.theme-light .vacancy-container {
+      background: #FFFFFF;
+      border-color: rgba(0, 0, 0, 0.08);
+      border-top-color: rgba(0, 0, 0, 0.14);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    body.theme-light .kpi-card:hover {
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body.theme-light .kpi-value {
+      color: #0F172A;
+    }
+
+    body.theme-light .form-input,
+    body.theme-light .form-select {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+      color: #0F172A;
+    }
+
+    body.theme-light .form-input:focus,
+    body.theme-light .form-select:focus {
+      background: #FFFFFF;
+      border-color: #00F2FE;
+      box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.15);
+    }
+
+    body.theme-light .strategy-tab-btn {
+      background: #F1F5F9;
+      color: #64748B;
+      border-color: #E2E8F0;
+    }
+
+    body.theme-light .strategy-tab-btn:hover {
+      color: #0F172A;
+    }
+
+    body.theme-light .strategy-tab-btn.active {
+      background: #FFFFFF;
+      color: #0F172A;
+      border-color: rgba(0, 242, 254, 0.5);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    }
+
+    body.theme-light .vacancy-pill {
+      background: #F1F5F9;
+      color: #475569;
+      border-color: #E2E8F0;
+    }
+
+    body.theme-light .vacancy-pill:hover {
+      background: #E2E8F0;
+      color: #0F172A;
+    }
+
+    body.theme-light .vacancy-pill.active {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-color: #0F172A;
+    }
+
+    body.theme-light .vacancy-info-box {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+    }
+
+    body.theme-light table th {
+      background: #F1F5F9;
+      color: #334155;
+      border-bottom: 2px solid #CBD5E1;
+    }
+
+    body.theme-light table td {
+      border-bottom: 1px solid #E2E8F0;
+      color: #0F172A;
+    }
+
+    body.theme-light th:first-child,
+    body.theme-light td:first-child {
+      background: #F8FAFC;
+      color: #0F172A;
+      border-right: 1px solid #CBD5E1;
+    }
+
+    body.theme-light tr:hover td {
+      background: #F1F5F9;
+    }
+
+    body.theme-light tr:hover td:first-child {
+      background: #EDF2F7;
+    }
+
+    body.theme-light .tr-danger td {
+      background: #FEF2F2 !important;
+      color: #DC2626 !important;
+    }
+
+    body.theme-light .tr-danger td:first-child {
+      background: #FEE2E2 !important;
+      color: #DC2626 !important;
+    }
+
+    body.theme-light .tr-highlight td {
+      background: #ECFDF5 !important;
+      color: #059669 !important;
+    }
+
+    body.theme-light .tr-highlight td:first-child {
+      background: #D1FAE5 !important;
+      color: #059669 !important;
+    }
+
+    body.theme-light .tr-accumulated td {
+      background: #F0F9FF !important;
+      color: #0284C7 !important;
+    }
+
+    body.theme-light .tr-accumulated td:first-child {
+      background: #E0F2FE !important;
+      color: #0284C7 !important;
+    }
+
+    body.theme-light .tr-group-header td {
+      background: #F8FAFC !important;
+      color: #0284C7 !important;
+    }
+
+    body.theme-light .tooltip-bubble {
+      background: #0F172A;
+      color: #F8FAFC;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    body.theme-light .tooltip-icon {
+      background: rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.14);
+      color: #475569;
+    }
+
+    body.theme-light ::-webkit-scrollbar-track {
+      background: #E2E8F0;
+    }
+
+    body.theme-light ::-webkit-scrollbar-thumb {
+      background: #94A3B8;
+      border: 2px solid #F8FAFC;
+    }
+
+    body.theme-light ::-webkit-scrollbar-thumb:hover {
+      background: #64748B;
+    }
+
+    body.theme-light .table-wrapper {
+      scrollbar-color: #64748B #E2E8F0;
+    }
+
+    body.theme-light .table-wrapper::-webkit-scrollbar-track {
+      background: #E2E8F0;
+      border-color: #CBD5E1;
+    }
+
+    body.theme-light .table-wrapper::-webkit-scrollbar-thumb {
+      background: #64748B;
+      border: 3px solid #FFFFFF;
+    }
+
+    body.theme-light .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* DRE SEGMENTED SWITCH */
+    .dre-segmented-control {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 3px;
+      border-radius: 50px;
+      gap: 3px;
+    }
+
+    .dre-segment-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .dre-segment-btn:hover {
+      color: #FFFFFF;
+    }
+
+    .dre-segment-btn.active {
+      background: var(--accent-gradient);
+      color: #042F1A;
+      font-weight: 800;
+      box-shadow: 0 2px 10px rgba(0, 242, 254, 0.3);
+    }
+
+    body.theme-light .dre-segmented-control {
+      background: #F1F5F9;
+      border-color: #CBD5E1;
+    }
+
+    body.theme-light .dre-segment-btn {
+      color: #64748B;
+    }
+
+    body.theme-light .dre-segment-btn:hover {
+      color: #0F172A;
+    }
+
+    body.theme-light .dre-segment-btn.active {
+      background: #0F172A;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* FULL MODAL SPREADSHEET */
+    .full-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 10, 18, 0.85);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .full-modal-window {
+      background: rgba(18, 26, 44, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      width: 96vw;
+      max-width: 1540px;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      box-shadow: 0 35px 80px rgba(0, 0, 0, 0.7);
+    }
+
+    .full-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    body.theme-light .full-modal-overlay {
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    body.theme-light .full-modal-window {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+      box-shadow: 0 35px 80px rgba(0, 0, 0, 0.2);
+    }
+
+    body.theme-light .full-modal-header {
+      border-bottom-color: #E2E8F0;
+    }
+
+    /* SCREEN VS PRINT VISIBILITY */
+    .print-report-header {
+      display: none !important;
+    }
+
+    .print-only-dre {
+      display: none !important;
+    }
+
+    /* ==========================================================================
+       PRINT ENGINE (@media print) - ZERO OVERFLOW, RESUMO ANUAL EXECUTIVO
+       ========================================================================== */
     @media print {
-      body {
-        background: #FFF !important;
-        color: #000 !important;
+      @page {
+        size: A4 portrait;
+        margin: 10mm 10mm 10mm 10mm;
       }
-      .ambient-glow, .gate-overlay, header, .strategy-tabs, .sidebar-card, .btn-header, .athos-promo-banner {
+
+      body {
+        background: #FFFFFF !important;
+        color: #0F172A !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        font-size: 11px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .ambient-glow,
+      .gate-overlay,
+      header,
+      .strategy-tabs,
+      .sidebar-card,
+      .btn-header,
+      .athos-promo-banner,
+      .no-print,
+      .chart-container-card,
+      #dre-table-wrapper,
+      .full-modal-overlay,
+      .dre-segmented-control,
+      .tooltip-icon,
+      .tooltip-bubble {
         display: none !important;
       }
+
+      .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
       .dashboard-layout {
         display: block !important;
       }
-      .kpi-card, .dre-table-card, .chart-container-card {
-        background: #FFF !important;
-        border: 1px solid #CCC !important;
-        color: #000 !important;
+
+      .main-content {
+        width: 100% !important;
+      }
+
+      /* PRINT HEADER */
+      .print-report-header {
+        display: block !important;
+        margin-bottom: 16px !important;
+        page-break-inside: avoid;
+      }
+
+      .print-header-top {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-bottom: 2px solid #0F172A !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 12px !important;
+      }
+
+      .print-brand-title {
+        font-size: 18px !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
+        text-transform: uppercase !important;
+        letter-spacing: -0.01em !important;
+      }
+
+      .print-badge {
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        color: #0F172A !important;
+        border: 1px solid #CBD5E1 !important;
+        background: #F1F5F9 !important;
+        padding: 4px 10px !important;
+        border-radius: 4px !important;
+        text-transform: uppercase !important;
+      }
+
+      .print-meta-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px 14px !important;
+        background: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-size: 10.5px !important;
+        color: #334155 !important;
+      }
+
+      /* PRINT KPIS */
+      .kpi-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        margin-bottom: 16px !important;
+        page-break-inside: avoid;
+      }
+
+      .kpi-card {
+        background: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+        box-shadow: none !important;
+        padding: 10px 12px !important;
+        border-radius: 6px !important;
+      }
+
+      .kpi-label {
+        font-size: 9.5px !important;
+        color: #64748B !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        margin-bottom: 4px !important;
+      }
+
+      .kpi-value {
+        font-size: 16px !important;
+        color: #0F172A !important;
+        font-weight: 800 !important;
+      }
+
+      .kpi-sub {
+        font-size: 9px !important;
+        color: #64748B !important;
+        margin-top: 2px !important;
+      }
+
+      /* DRE CARD IN PRINT */
+      .dre-table-card {
+        background: #FFFFFF !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        page-break-inside: avoid;
+      }
+
+      .dre-table-card h3 {
+        font-size: 14px !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
+        margin-bottom: 2px !important;
+      }
+
+      .dre-table-card p {
+        font-size: 10px !important;
+        color: #64748B !important;
+        margin-bottom: 10px !important;
+      }
+
+      /* DRE ANNUAL SUMMARY TABLE FOR PRINT */
+      .print-only-dre {
+        display: block !important;
+        width: 100% !important;
+      }
+
+      .print-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 10.5px !important;
+        table-layout: fixed !important;
+      }
+
+      .print-table th,
+      .print-table td {
+        padding: 5px 6px !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        color: #0F172A !important;
+        position: static !important;
+        background: transparent !important;
         box-shadow: none !important;
       }
-      .kpi-value, th, td {
-        color: #000 !important;
+
+      .print-table th {
+        font-size: 9.5px !important;
+        font-weight: 800 !important;
+        color: #1E293B !important;
+        border-bottom: 2px solid #0F172A !important;
+        background: #F1F5F9 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.03em !important;
+      }
+
+      .print-table th:first-child,
+      .print-table td:first-child {
+        width: 40% !important;
+        text-align: left !important;
+        font-weight: 600 !important;
+      }
+
+      .print-table th:not(:first-child),
+      .print-table td:not(:first-child) {
+        text-align: right !important;
+      }
+
+      .print-table tr.tr-highlight td {
+        background: #ECFDF5 !important;
+        font-weight: 800 !important;
+        color: #047857 !important;
+      }
+
+      .print-table tr.tr-danger td {
+        background: #FEF2F2 !important;
+        font-weight: 800 !important;
+        color: #B91C1C !important;
+      }
+
+      .print-table tr.tr-accumulated td {
+        background: #F0F9FF !important;
+        font-weight: 800 !important;
+        color: #0369A1 !important;
+      }
+
+      .print-table tr.tr-group-header td {
+        background: #F8FAFC !important;
+        font-weight: 800 !important;
+        color: #0369A1 !important;
+        font-size: 10px !important;
       }
     }
 
@@ -1474,6 +2047,25 @@
       </a>
 
       <div class="header-actions">
+        <!-- TEMA CLARO / ESCURO -->
+        <button type="button" class="btn-header" id="theme-toggle-btn" title="Alternar entre Modo Claro e Escuro">
+          <svg id="theme-icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="theme-icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <span id="theme-toggle-text">Modo Claro</span>
+        </button>
+
         <a href="/" class="btn-header" title="Voltar ao simulador básico de 1 carro">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -1482,7 +2074,7 @@
           Simulador Básico
         </a>
 
-        <button type="button" class="btn-header" onclick="window.print()">
+        <button type="button" class="btn-header" onclick="window.print()" title="Imprimir Relatório Anual Executivo">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="6 9 6 2 18 2 18 9"></polyline>
             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -1508,6 +2100,22 @@
 
   <!-- MAIN APP -->
   <main class="container pro-dashboard">
+    
+    <!-- PRINT-ONLY EXECUTIVE HEADER -->
+    <div class="print-report-header">
+      <div class="print-header-top">
+        <div>
+          <h1 class="print-brand-title">Locador Nômade &bull; Relatório Executivo de Escala de Frotas</h1>
+          <p style="font-size: 11px; color: #64748B; margin-top: 2px;">
+            Simulação DRE consolidada por ano para análise de viabilidade e captação de investimento.
+          </p>
+        </div>
+        <span class="print-badge">Mentoria VIP PRO</span>
+      </div>
+      <div class="print-meta-grid" id="print-meta-info">
+        <!-- Filled dynamically by JS -->
+      </div>
+    </div>
     
     <!-- Hero / Title -->
     <div class="hero-banner">
@@ -2031,29 +2639,114 @@
 
     <!-- DRE TABLE SECTION -->
     <div class="dre-table-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
         <div>
-          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800;" id="dre-table-title">
-            Demonstrativo de Resultados do Exercício (DRE) - 24 Meses
-          </h3>
-          <p style="font-size: 13px; color: var(--text-muted);">
-            Detalhamento mensal completo de Receitas, Custos Operacionais, Tributos, Reinvestimentos e Saldo Final.
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+            <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 800;" id="dre-table-title">
+              Demonstrativo de Resultados do Exercício (DRE)
+            </h3>
+            <span id="dre-view-mode-badge" class="badge-vip" style="font-size: 10px; background: rgba(0, 242, 254, 0.12); border-color: rgba(0, 242, 254, 0.3); color: #00F2FE;">Resumo Anual</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted);" id="dre-table-subtitle">
+            Consolidação anual executiva de Receitas, Custos Operacionais, Tributos e Lucro Líquido.
           </p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;" class="no-print">
+          <!-- View Switcher: Resumo Anual vs Planilha Completa -->
+          <div class="dre-segmented-control">
+            <button type="button" id="btn-view-annual" class="dre-segment-btn active" title="Exibir resumo consolidado por ano (ideal para análise rápida e apresentação)">
+              Resumo Anual
+            </button>
+            <button type="button" id="btn-view-monthly" class="dre-segment-btn" title="Exibir todos os meses detalhados da simulação">
+              Planilha Completa (<span id="btn-monthly-label">36 Meses</span>)
+            </button>
+          </div>
+
+          <!-- Expandir Tela Cheia -->
+          <button type="button" id="btn-open-fullscreen-dre" class="btn-header" style="padding: 7px 16px; font-size: 12px;" title="Abrir planilha completa em tela cheia expandida">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h6v6"></path>
+              <path d="M9 21H3v-6"></path>
+              <path d="M21 3l-7 7"></path>
+              <path d="M3 21l7-7"></path>
+            </svg>
+            Expandir Tela Cheia
+          </button>
+
+          <!-- Imprimir -->
+          <button type="button" class="btn-header" style="padding: 7px 16px; font-size: 12px;" onclick="window.print()" title="Imprimir resumo executivo anual sem cortes">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Imprimir Resumo
+          </button>
         </div>
       </div>
 
-      <div class="table-wrapper">
+      <!-- MAIN ON-SCREEN TABLE (ADAPTS TO ANNUAL OR MONTHLY) -->
+      <div class="table-wrapper" id="dre-table-wrapper">
         <table id="dre-table">
           <thead>
             <tr id="dre-header-row">
               <th>Linha Demonstrativo (DRE)</th>
-              <!-- Months generated dynamically -->
+              <!-- Months or Years generated dynamically -->
             </tr>
           </thead>
           <tbody id="dre-tbody">
             <!-- Dynamically populated by JS engine -->
           </tbody>
         </table>
+      </div>
+
+      <!-- PRINT-ONLY DRE TABLE (ALWAYS COMPACT ANNUAL SUMMARY, NEVER OVERFLOWS) -->
+      <div class="print-only-dre">
+        <table id="dre-print-table" class="print-table">
+          <thead>
+            <tr id="dre-print-header-row">
+              <th>Linha Demonstrativo (DRE)</th>
+              <!-- Annual columns rendered for print -->
+            </tr>
+          </thead>
+          <tbody id="dre-print-tbody">
+            <!-- Dynamically populated by JS engine -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODAL FULLSCREEN DRE SPREADSHEET -->
+    <div id="modal-full-dre" class="full-modal-overlay" style="display: none;">
+      <div class="full-modal-window">
+        <div class="full-modal-header">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--text-main);">
+                Planilha Completa DRE &bull; Visão Integral Mês a Mês
+              </h3>
+              <span class="badge-vip" id="modal-months-badge" style="font-size: 11px;">36 Meses</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
+              Detalhamento de cada mês da operação com receitas, custos operacionais, tributos e fluxo de caixa acumulado.
+            </p>
+          </div>
+          <button type="button" id="btn-close-modal-dre" class="btn-header" style="padding: 8px 18px; font-size: 13px;">
+            Fechar Visualização &times;
+          </button>
+        </div>
+        <div class="table-wrapper" style="max-height: calc(88vh - 120px); overflow: auto;">
+          <table id="dre-modal-table">
+            <thead>
+              <tr id="dre-modal-header-row">
+                <th>Linha Demonstrativo (DRE)</th>
+              </tr>
+            </thead>
+            <tbody id="dre-modal-tbody">
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -2113,6 +2806,8 @@
     let equityChartInstance = null;
     let currentVacancy = 0; // percentage: 0, 5, 10, 15, 20, 25, 30, 35
     let isInsuranceManual = false;
+    let dreViewMode = 'annual'; // 'annual' (default - compact executive summary) | 'monthly' (detailed months)
+    let lastSimulationData = null;
 
     const VACANCY_INFO = {
       0: {
@@ -2239,7 +2934,34 @@
       kpiPayback: document.getElementById('kpi-payback'),
       kpiPaybackSub: document.getElementById('kpi-payback-sub'),
 
-      // DRE
+      // Theme Toggle
+      themeToggleBtn: document.getElementById('theme-toggle-btn'),
+      themeToggleText: document.getElementById('theme-toggle-text'),
+      themeIconSun: document.getElementById('theme-icon-sun'),
+      themeIconMoon: document.getElementById('theme-icon-moon'),
+
+      // DRE Controls & Views
+      dreTableSubtitle: document.getElementById('dre-table-subtitle'),
+      dreViewModeBadge: document.getElementById('dre-view-mode-badge'),
+      btnViewAnnual: document.getElementById('btn-view-annual'),
+      btnViewMonthly: document.getElementById('btn-view-monthly'),
+      btnMonthlyLabel: document.getElementById('btn-monthly-label'),
+      btnOpenFullscreenDre: document.getElementById('btn-open-fullscreen-dre'),
+
+      // Fullscreen Modal
+      modalFullDre: document.getElementById('modal-full-dre'),
+      modalMonthsBadge: document.getElementById('modal-months-badge'),
+      btnCloseModalDre: document.getElementById('btn-close-modal-dre'),
+      dreModalHeaderRow: document.getElementById('dre-modal-header-row'),
+      dreModalTbody: document.getElementById('dre-modal-tbody'),
+
+      // Print-Only Table & Meta
+      drePrintTable: document.getElementById('dre-print-table'),
+      drePrintHeaderRow: document.getElementById('dre-print-header-row'),
+      drePrintTbody: document.getElementById('dre-print-tbody'),
+      printMetaInfo: document.getElementById('print-meta-info'),
+
+      // DRE Main Table
       dreHeaderRow: document.getElementById('dre-header-row'),
       dreTbody: document.getElementById('dre-tbody'),
 
@@ -2277,6 +2999,7 @@
         }
       }
 
+      initTheme();
       setupEvents();
       loadSavedSimulationState();
       updateUfTax();
@@ -2818,6 +3541,61 @@
 
       elements.inputConsTerm.addEventListener('input', () => recalculate());
 
+      // Theme toggle event
+      if (elements.themeToggleBtn) {
+        elements.themeToggleBtn.addEventListener('click', () => {
+          const isLight = document.body.classList.contains('theme-light');
+          applyTheme(isLight ? 'dark' : 'light');
+          recalculate();
+        });
+      }
+
+      // DRE View Switcher: Resumo Anual vs Planilha Completa
+      if (elements.btnViewAnnual) {
+        elements.btnViewAnnual.addEventListener('click', () => {
+          dreViewMode = 'annual';
+          elements.btnViewAnnual.classList.add('active');
+          elements.btnViewMonthly.classList.remove('active');
+          recalculate();
+        });
+      }
+
+      if (elements.btnViewMonthly) {
+        elements.btnViewMonthly.addEventListener('click', () => {
+          dreViewMode = 'monthly';
+          elements.btnViewMonthly.classList.add('active');
+          elements.btnViewAnnual.classList.remove('active');
+          recalculate();
+        });
+      }
+
+      // Fullscreen Modal Events
+      if (elements.btnOpenFullscreenDre) {
+        elements.btnOpenFullscreenDre.addEventListener('click', () => {
+          openFullscreenDRE();
+        });
+      }
+
+      if (elements.btnCloseModalDre) {
+        elements.btnCloseModalDre.addEventListener('click', () => {
+          closeFullscreenDRE();
+        });
+      }
+
+      if (elements.modalFullDre) {
+        elements.modalFullDre.addEventListener('click', (e) => {
+          if (e.target === elements.modalFullDre) {
+            closeFullscreenDRE();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && elements.modalFullDre && elements.modalFullDre.style.display !== 'none') {
+          closeFullscreenDRE();
+        }
+      });
+
       // Interactive Click/Tap to toggle tooltips
       document.addEventListener('click', (e) => {
         const tooltip = e.target.closest('.has-tooltip');
@@ -2828,6 +3606,30 @@
           tooltip.classList.toggle('active');
         }
       });
+    }
+
+    // ==========================================
+    // THEME ENGINE (LIGHT & DARK APPLE AESTHETICS)
+    // ==========================================
+    function initTheme() {
+      const savedTheme = localStorage.getItem('locador_theme') || 'dark';
+      applyTheme(savedTheme);
+    }
+
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        document.body.classList.add('theme-light');
+        localStorage.setItem('locador_theme', 'light');
+        if (elements.themeToggleText) elements.themeToggleText.textContent = 'Modo Escuro';
+        if (elements.themeIconSun) elements.themeIconSun.style.display = 'none';
+        if (elements.themeIconMoon) elements.themeIconMoon.style.display = 'block';
+      } else {
+        document.body.classList.remove('theme-light');
+        localStorage.setItem('locador_theme', 'dark');
+        if (elements.themeToggleText) elements.themeToggleText.textContent = 'Modo Claro';
+        if (elements.themeIconSun) elements.themeIconSun.style.display = 'block';
+        if (elements.themeIconMoon) elements.themeIconMoon.style.display = 'none';
+      }
     }
 
     function updateUfTax() {
@@ -3061,12 +3863,10 @@
       // Update titles
       elements.mainHeroTitle.textContent = `Simulação Executiva de Escala (${totalMonths} Meses)`;
       elements.chartTitle.textContent = `Evolução Patrimonial ao Longo dos ${totalMonths} Meses`;
-      elements.dreTableTitle.textContent = `Demonstrativo de Resultados do Exercício (DRE) - ${totalMonths} Meses`;
       elements.kpiFleetLabel.textContent = `Frota Final (${totalMonths} Meses)`;
       elements.kpiCashSub.textContent = `Saldo em conta no mês ${totalMonths}`;
-
-      // Build Headers
-      buildDREHeader(totalMonths);
+      if (elements.btnMonthlyLabel) elements.btnMonthlyLabel.textContent = `${totalMonths} Meses`;
+      if (elements.modalMonthsBadge) elements.modalMonthsBadge.textContent = `${totalMonths} Meses`;
 
       // Projections
       const monthData = [];
@@ -3275,27 +4075,193 @@
         }
       }
 
-      // 9. RENDER DRE TABLE
-      renderDRETable(monthData);
+      // 9. PERSIST LAST SIMULATION DATA
+      lastSimulationData = {
+        monthData,
+        totalMonths,
+        fipeVal,
+        annualDeprecRate,
+        initialCars,
+        effectiveMonthlyRentPerCar,
+        weeklyRentPerCar,
+        monthlyRentNominal
+      };
 
-      // 10. RENDER CHART
+      // 10. COMPUTE ANNUAL AGGREGATION
+      const { annualData, totalCol, avgCol } = computeAnnualData(monthData, totalMonths);
+
+      // 11. UPDATE PRINT EXECUTIVE METADATA
+      if (elements.printMetaInfo) {
+        const studentEmail = currentStudent?.email || 'Investidor Mentoria PRO';
+        const stratName = activeStrategy === 'cashflow' 
+          ? '1. Renda Passiva' 
+          : (activeStrategy === 'snowball' ? '2. Bola de Neve' : '3. Alavancagem Consórcio');
+        elements.printMetaInfo.innerHTML = `
+          <div><strong>Aluno Mentoria:</strong> ${studentEmail}</div>
+          <div><strong>Data da Simulação:</strong> ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+          <div><strong>Estratégia:</strong> ${stratName}</div>
+          <div><strong>Veículo (FIPE):</strong> ${elements.inputFipeVal.value}</div>
+          <div><strong>Frota Inicial:</strong> ${initialCars} ${initialCars === 1 ? 'veículo' : 'veículos'}</div>
+          <div><strong>Prazo & Vacância:</strong> ${totalMonths} Meses &bull; ${currentVacancy}% de Vacância Anual</div>
+        `;
+      }
+
+      // 12. RENDER MAIN ON-SCREEN DRE TABLE (ANNUAL OR MONTHLY)
+      renderDRETable(monthData, annualData, totalCol, avgCol, totalMonths);
+
+      // 13. RENDER DEDICATED PRINT TABLE (ALWAYS COMPACT ANNUAL SUMMARY)
+      renderDREPrintTable(annualData, totalCol, avgCol, totalMonths);
+
+      // 14. UPDATE MODAL TABLE IF VISIBLE
+      if (elements.modalFullDre && elements.modalFullDre.style.display !== 'none') {
+        renderDREModalTable(monthData, totalMonths);
+      }
+
+      // 15. RENDER THEME-AWARE CHART
       renderEquityChart(monthData, fipeVal, annualDeprecRate);
 
-      // 11. PERSIST SIMULATION STATE
+      // 16. PERSIST SIMULATION STATE
       saveSimulationState();
     }
 
     // ==========================================
-    // RENDER DRE TABLE
+    // ANNUAL DATA COMPUTATION ENGINE
     // ==========================================
-    function renderDRETable(data) {
-      elements.dreTbody.innerHTML = '';
+    function computeAnnualData(monthData, totalMonths) {
+      const yearsCount = Math.ceil(totalMonths / 12);
+      const annualData = [];
 
-      const weeklyRentPerCar = parseMoney(elements.inputRentWeek.value) || 700;
-      const monthlyRentNominal = weeklyRentPerCar * 4.33;
-      const vacancyRate = (currentVacancy || 0) / 100;
-      const effectiveMonthlyRentPerCar = monthlyRentNominal * (1 - vacancyRate);
+      for (let y = 1; y <= yearsCount; y++) {
+        const startM = (y - 1) * 12 + 1;
+        const endM = Math.min(y * 12, totalMonths);
+        const monthsSlice = monthData.filter(m => m.month >= startM && m.month <= endM);
 
+        if (monthsSlice.length === 0) continue;
+
+        const sumGrossRent = monthsSlice.reduce((acc, m) => acc + m.grossRent, 0);
+        const sumGrossUpsell = monthsSlice.reduce((acc, m) => acc + m.grossUpsell, 0);
+        const sumTotalRevenue = monthsSlice.reduce((acc, m) => acc + m.totalRevenue, 0);
+        const sumCostTracker = monthsSlice.reduce((acc, m) => acc + m.costTracker, 0);
+        const sumCostInsurance = monthsSlice.reduce((acc, m) => acc + m.costInsurance, 0);
+        const sumCostMaint = monthsSlice.reduce((acc, m) => acc + m.costMaint, 0);
+        const sumCostContab = monthsSlice.reduce((acc, m) => acc + m.costContab, 0);
+        const sumCostIpva = monthsSlice.reduce((acc, m) => acc + m.costIpva, 0);
+        const sumCostTax = monthsSlice.reduce((acc, m) => acc + m.costTax, 0);
+        const sumTotalOpExpenses = monthsSlice.reduce((acc, m) => acc + m.totalOpExpenses, 0);
+        const sumOpProfit = monthsSlice.reduce((acc, m) => acc + m.opProfit, 0);
+        const sumCostReserve = monthsSlice.reduce((acc, m) => acc + m.costReserve, 0);
+        const sumCostConsorcio = monthsSlice.reduce((acc, m) => acc + m.costConsorcio, 0);
+        const sumTotalNonOpExpenses = monthsSlice.reduce((acc, m) => acc + m.totalNonOpExpenses, 0);
+        const sumNetProfit = monthsSlice.reduce((acc, m) => acc + m.netProfit, 0);
+        const sumReinvestment = monthsSlice.reduce((acc, m) => acc + m.reinvestment, 0);
+        const sumNewCarsBought = monthsSlice.reduce((acc, m) => acc + m.newCarsBought, 0);
+
+        const endMonth = monthsSlice[monthsSlice.length - 1];
+
+        annualData.push({
+          year: y,
+          label: `Ano ${y} (Meses ${startM} a ${endM})`,
+          shortLabel: `Ano ${y}`,
+          monthsCount: monthsSlice.length,
+          fleet: endMonth.fleet,
+          grossRent: sumGrossRent,
+          grossUpsell: sumGrossUpsell,
+          totalRevenue: sumTotalRevenue,
+          costTracker: sumCostTracker,
+          costInsurance: sumCostInsurance,
+          costMaint: sumCostMaint,
+          costContab: sumCostContab,
+          costIpva: sumCostIpva,
+          costTax: sumCostTax,
+          totalOpExpenses: sumTotalOpExpenses,
+          opProfit: sumOpProfit,
+          costReserve: sumCostReserve,
+          costConsorcio: sumCostConsorcio,
+          totalNonOpExpenses: sumTotalNonOpExpenses,
+          netProfit: sumNetProfit,
+          reinvestment: sumReinvestment,
+          newCarsBought: sumNewCarsBought,
+          accumulatedCash: endMonth.accumulatedCash
+        });
+      }
+
+      const totalMonthsActual = monthData.length;
+      const totalSumGrossRent = monthData.reduce((acc, m) => acc + m.grossRent, 0);
+      const totalSumGrossUpsell = monthData.reduce((acc, m) => acc + m.grossUpsell, 0);
+      const totalSumTotalRevenue = monthData.reduce((acc, m) => acc + m.totalRevenue, 0);
+      const totalSumCostTracker = monthData.reduce((acc, m) => acc + m.costTracker, 0);
+      const totalSumCostInsurance = monthData.reduce((acc, m) => acc + m.costInsurance, 0);
+      const totalSumCostMaint = monthData.reduce((acc, m) => acc + m.costMaint, 0);
+      const totalSumCostContab = monthData.reduce((acc, m) => acc + m.costContab, 0);
+      const totalSumCostIpva = monthData.reduce((acc, m) => acc + m.costIpva, 0);
+      const totalSumCostTax = monthData.reduce((acc, m) => acc + m.costTax, 0);
+      const totalSumTotalOpExpenses = monthData.reduce((acc, m) => acc + m.totalOpExpenses, 0);
+      const totalSumOpProfit = monthData.reduce((acc, m) => acc + m.opProfit, 0);
+      const totalSumCostReserve = monthData.reduce((acc, m) => acc + m.costReserve, 0);
+      const totalSumCostConsorcio = monthData.reduce((acc, m) => acc + m.costConsorcio, 0);
+      const totalSumTotalNonOpExpenses = monthData.reduce((acc, m) => acc + m.totalNonOpExpenses, 0);
+      const totalSumNetProfit = monthData.reduce((acc, m) => acc + m.netProfit, 0);
+      const totalSumReinvestment = monthData.reduce((acc, m) => acc + m.reinvestment, 0);
+      const totalSumNewCarsBought = monthData.reduce((acc, m) => acc + m.newCarsBought, 0);
+      const lastMonth = monthData[monthData.length - 1];
+
+      const totalCol = {
+        isTotal: true,
+        label: `Total Acumulado (${totalMonthsActual}M)`,
+        shortLabel: `Total (${totalMonthsActual}M)`,
+        fleet: lastMonth.fleet,
+        grossRent: totalSumGrossRent,
+        grossUpsell: totalSumGrossUpsell,
+        totalRevenue: totalSumTotalRevenue,
+        costTracker: totalSumCostTracker,
+        costInsurance: totalSumCostInsurance,
+        costMaint: totalSumCostMaint,
+        costContab: totalSumCostContab,
+        costIpva: totalSumCostIpva,
+        costTax: totalSumCostTax,
+        totalOpExpenses: totalSumTotalOpExpenses,
+        opProfit: totalSumOpProfit,
+        costReserve: totalSumCostReserve,
+        costConsorcio: totalSumCostConsorcio,
+        totalNonOpExpenses: totalSumTotalNonOpExpenses,
+        netProfit: totalSumNetProfit,
+        reinvestment: totalSumReinvestment,
+        newCarsBought: totalSumNewCarsBought,
+        accumulatedCash: lastMonth.accumulatedCash
+      };
+
+      const avgCol = {
+        isAverage: true,
+        label: 'Média Mensal',
+        shortLabel: 'Média / Mês',
+        fleet: lastMonth.fleet,
+        grossRent: totalMonthsActual > 0 ? (totalSumGrossRent / totalMonthsActual) : 0,
+        grossUpsell: totalMonthsActual > 0 ? (totalSumGrossUpsell / totalMonthsActual) : 0,
+        totalRevenue: totalMonthsActual > 0 ? (totalSumTotalRevenue / totalMonthsActual) : 0,
+        costTracker: totalMonthsActual > 0 ? (totalSumCostTracker / totalMonthsActual) : 0,
+        costInsurance: totalMonthsActual > 0 ? (totalSumCostInsurance / totalMonthsActual) : 0,
+        costMaint: totalMonthsActual > 0 ? (totalSumCostMaint / totalMonthsActual) : 0,
+        costContab: totalMonthsActual > 0 ? (totalSumCostContab / totalMonthsActual) : 0,
+        costIpva: totalMonthsActual > 0 ? (totalSumCostIpva / totalMonthsActual) : 0,
+        costTax: totalMonthsActual > 0 ? (totalSumCostTax / totalMonthsActual) : 0,
+        totalOpExpenses: totalMonthsActual > 0 ? (totalSumTotalOpExpenses / totalMonthsActual) : 0,
+        opProfit: totalMonthsActual > 0 ? (totalSumOpProfit / totalMonthsActual) : 0,
+        costReserve: totalMonthsActual > 0 ? (totalSumCostReserve / totalMonthsActual) : 0,
+        costConsorcio: totalMonthsActual > 0 ? (totalSumCostConsorcio / totalMonthsActual) : 0,
+        totalNonOpExpenses: totalMonthsActual > 0 ? (totalSumTotalNonOpExpenses / totalMonthsActual) : 0,
+        netProfit: totalMonthsActual > 0 ? (totalSumNetProfit / totalMonthsActual) : 0,
+        reinvestment: totalMonthsActual > 0 ? (totalSumReinvestment / totalMonthsActual) : 0,
+        newCarsBought: totalMonthsActual > 0 ? (totalSumNewCarsBought / (totalMonthsActual / 12)) : 0,
+        accumulatedCash: lastMonth.accumulatedCash
+      };
+
+      return { annualData, totalCol, avgCol };
+    }
+
+    // ==========================================
+    // DRE ROWS CONFIGURATION
+    // ==========================================
+    function getRowsConfig(currentVacancy, effectiveMonthlyRentPerCar, weeklyRentPerCar, monthlyRentNominal, activeStrategy) {
       const rentRowLabel = currentVacancy > 0 
         ? `    (+) Aluguel de Carros (4,33 sem &bull; -${currentVacancy}% vacância)`
         : `    (+) Aluguel de Carros (4,33 sem &bull; 100% locado)`;
@@ -3340,7 +4306,7 @@
       }
       rowsConfig.push({ label: '    (-) Fundo de Reserva', key: 'costReserve', isMoney: true });
 
-      rowsConfig.push({ label: '(=) Lucro Líquido Mensal', key: 'netProfit', isMoney: true, isHighlight: true });
+      rowsConfig.push({ label: '(=) Lucro Líquido do Período', key: 'netProfit', isMoney: true, isHighlight: true });
 
       if (activeStrategy === 'snowball') {
         rowsConfig.push({ label: '(-) Reinvestimento (Compra de Carro)', key: 'reinvestment', isMoney: true, isDanger: true });
@@ -3349,6 +4315,177 @@
 
       rowsConfig.push({ label: '(=) Saldo Líquido em Caixa Acumulado', key: 'accumulatedCash', isMoney: true, isAccumulated: true });
 
+      return rowsConfig;
+    }
+
+    // ==========================================
+    // RENDER MAIN ON-SCREEN DRE TABLE
+    // ==========================================
+    function renderDRETable(monthData, annualData, totalCol, avgCol, totalMonths) {
+      elements.dreTbody.innerHTML = '';
+      elements.dreHeaderRow.innerHTML = '<th>Linha Demonstrativo (DRE)</th>';
+
+      const weeklyRentPerCar = parseMoney(elements.inputRentWeek.value) || 700;
+      const monthlyRentNominal = weeklyRentPerCar * 4.33;
+      const vacancyRate = (currentVacancy || 0) / 100;
+      const effectiveMonthlyRentPerCar = monthlyRentNominal * (1 - vacancyRate);
+
+      const rowsConfig = getRowsConfig(currentVacancy, effectiveMonthlyRentPerCar, weeklyRentPerCar, monthlyRentNominal, activeStrategy);
+
+      if (dreViewMode === 'annual') {
+        // ANNUAL COMPACT SUMMARY VIEW
+        if (elements.dreTableTitle) {
+          elements.dreTableTitle.textContent = `Demonstrativo de Resultados do Exercício (DRE) • Resumo Anual`;
+        }
+        if (elements.dreViewModeBadge) {
+          elements.dreViewModeBadge.textContent = 'Resumo Anual';
+          elements.dreViewModeBadge.style.color = '#00F2FE';
+          elements.dreViewModeBadge.style.borderColor = 'rgba(0, 242, 254, 0.35)';
+        }
+        if (elements.dreTableSubtitle) {
+          elements.dreTableSubtitle.textContent = `Consolidação executiva de cada ano dos ${totalMonths} meses para visualização direta e sem cortes.`;
+        }
+
+        // Build Annual Header Columns
+        annualData.forEach(y => {
+          const th = document.createElement('th');
+          th.textContent = y.label;
+          elements.dreHeaderRow.appendChild(th);
+        });
+
+        const thTot = document.createElement('th');
+        thTot.textContent = totalCol.label;
+        elements.dreHeaderRow.appendChild(thTot);
+
+        const thAvg = document.createElement('th');
+        thAvg.textContent = avgCol.label;
+        elements.dreHeaderRow.appendChild(thAvg);
+
+        // Build Annual Rows
+        rowsConfig.forEach(cfg => {
+          const tr = document.createElement('tr');
+          if (cfg.isHeader) tr.className = 'tr-group-header';
+          if (cfg.isHighlight) tr.className = 'tr-highlight';
+          if (cfg.isAccumulated) tr.className = 'tr-accumulated';
+          if (cfg.isDanger) tr.className = 'tr-danger';
+
+          let labelHtml = cfg.label;
+          if (cfg.hasTooltip) {
+            labelHtml = `
+              <span class="has-tooltip">
+                <span>${cfg.label}</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">${cfg.tooltipText}</span>
+              </span>
+            `;
+          }
+
+          let html = `<td>${labelHtml}</td>`;
+          annualData.forEach(y => {
+            const val = y[cfg.key];
+            const formattedVal = cfg.isInt ? val.toString() : formatMoney(val);
+            html += `<td>${formattedVal}</td>`;
+          });
+
+          // Total Column
+          const totVal = totalCol[cfg.key];
+          const formattedTot = cfg.isInt ? totVal.toString() : formatMoney(totVal);
+          html += `<td style="font-weight: 700;">${formattedTot}</td>`;
+
+          // Average Column
+          const avgVal = avgCol[cfg.key];
+          const formattedAvg = cfg.isInt ? avgVal.toFixed(1) : formatMoney(avgVal);
+          html += `<td style="font-weight: 600; color: var(--text-muted);">${formattedAvg}</td>`;
+
+          tr.innerHTML = html;
+          elements.dreTbody.appendChild(tr);
+        });
+
+      } else {
+        // FULL MONTHLY VIEW
+        if (elements.dreTableTitle) {
+          elements.dreTableTitle.textContent = `Demonstrativo de Resultados do Exercício (DRE) • ${totalMonths} Meses Detalhados`;
+        }
+        if (elements.dreViewModeBadge) {
+          elements.dreViewModeBadge.textContent = 'Planilha Completa';
+          elements.dreViewModeBadge.style.color = '#F59E0B';
+          elements.dreViewModeBadge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+        }
+        if (elements.dreTableSubtitle) {
+          elements.dreTableSubtitle.textContent = `Detalhamento mensal completo de Receitas, Custos Operacionais, Tributos, Reinvestimentos e Saldo Final.`;
+        }
+
+        // Build Monthly Header Columns
+        for (let m = 1; m <= totalMonths; m++) {
+          const th = document.createElement('th');
+          th.textContent = `Mês ${m}`;
+          elements.dreHeaderRow.appendChild(th);
+        }
+
+        // Build Monthly Rows
+        rowsConfig.forEach(cfg => {
+          const tr = document.createElement('tr');
+          if (cfg.isHeader) tr.className = 'tr-group-header';
+          if (cfg.isHighlight) tr.className = 'tr-highlight';
+          if (cfg.isAccumulated) tr.className = 'tr-accumulated';
+          if (cfg.isDanger) tr.className = 'tr-danger';
+
+          let labelHtml = cfg.label;
+          if (cfg.hasTooltip) {
+            labelHtml = `
+              <span class="has-tooltip">
+                <span>${cfg.label}</span>
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-bubble">${cfg.tooltipText}</span>
+              </span>
+            `;
+          }
+
+          let html = `<td>${labelHtml}</td>`;
+          monthData.forEach(m => {
+            const val = m[cfg.key];
+            const formattedVal = cfg.isInt ? val.toString() : formatMoney(val);
+            html += `<td>${formattedVal}</td>`;
+          });
+
+          tr.innerHTML = html;
+          elements.dreTbody.appendChild(tr);
+        });
+      }
+    }
+
+    // ==========================================
+    // RENDER DEDICATED PRINT TABLE (ANNUAL SUMMARY)
+    // ==========================================
+    function renderDREPrintTable(annualData, totalCol, avgCol, totalMonths) {
+      if (!elements.drePrintHeaderRow || !elements.drePrintTbody) return;
+
+      elements.drePrintHeaderRow.innerHTML = '<th>Linha Demonstrativo (DRE)</th>';
+      elements.drePrintTbody.innerHTML = '';
+
+      const weeklyRentPerCar = parseMoney(elements.inputRentWeek.value) || 700;
+      const monthlyRentNominal = weeklyRentPerCar * 4.33;
+      const vacancyRate = (currentVacancy || 0) / 100;
+      const effectiveMonthlyRentPerCar = monthlyRentNominal * (1 - vacancyRate);
+
+      const rowsConfig = getRowsConfig(currentVacancy, effectiveMonthlyRentPerCar, weeklyRentPerCar, monthlyRentNominal, activeStrategy);
+
+      // Print Header columns
+      annualData.forEach(y => {
+        const th = document.createElement('th');
+        th.textContent = y.shortLabel;
+        elements.drePrintHeaderRow.appendChild(th);
+      });
+
+      const thTot = document.createElement('th');
+      thTot.textContent = totalCol.shortLabel;
+      elements.drePrintHeaderRow.appendChild(thTot);
+
+      const thAvg = document.createElement('th');
+      thAvg.textContent = avgCol.shortLabel;
+      elements.drePrintHeaderRow.appendChild(thAvg);
+
+      // Print Rows (Strip HTML tags from labels for clean paper output)
       rowsConfig.forEach(cfg => {
         const tr = document.createElement('tr');
         if (cfg.isHeader) tr.className = 'tr-group-header';
@@ -3356,39 +4493,96 @@
         if (cfg.isAccumulated) tr.className = 'tr-accumulated';
         if (cfg.isDanger) tr.className = 'tr-danger';
 
-        let labelHtml = cfg.label;
-        if (cfg.hasTooltip) {
-          labelHtml = `
-            <span class="has-tooltip">
-              <span>${cfg.label}</span>
-              <span class="tooltip-icon">i</span>
-              <span class="tooltip-bubble">${cfg.tooltipText}</span>
-            </span>
-          `;
-        }
+        const plainLabel = cfg.label.replace(/&bull;/g, '•').trim();
 
-        let html = `<td>${labelHtml}</td>`;
-        data.forEach(m => {
-          const val = m[cfg.key];
-          let formattedVal = '';
-          if (cfg.isInt) {
-            formattedVal = val.toString();
-          } else if (cfg.isMoney) {
-            formattedVal = formatMoney(val);
-          } else {
-            formattedVal = val;
-          }
+        let html = `<td>${plainLabel}</td>`;
+        annualData.forEach(y => {
+          const val = y[cfg.key];
+          const formattedVal = cfg.isInt ? val.toString() : formatMoney(val);
           html += `<td>${formattedVal}</td>`;
         });
+
+        // Total Column
+        const totVal = totalCol[cfg.key];
+        const formattedTot = cfg.isInt ? totVal.toString() : formatMoney(totVal);
+        html += `<td style="font-weight: 700;">${formattedTot}</td>`;
+
+        // Average Column
+        const avgVal = avgCol[cfg.key];
+        const formattedAvg = cfg.isInt ? avgVal.toFixed(1) : formatMoney(avgVal);
+        html += `<td style="font-weight: 600;">${formattedAvg}</td>`;
+
         tr.innerHTML = html;
-        elements.dreTbody.appendChild(tr);
+        elements.drePrintTbody.appendChild(tr);
       });
     }
 
     // ==========================================
-    // CHART.JS VISUAL ENGINE
+    // FULLSCREEN MODAL SPREADSHEET (36 MESES)
+    // ==========================================
+    function openFullscreenDRE() {
+      if (!lastSimulationData || !elements.modalFullDre) return;
+      elements.modalFullDre.style.display = 'flex';
+      renderDREModalTable(lastSimulationData.monthData, lastSimulationData.totalMonths);
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeFullscreenDRE() {
+      if (!elements.modalFullDre) return;
+      elements.modalFullDre.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function renderDREModalTable(monthData, totalMonths) {
+      if (!elements.dreModalHeaderRow || !elements.dreModalTbody) return;
+
+      elements.dreModalHeaderRow.innerHTML = '<th>Linha Demonstrativo (DRE)</th>';
+      elements.dreModalTbody.innerHTML = '';
+
+      const weeklyRentPerCar = parseMoney(elements.inputRentWeek.value) || 700;
+      const monthlyRentNominal = weeklyRentPerCar * 4.33;
+      const vacancyRate = (currentVacancy || 0) / 100;
+      const effectiveMonthlyRentPerCar = monthlyRentNominal * (1 - vacancyRate);
+
+      const rowsConfig = getRowsConfig(currentVacancy, effectiveMonthlyRentPerCar, weeklyRentPerCar, monthlyRentNominal, activeStrategy);
+
+      // Header Months
+      for (let m = 1; m <= totalMonths; m++) {
+        const th = document.createElement('th');
+        th.textContent = `Mês ${m}`;
+        elements.dreModalHeaderRow.appendChild(th);
+      }
+
+      // Rows
+      rowsConfig.forEach(cfg => {
+        const tr = document.createElement('tr');
+        if (cfg.isHeader) tr.className = 'tr-group-header';
+        if (cfg.isHighlight) tr.className = 'tr-highlight';
+        if (cfg.isAccumulated) tr.className = 'tr-accumulated';
+        if (cfg.isDanger) tr.className = 'tr-danger';
+
+        let html = `<td>${cfg.label}</td>`;
+        monthData.forEach(m => {
+          const val = m[cfg.key];
+          const formattedVal = cfg.isInt ? val.toString() : formatMoney(val);
+          html += `<td>${formattedVal}</td>`;
+        });
+
+        tr.innerHTML = html;
+        elements.dreModalTbody.appendChild(tr);
+      });
+    }
+
+    // ==========================================
+    // THEME-AWARE CHART.JS VISUAL ENGINE
     // ==========================================
     function renderEquityChart(monthData, fipeVal, annualDeprecRate) {
+      const isLight = document.body.classList.contains('theme-light');
+      const gridColorX = isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.04)';
+      const gridColorY = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.05)';
+      const ticksColor = isLight ? '#475569' : '#64748B';
+      const legendColor = isLight ? '#1E293B' : '#94A3B8';
+
       const labels = monthData.map(m => `Mês ${m.month}`);
       const cashData = monthData.map(m => m.accumulatedCash);
       
@@ -3415,7 +4609,7 @@
               label: 'Patrimônio Total Acumulado (R$)',
               data: totalEquityData,
               borderColor: '#10B981',
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              backgroundColor: isLight ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.12)',
               fill: true,
               borderWidth: 3,
               tension: 0.35,
@@ -3448,7 +4642,7 @@
           plugins: {
             legend: {
               labels: {
-                color: '#94A3B8',
+                color: legendColor,
                 font: { family: 'Inter', size: 12 }
               }
             },
@@ -3462,13 +4656,13 @@
           },
           scales: {
             x: {
-              grid: { color: 'rgba(255, 255, 255, 0.04)' },
-              ticks: { color: '#64748B', font: { family: 'Inter', size: 11 } }
+              grid: { color: gridColorX },
+              ticks: { color: ticksColor, font: { family: 'Inter', size: 11 } }
             },
             y: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              grid: { color: gridColorY },
               ticks: {
-                color: '#64748B',
+                color: ticksColor,
                 font: { family: 'Inter', size: 11 },
                 callback: function(val) {
                   return 'R$ ' + (val / 1000) + 'k';
