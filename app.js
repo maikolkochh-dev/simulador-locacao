@@ -2839,7 +2839,12 @@ function runCalculationsAndRender(options = {}) {
       taxRate: data.aliquotaImposto || 0,
       reserveFundVal: data.fundoReserva || 0,
       deprecRate: (results.depreciacaoAnualEstimada || 8),
-      horizon: data.prazoAnaliseMeses || 24
+      horizon: data.prazoAnaliseMeses || 24,
+      isLeveraged: data.isLeveraged,
+      valorEntrada: data.valorEntrada,
+      valorFinanciado: data.valorFinanciado,
+      qtdParcelas: data.qtdParcelas,
+      valorParcela: data.valorParcela
     }));
   } catch (e) {
     // Ignore localStorage storage errors
@@ -2895,13 +2900,24 @@ function runCalculationsAndRender(options = {}) {
   }
 
   if (elements.execKpiCaixaDistribuivel) {
-    elements.execKpiCaixaDistribuivel.textContent = utils.formatCurrency(results.lucroOperacionalMensal);
-    elements.execKpiCaixaDistribuivel.style.color = results.lucroOperacionalMensal >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
+    if (results.isLeveraged && hSel.mesesSemParcela > 0) {
+      const avgMonthly = hSel.lucroOperacionalAcumulado / hSel.meses;
+      elements.execKpiCaixaDistribuivel.textContent = utils.formatCurrency(avgMonthly);
+      elements.execKpiCaixaDistribuivel.style.color = avgMonthly >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
+    } else {
+      elements.execKpiCaixaDistribuivel.textContent = utils.formatCurrency(results.lucroOperacionalMensal);
+      elements.execKpiCaixaDistribuivel.style.color = results.lucroOperacionalMensal >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
+    }
   }
   if (elements.execKpiCaixaDistSub) {
-    elements.execKpiCaixaDistSub.textContent = results.isLeveraged
-      ? `Líquido no bolso (já descontando custos e parcela)`
-      : `Líquido no bolso (descontando custos que saem do caixa)`;
+    if (results.isLeveraged && hSel.mesesSemParcela > 0) {
+      elements.execKpiCaixaDistSub.textContent =
+        `Média nos ${hSel.meses}m • Quitado após mês ${results.inputs.qtdParcelas} (${utils.formatCurrency(results.lucroOperacionalMensalSemParcela)}/mês após quitar)`;
+    } else {
+      elements.execKpiCaixaDistSub.textContent = results.isLeveraged
+        ? `Líquido no bolso (já descontando custos e parcela)`
+        : `Líquido no bolso (descontando custos que saem do caixa)`;
+    }
   }
 
   // =========================================================================
@@ -2994,7 +3010,9 @@ function runCalculationsAndRender(options = {}) {
       elements.periodFinancingStatusBadge.style.borderColor = '';
       elements.periodFinancingStatusBadge.style.color = '';
       elements.periodFinancingStatusBadge.textContent = results.isLeveraged
-        ? `Financiamento 100% Quitado em ${hSel.meses} Meses (R$ 0,00 a descontar)`
+        ? (hSel.mesesSemParcela > 0
+            ? `Financiamento 100% Quitado no mês ${results.inputs.qtdParcelas} (Parcela R$ 0,00 nos meses ${results.inputs.qtdParcelas + 1} a ${hSel.meses})`
+            : `Financiamento 100% Quitado em ${hSel.meses} Meses (R$ 0,00 a descontar)`)
         : `Aquisição à Vista • Sem Saldo de Financiamento`;
     }
   }
@@ -3029,25 +3047,45 @@ function runCalculationsAndRender(options = {}) {
 
   if (results.isLeveraged && results.parcelaFinanciamento > 0) {
     if (elements.dreFinanciamentoRow) elements.dreFinanciamentoRow.style.display = 'flex';
-    if (elements.dreFinanciamentoVal) elements.dreFinanciamentoVal.textContent = formatSignedNegativeBrl(results.parcelaFinanciamento);
+    if (elements.dreFinanciamentoVal) {
+      if (hSel.mesesSemParcela > 0) {
+        elements.dreFinanciamentoVal.innerHTML = `${formatSignedNegativeBrl(results.parcelaFinanciamento)} <span style="font-size: 11px; color: var(--color-success); font-weight: 600; margin-left: 6px;">(Quitado após mês ${results.inputs.qtdParcelas})</span>`;
+      } else {
+        elements.dreFinanciamentoVal.textContent = formatSignedNegativeBrl(results.parcelaFinanciamento);
+      }
+    }
     if (elements.dreFinanciamentoLabel) {
-      elements.dreFinanciamentoLabel.textContent = `Parcela do Financiamento (${results.inputs.qtdParcelas}x)`;
+      if (hSel.mesesSemParcela > 0) {
+        elements.dreFinanciamentoLabel.textContent = `(-) 6. Parcela do Financiamento (apenas meses 1 a ${results.inputs.qtdParcelas})`;
+      } else {
+        elements.dreFinanciamentoLabel.textContent = `(-) 6. Parcela do Financiamento (${results.inputs.qtdParcelas}x)`;
+      }
     }
   } else {
     if (elements.dreFinanciamentoRow) elements.dreFinanciamentoRow.style.display = 'none';
   }
 
   if (elements.dreSaidasTotal) {
-    elements.dreSaidasTotal.textContent = formatSignedNegativeBrl(results.saidasCaixaBolsoMensais);
+    if (results.isLeveraged && hSel.mesesSemParcela > 0) {
+      const saidasSemParcela = results.impostosSimplesNacional + results.custosOperacionaisRecorrentes;
+      elements.dreSaidasTotal.innerHTML = `${formatSignedNegativeBrl(results.saidasCaixaBolsoMensais)} <span style="font-size: 11px; opacity: 0.8;">(meses 1-${results.inputs.qtdParcelas})</span> &bull; ${formatSignedNegativeBrl(saidasSemParcela)} <span style="font-size: 11px; color: var(--color-success); font-weight: 600;">(após quitação)</span>`;
+    } else {
+      elements.dreSaidasTotal.textContent = formatSignedNegativeBrl(results.saidasCaixaBolsoMensais);
+    }
   }
 
   if (elements.dreLucroLiquido) {
-    if (results.lucroOperacionalMensal >= 0) {
-      elements.dreLucroLiquido.textContent = utils.formatCurrency(results.lucroOperacionalMensal);
+    if (results.isLeveraged && hSel.mesesSemParcela > 0) {
+      elements.dreLucroLiquido.innerHTML = `${utils.formatCurrency(results.lucroOperacionalMensal)} <span style="font-size: 11px; opacity: 0.8;">(meses 1-${results.inputs.qtdParcelas})</span> &bull; ${utils.formatCurrency(results.lucroOperacionalMensalSemParcela)} <span style="font-size: 11px; color: var(--color-success); font-weight: 600;">(meses ${results.inputs.qtdParcelas + 1}-${hSel.meses})</span>`;
       elements.dreLucroLiquido.style.color = 'var(--color-success)';
     } else {
-      elements.dreLucroLiquido.textContent = formatSignedNegativeBrl(results.lucroOperacionalMensal);
-      elements.dreLucroLiquido.style.color = 'var(--color-danger)';
+      if (results.lucroOperacionalMensal >= 0) {
+        elements.dreLucroLiquido.textContent = utils.formatCurrency(results.lucroOperacionalMensal);
+        elements.dreLucroLiquido.style.color = 'var(--color-success)';
+      } else {
+        elements.dreLucroLiquido.textContent = formatSignedNegativeBrl(results.lucroOperacionalMensal);
+        elements.dreLucroLiquido.style.color = 'var(--color-danger)';
+      }
     }
   }
 
@@ -3067,11 +3105,21 @@ function runCalculationsAndRender(options = {}) {
       elements.kpiRoiLabel.textContent = `LUCRO MENSAL NO BOLSO (100% FINANCIADO • SEM ENTRADA)`;
     }
     if (elements.kpiRoiMensal) {
-      elements.kpiRoiMensal.innerHTML = `${utils.formatCurrency(results.lucroOperacionalMensal)}/mês <span class="roi-anual-inline">(${utils.formatCurrency(results.lucroOperacionalMensal * 12)}/ano)</span>`;
+      if (hSel.mesesSemParcela > 0) {
+        const avgLucro = hSel.lucroOperacionalAcumulado / hSel.meses;
+        elements.kpiRoiMensal.innerHTML = `${utils.formatCurrency(avgLucro)}/mês <span class="roi-anual-inline">(média nos ${hSel.meses}m)</span>`;
+      } else {
+        elements.kpiRoiMensal.innerHTML = `${utils.formatCurrency(results.lucroOperacionalMensal)}/mês <span class="roi-anual-inline">(${utils.formatCurrency(results.lucroOperacionalMensal * 12)}/ano)</span>`;
+      }
     }
     if (elements.kpiRoiAnual) {
-      elements.kpiRoiAnual.textContent =
-        `Sem entrada inicial • Lucro de ${utils.formatCurrency(results.lucroOperacionalMensal * 12)}/ano no bolso`;
+      if (hSel.mesesSemParcela > 0) {
+        elements.kpiRoiAnual.textContent =
+          `Veículo quitado após mês ${results.inputs.qtdParcelas} • Lucro sobe para ${utils.formatCurrency(results.lucroOperacionalMensalSemParcela)}/mês nos meses seguintes`;
+      } else {
+        elements.kpiRoiAnual.textContent =
+          `Sem entrada inicial • Lucro de ${utils.formatCurrency(results.lucroOperacionalMensal * 12)}/ano no bolso`;
+      }
     }
     if (elements.kpiPayback) elements.kpiPayback.textContent = 'Imediato (R$ 0 entrada)';
     if (elements.kpiPaybackSubtext) {
@@ -3098,14 +3146,27 @@ function runCalculationsAndRender(options = {}) {
         : `RETORNO MENSAL NO BOLSO (SOBRE ${tipoCap})`;
     }
     if (elements.kpiRoiMensal) {
-      const signM = results.roiFluxoMensal >= 0 ? '+' : '';
-      const signA = results.roiFluxoAnual >= 0 ? '+' : '';
-      elements.kpiRoiMensal.innerHTML = `${signM}${utils.formatPercent(results.roiFluxoMensal)} a.m. <span class="roi-anual-inline">(${signA}${utils.formatPercent(results.roiFluxoAnual)} a.a.)</span>`;
+      if (results.isLeveraged && hSel.mesesSemParcela > 0) {
+        const baseCapitalRoi = hSel.capitalInicialDesembolsado > 0 ? hSel.capitalInicialDesembolsado : results.inputs.valorPago;
+        const avgLucro = hSel.lucroOperacionalAcumulado / hSel.meses;
+        const avgRoi = baseCapitalRoi > 0 ? (avgLucro / baseCapitalRoi) : 0;
+        const signM = avgRoi >= 0 ? '+' : '';
+        elements.kpiRoiMensal.innerHTML = `${signM}${utils.formatPercent(avgRoi)} a.m. <span class="roi-anual-inline">(média nos ${hSel.meses}m)</span>`;
+      } else {
+        const signM = results.roiFluxoMensal >= 0 ? '+' : '';
+        const signA = results.roiFluxoAnual >= 0 ? '+' : '';
+        elements.kpiRoiMensal.innerHTML = `${signM}${utils.formatPercent(results.roiFluxoMensal)} a.m. <span class="roi-anual-inline">(${signA}${utils.formatPercent(results.roiFluxoAnual)} a.a.)</span>`;
+      }
     }
     if (elements.kpiRoiAnual) {
       const signA = results.roiFluxoAnual >= 0 ? '+' : '';
-      elements.kpiRoiAnual.textContent =
-        `${signA}${utils.formatPercent(results.roiFluxoAnual)} ao ano • Sobra de ${utils.formatCurrency(results.lucroOperacionalMensal)}/mês`;
+      if (results.isLeveraged && hSel.mesesSemParcela > 0) {
+        elements.kpiRoiAnual.textContent =
+          `Veículo 100% quitado após ${results.inputs.qtdParcelas} meses • Lucro após quitação: ${utils.formatCurrency(results.lucroOperacionalMensalSemParcela)}/mês`;
+      } else {
+        elements.kpiRoiAnual.textContent =
+          `${signA}${utils.formatPercent(results.roiFluxoAnual)} ao ano • Sobra de ${utils.formatCurrency(results.lucroOperacionalMensal)}/mês`;
+      }
     }
 
     // Card 2: Payback do Investimento Inicial

@@ -3309,7 +3309,14 @@
 
           const carPrice = ps.carPurchaseVal || ps.fipeVal || 50000;
           elements.inputConsCreditVal.value = formatCurrency(carPrice);
-          elements.inputConsLanceVal.value = formatCurrency(carPrice * 0.30);
+          if (ps.isLeveraged && ps.valorEntrada) {
+            elements.inputConsLanceVal.value = formatCurrency(ps.valorEntrada);
+          } else {
+            elements.inputConsLanceVal.value = formatCurrency(carPrice * 0.30);
+          }
+          if (ps.isLeveraged && ps.qtdParcelas) {
+            elements.inputConsTerm.value = ps.qtdParcelas;
+          }
           updateFipeDiffBadge();
         }
       } catch(e) {}
@@ -3900,8 +3907,8 @@
         // 4. NON-OPERATIONAL EXPENSES
         let costReserve = currentFleet * reserveFundPerCar;
         let costConsorcio = 0;
-        if (activeStrategy === 'leverage') {
-          // Parcela mensal exata do consórcio calculada dinamicamente
+        if (activeStrategy === 'leverage' && m <= consTermMonths) {
+          // Parcela mensal exata do consórcio calculada dinamicamente apenas durante o prazo da cota
           costConsorcio = consMonthlyInstallment * initialCars;
         }
         const totalNonOpExpenses = costReserve + costConsorcio;
@@ -4302,7 +4309,8 @@
       ];
 
       if (activeStrategy === 'leverage') {
-        rowsConfig.push({ label: '    (-) Parcela do Consórcio', key: 'costConsorcio', isMoney: true });
+        const consTerm = parseInt(elements.inputConsTerm.value) || 60;
+        rowsConfig.push({ label: `    (-) Parcela do Consórcio (${consTerm}x)`, key: 'costConsorcio', isMoney: true });
       }
       rowsConfig.push({ label: '    (-) Fundo de Reserva', key: 'costReserve', isMoney: true });
 

@@ -33,17 +33,57 @@ app.use(express.static(__dirname, {
 // ==========================================
 // ROBUST DATABASE HELPER (JSON STORE)
 // ==========================================
+const INITIAL_USERS = [
+  {
+    "nome": "Maikol",
+    "telefone": "(47) 99991-9781",
+    "email": "maikolkochh@gmail.com",
+    "senha": "99664782",
+    "createdAt": "2026-05-30T20:42:25.622Z"
+  },
+  {
+    "nome": "Dubai",
+    "telefone": "(47) 99757-3434",
+    "email": "dubaiautobc@gmail.com",
+    "senha": "Foco2029@",
+    "createdAt": "2026-05-31T03:02:14.192Z"
+  },
+  {
+    "nome": "Rastrek",
+    "telefone": "(47) 99999-9999",
+    "email": "rastrek.balneario@gmail.com",
+    "senha": "Foco2029@",
+    "createdAt": "2026-05-31T03:05:46.091Z"
+  }
+];
+
 function readUsers() {
   if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify([]));
-    return [];
+    fs.writeFileSync(DB_FILE, JSON.stringify(INITIAL_USERS, null, 2));
+    return [...INITIAL_USERS];
   }
   try {
     const data = fs.readFileSync(DB_FILE, 'utf-8');
-    return JSON.parse(data || '[]');
+    let list = JSON.parse(data || '[]');
+    if (!Array.isArray(list)) list = [];
+    
+    // Garantir que as contas mestre sempre existam
+    let modified = false;
+    for (const initUser of INITIAL_USERS) {
+      const idx = list.findIndex(u => (u.email || '').toLowerCase().trim() === initUser.email.toLowerCase().trim());
+      if (idx === -1) {
+        list.push(initUser);
+        modified = true;
+      }
+    }
+    if (modified) {
+      writeUsers(list);
+    }
+    return list;
   } catch (err) {
-    console.error('Error reading user database, resetting:', err);
-    return [];
+    console.error('Error reading user database, restoring defaults:', err);
+    writeUsers(INITIAL_USERS);
+    return [...INITIAL_USERS];
   }
 }
 

@@ -1,0 +1,23 @@
+[
+  {
+    "nome": "Maikol",
+    "telefone": "(47) 99991-9781",
+    "email": "maikolkochh@gmail.com",
+    "senha": "99664782",
+    "createdAt": "2026-05-30T20:42:25.622Z"
+  },
+  {
+    "nome": "Dubai",
+    "telefone": "(47) 99757-3434",
+    "email": "dubaiautobc@gmail.com",
+    "senha": "Foco2029@",
+    "createdAt": "2026-05-31T03:02:14.192Z"
+  },
+  {
+    "nome": "Rastrek",
+    "telefone": "(47) 99999-9999",
+    "email": "rastrek.balneario@gmail.com",
+    "senha": "Foco2029@",
+    "createdAt": "2026-05-31T03:05:46.091Z"
+  }
+]
