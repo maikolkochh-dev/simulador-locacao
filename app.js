@@ -716,7 +716,13 @@ const CURATED_CAR_PHOTOS = [
   { match: /\bdolphin\s*mini\b|\bseagull\b/i, wikiQuery: 'BYD Seagull', catalog: { title: 'BYD_Seagull', lang: 'en', displayName: 'BYD Dolphin Mini' } },
   { match: /\bonix\s*plus\b/i, wikiQuery: 'Chevrolet Onix Plus', catalog: { title: 'Chevrolet_Onix_Plus', lang: 'pt', displayName: 'Chevrolet Onix Plus' } },
   { match: /\bpolo\s*track\b/i, wikiQuery: 'Volkswagen Polo Track', catalog: { title: 'Volkswagen_Polo', lang: 'en', displayName: 'Volkswagen Polo Track' } },
-  { match: /\bhb20s\b/i, wikiQuery: 'Hyundai HB20S', catalog: { title: 'Hyundai_HB20', lang: 'pt', displayName: 'Hyundai HB20S' } },
+  { 
+    match: /\b(hb20[-_\s]?s|hb20\s+sedan)\b/i, 
+    wikiQuery: 'Hyundai HB20S', 
+    directPhotoUrl: '/hyundai-hb20s.png',
+    fallbackLocalUrl: '/hyundai-hb20s.png',
+    displayName: 'Hyundai HB20S' 
+  },
   { match: /\bcorolla\s*cross\b/i, wikiQuery: 'Toyota Corolla Cross', catalog: { title: 'Toyota_Corolla_Cross', lang: 'en', displayName: 'Toyota Corolla Cross' } },
   { match: /\bc4\s*cactus\b/i, wikiQuery: 'Citroën C4 Cactus', catalog: { title: 'Citroën_C4_Cactus', lang: 'en', displayName: 'Citroën C4 Cactus' } },
   { match: /\bgrand\s*siena\b/i, wikiQuery: 'Fiat Grand Siena', catalog: { title: 'Fiat_Siena', lang: 'en', displayName: 'Fiat Grand Siena' } },
