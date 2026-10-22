@@ -1974,6 +1974,370 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* ==========================================================================
+       CUSTOM SEARCHABLE SELECT STYLES (FIPE & UF)
+       ========================================================================== */
+    .custom-select-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .custom-select-container select {
+      position: absolute !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+    }
+
+    .custom-select-search {
+      width: 100%;
+      cursor: text;
+      padding-right: 44px !important;
+    }
+
+    .custom-select-search:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.01) !important;
+    }
+
+    .custom-select-container .arrow-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-muted);
+    }
+
+    .custom-select-container.open .arrow-icon {
+      transform: translateY(-50%) rotate(180deg);
+      color: var(--accent-cyan);
+    }
+
+    .custom-select-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #0B1120;
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 242, 254, 0.12);
+      transform-origin: top center;
+      animation: slideDownSelect 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideDownSelect {
+      from { transform: scaleY(0.95) translateY(-6px); opacity: 0; }
+      to { transform: scaleY(1) translateY(0); opacity: 1; }
+    }
+
+    .custom-select-dropdown::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-select-dropdown::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .custom-select-dropdown::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+    .custom-select-dropdown::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-cyan);
+    }
+
+    .custom-select-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      color: var(--text-main);
+      font-size: 13px;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .custom-select-item:last-child {
+      border-bottom: none;
+    }
+
+    .custom-select-item:hover, 
+    .custom-select-item.highlighted {
+      background: rgba(0, 242, 254, 0.1);
+      color: var(--accent-cyan);
+    }
+
+    .custom-select-item.selected {
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--accent-cyan);
+      font-weight: 700;
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    .custom-select-no-results {
+      padding: 12px 14px;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Light mode searchable selects */
+    body.theme-light .custom-select-dropdown {
+      background: #FFFFFF !important;
+      border: 1px solid #CBD5E1 !important;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.06) !important;
+    }
+    body.theme-light .custom-select-item {
+      color: #0F172A !important;
+      border-bottom: 1px solid #F1F5F9 !important;
+    }
+    body.theme-light .custom-select-item:hover,
+    body.theme-light .custom-select-item.highlighted {
+      background: #F1F5F9 !important;
+      color: #0284C7 !important;
+    }
+    body.theme-light .custom-select-item.selected {
+      background: #E0F2FE !important;
+      color: #0284C7 !important;
+      border-left: 3px solid #0284C7 !important;
+    }
+    body.theme-light .custom-select-no-results {
+      color: #64748B !important;
+    }
+
+    /* ==========================================================================
+       VEHICLE MODE SELECTOR & MANUAL INPUTS IN PRO
+       ========================================================================== */
+    .vehicle-mode-selector {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      gap: 4px;
+    }
+
+    .vehicle-mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .vehicle-mode-btn:hover {
+      color: var(--text-main);
+    }
+
+    .vehicle-mode-btn.active {
+      background: var(--accent-cyan);
+      color: #04111E;
+      box-shadow: 0 2px 8px rgba(0, 242, 254, 0.25);
+    }
+
+    body.theme-light .vehicle-mode-selector {
+      background: #E2E8F0 !important;
+      border-color: #CBD5E1 !important;
+    }
+
+    body.theme-light .vehicle-mode-btn {
+      color: #64748B !important;
+    }
+
+    body.theme-light .vehicle-mode-btn.active {
+      background: #0284C7 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.2) !important;
+    }
+
+    .quick-manual-selectors-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .quick-manual-selectors-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       BENEFÍCIO LOCADORA 1% IPVA (CNPJ) NO MÓDULO PRO
+       ========================================================================== */
+    .btn-locadora-benefit {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(52, 211, 153, 0.45);
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-locadora-benefit:hover {
+      background: rgba(52, 211, 153, 0.08);
+      border-color: #10B981;
+    }
+
+    .btn-locadora-benefit.active {
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid #10B981;
+      box-shadow: 0 0 16px rgba(52, 211, 153, 0.18);
+    }
+
+    .locadora-check-indicator {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: transparent;
+      transition: all 0.2s ease;
+    }
+
+    .btn-locadora-benefit.active .locadora-check-indicator {
+      background: #10B981;
+      border-color: #10B981;
+      color: #042F1A;
+    }
+
+    .locadora-btn-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .locadora-btn-text strong {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .btn-locadora-benefit.active .locadora-btn-text strong {
+      color: #34D399;
+    }
+
+    .locadora-btn-text span {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    .locadora-savings-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      box-shadow: 0 6px 20px -6px rgba(16, 185, 129, 0.2);
+      animation: fadeIn 0.25s ease;
+    }
+
+    .savings-icon-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(52, 211, 153, 0.18);
+      color: #10B981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .savings-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .savings-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .savings-amount {
+      font-size: 12px;
+      font-weight: 800;
+      color: #34D399;
+    }
+
+    .savings-detail {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    /* Light Mode for Locadora Benefit */
+    body.theme-light .btn-locadora-benefit {
+      background: #FFFFFF !important;
+      border: 1.5px dashed #10B981 !important;
+      color: #0F172A !important;
+    }
+    body.theme-light .btn-locadora-benefit:hover {
+      background: #F0FDF4 !important;
+    }
+    body.theme-light .btn-locadora-benefit.active {
+      background: #ECFDF5 !important;
+      border: 1.5px solid #059669 !important;
+    }
+    body.theme-light .locadora-btn-text strong {
+      color: #0F172A !important;
+    }
+    body.theme-light .btn-locadora-benefit.active .locadora-btn-text strong {
+      color: #059669 !important;
+    }
+    body.theme-light .locadora-btn-text span {
+      color: #64748B !important;
+    }
+    body.theme-light .locadora-savings-box {
+      background: #ECFDF5 !important;
+      border: 1.5px solid #6EE7B7 !important;
+    }
+    body.theme-light .savings-amount {
+      color: #065F46 !important;
+    }
+    body.theme-light .savings-detail {
+      color: #047857 !important;
+    }
   </style>
 </head>
 <body>
@@ -2382,6 +2746,37 @@
           <div class="info-badge-uf" id="uf-badge-info">
             Carregando alíquotas do estado...
           </div>
+
+          <!-- Botão Benefício Locadora 1% IPVA (CNPJ) -->
+          <div class="locadora-benefit-action" style="margin-top: 10px;">
+            <button type="button" id="btn-locadora-benefit" class="btn-locadora-benefit" aria-pressed="false">
+              <span class="locadora-check-indicator" id="locadora-check-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <div class="locadora-btn-text">
+                <strong>Já sou Locador (CNPJ Locadora) &mdash; Benefício 1% IPVA</strong>
+                <span>Aplica alíquota de 1,0% a.a. no IPVA mantendo o licenciamento estadual oficial</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Box Informativo de Economia Fiscal Locadora -->
+          <div id="locadora-savings-box" class="locadora-savings-box" style="display: none; margin-top: 10px;">
+            <div class="savings-icon-badge">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div class="savings-content">
+              <div class="savings-title-row">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #10B981; letter-spacing: 0.5px;">Benefício CNPJ Ativo</span>
+                <span class="savings-amount" id="locadora-savings-amount">R$ 0,00/ano</span>
+              </div>
+              <span class="savings-detail" id="locadora-savings-detail">IPVA recalculado para 1,0% a.a. Taxa de licenciamento inalterada.</span>
+            </div>
+          </div>
         </div>
 
         <!-- CUSTOS OPERACIONAIS & TRIBUTOS (COLAPSÁVEL) -->
@@ -2489,18 +2884,27 @@
               </div>
             </div>
 
-            <div class="quick-fipe-toggle-wrapper">
-              <label class="toggle-fipe-label">
-                <input type="checkbox" id="toggle-enable-fipe" checked>
-                <span class="toggle-fipe-custom"></span>
-                <span class="toggle-fipe-text">Consultar FIPE</span>
-              </label>
+            <div class="vehicle-mode-selector">
+              <button type="button" class="vehicle-mode-btn active" id="btn-mode-fipe">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Buscar na FIPE
+              </button>
+              <button type="button" class="vehicle-mode-btn" id="btn-mode-manual">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Digitação Manual
+              </button>
             </div>
           </div>
 
           <div id="quick-fipe-body" class="quick-fipe-body">
             
-            <!-- LINHA DE SELEÇÃO: MARCA, MODELO E ANO -->
+            <!-- LINHA DE SELEÇÃO: MARCA, MODELO E ANO (DIGITÁVEL) -->
             <div class="quick-fipe-selectors-row" id="quick-fipe-selectors">
               <div class="quick-fipe-col">
                 <label class="quick-field-label">Marca</label>
@@ -2522,6 +2926,18 @@
               </div>
             </div>
 
+            <!-- LINHA MANUAL: DIGITAÇÃO LIVRE DE MARCA E MODELO -->
+            <div class="quick-manual-selectors-row" id="quick-manual-selectors" style="display: none;">
+              <div class="quick-fipe-col">
+                <label class="quick-field-label">Marca do Veículo</label>
+                <input type="text" id="manual-brand-input" class="form-input" placeholder="Ex: Chevrolet, Hyundai, Fiat...">
+              </div>
+              <div class="quick-fipe-col" style="flex: 2;">
+                <label class="quick-field-label">Modelo / Versão / Ano</label>
+                <input type="text" id="manual-model-input" class="form-input" placeholder="Ex: HB20S Sedan 1.0 Comfort 2024">
+              </div>
+            </div>
+
             <!-- VALORES LADO A LADO: FIPE OFICIAL E VALOR CORRETO DE COMPRA -->
             <div class="quick-fipe-values-row">
               <!-- LADO 1: FIPE OFICIAL -->
@@ -2530,7 +2946,9 @@
                   <span class="quick-val-label">Valor Tabela FIPE (Oficial)</span>
                   <span class="quick-fipe-badge" id="quick-fipe-ref-badge">Referência Oficial</span>
                 </div>
-                <div class="quick-val-amount" id="quick-fipe-display-val">R$ 50.000,00</div>
+                <div class="quick-purchase-input-wrapper">
+                  <input type="text" id="quick-fipe-display-val" class="form-input quick-car-input" value="R$ 50.000,00" placeholder="R$ 0,00">
+                </div>
                 <div class="quick-val-sub" id="quick-fipe-sub-info">Base oficial para cálculo de IPVA estadual e depreciação final</div>
               </div>
 
@@ -2979,8 +3397,335 @@
       quickDiffBadge: document.getElementById('quick-diff-badge'),
       quickCarValInput: document.getElementById('quick-car-val-input'),
       quickDiffDescription: document.getElementById('quick-diff-description'),
-      quickFipeStatusNote: document.getElementById('quick-fipe-status-note')
+      quickFipeStatusNote: document.getElementById('quick-fipe-status-note'),
+
+      // Benefício Locadora & Modo de Veículo PRO
+      btnLocadoraBenefit: document.getElementById('btn-locadora-benefit'),
+      locadoraSavingsBox: document.getElementById('locadora-savings-box'),
+      locadoraSavingsAmount: document.getElementById('locadora-savings-amount'),
+      locadoraSavingsDetail: document.getElementById('locadora-savings-detail'),
+      btnModeFipe: document.getElementById('btn-mode-fipe'),
+      btnModeManual: document.getElementById('btn-mode-manual'),
+      quickManualSelectors: document.getElementById('quick-manual-selectors'),
+      manualBrandInput: document.getElementById('manual-brand-input'),
+      manualModelInput: document.getElementById('manual-model-input')
     };
+
+    let isLocadoraBenefit = false;
+    let isVehicleManual = false;
+
+    // ==========================================
+    // BUSCA DIGITÁVEL INTELIGENTE PARA DROPDOWNS (FIPE E UF)
+    // ==========================================
+    function normalizeSearchText(str) {
+      return (str || '')
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+    }
+
+    function makeSelectSearchable(selectId, placeholderText) {
+      const select = document.getElementById(selectId);
+      if (!select || select.dataset.searchableInitialized === 'true') return;
+      select.dataset.searchableInitialized = 'true';
+
+      const container = document.createElement('div');
+      container.className = 'custom-select-container';
+
+      select.parentNode.insertBefore(container, select);
+      container.appendChild(select);
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'form-input custom-select-search';
+      input.placeholder = placeholderText;
+      input.autocomplete = 'off';
+      input.disabled = select.disabled;
+      container.appendChild(input);
+
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow-icon';
+      arrow.innerHTML = `
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      `;
+      container.appendChild(arrow);
+
+      const dropdown = document.createElement('div');
+      dropdown.className = 'custom-select-dropdown';
+      dropdown.style.display = 'none';
+      container.appendChild(dropdown);
+
+      let highlightedIndex = -1;
+      let items = [];
+      let isUserTyping = false;
+
+      function updateDropdownItems() {
+        dropdown.innerHTML = '';
+        const options = Array.from(select.options);
+        const validOptions = options.filter(opt => opt.value !== "");
+
+        if (validOptions.length === 0) {
+          const noResults = document.createElement('div');
+          noResults.className = 'custom-select-no-results';
+          noResults.textContent = select.disabled ? 'Aguardando seleção anterior...' : 'Nenhuma opção disponível';
+          dropdown.appendChild(noResults);
+          items = [];
+          return;
+        }
+
+        items = validOptions.map(opt => {
+          const item = document.createElement('div');
+          item.className = 'custom-select-item';
+          item.dataset.value = opt.value;
+          item.textContent = opt.textContent;
+
+          if (select.value === opt.value) {
+            item.classList.add('selected');
+            input.value = opt.textContent;
+          }
+
+          item.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isUserTyping = false;
+            selectOption(opt.value, opt.textContent);
+          });
+
+          dropdown.appendChild(item);
+          return item;
+        });
+
+        if (!select.value) {
+          input.value = '';
+        }
+      }
+
+      function selectOption(value, text) {
+        isUserTyping = false;
+        select.value = value;
+        input.value = text;
+
+        items.forEach(item => {
+          if (item.dataset.value === value) {
+            item.classList.add('selected');
+          } else {
+            item.classList.remove('selected');
+          }
+        });
+
+        closeDropdown(false);
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      function openDropdown(selectText = false) {
+        if (select.disabled) return;
+
+        document.querySelectorAll('.custom-select-container').forEach(c => {
+          if (c !== container) c.classList.remove('open');
+        });
+        document.querySelectorAll('.custom-select-dropdown').forEach(d => {
+          if (d !== dropdown) d.style.display = 'none';
+        });
+
+        const wasClosed = dropdown.style.display === 'none';
+        container.classList.add('open');
+        dropdown.style.display = 'block';
+
+        if (wasClosed && !isUserTyping) {
+          items.forEach(item => {
+            item.style.display = 'flex';
+          });
+          const existingNoResults = dropdown.querySelector('.custom-select-no-results');
+          if (existingNoResults) existingNoResults.remove();
+
+          highlightedIndex = items.findIndex(item => item.classList.contains('selected'));
+          updateHighlight();
+
+          if (highlightedIndex >= 0) {
+            items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+          }
+        }
+
+        if (selectText && input.value && !isUserTyping) {
+          setTimeout(() => input.select(), 0);
+        }
+      }
+
+      function closeDropdown(commitTypedMatch = true) {
+        if (commitTypedMatch && isUserTyping) {
+          const currentHighlighted = items[highlightedIndex];
+          if (currentHighlighted && currentHighlighted.style.display !== 'none') {
+            isUserTyping = false;
+            selectOption(currentHighlighted.dataset.value, currentHighlighted.textContent);
+            return;
+          }
+        }
+
+        isUserTyping = false;
+        container.classList.remove('open');
+        dropdown.style.display = 'none';
+        highlightedIndex = -1;
+
+        const selectedOpt = select.options[select.selectedIndex];
+        if (selectedOpt && selectedOpt.value !== "") {
+          input.value = selectedOpt.textContent;
+        } else {
+          input.value = '';
+        }
+      }
+
+      function updateHighlight() {
+        items.forEach((item, idx) => {
+          if (idx === highlightedIndex) {
+            item.classList.add('highlighted');
+            item.scrollIntoView({ block: 'nearest' });
+          } else {
+            item.classList.remove('highlighted');
+          }
+        });
+      }
+
+      function filterItems() {
+        const query = normalizeSearchText(input.value);
+        let visibleCount = 0;
+        let bestIndex = -1;
+        let bestScore = -1;
+
+        items.forEach((item, idx) => {
+          if (!query) {
+            item.style.display = 'flex';
+            visibleCount++;
+            if (item.classList.contains('selected') && bestIndex === -1) {
+              bestIndex = idx;
+            }
+            return;
+          }
+
+          const rawText = item.textContent || '';
+          const primaryPart = rawText.split('—')[0] || rawText;
+          const normPrimary = normalizeSearchText(primaryPart);
+          const normFull = normalizeSearchText(rawText);
+          const normVal = normalizeSearchText(item.dataset.value || '');
+          const normNameOnly = normalizeSearchText(primaryPart.split('(')[0] || primaryPart);
+
+          let score = 0;
+          if (normVal === query || normNameOnly === query || normPrimary === query) {
+            score = 100;
+          } else if (normNameOnly.startsWith(query) || normPrimary.startsWith(query)) {
+            score = 80;
+          } else if (normPrimary.split(/[\s()-]+/).some(word => word.startsWith(query))) {
+            score = 60;
+          } else if (query.length > 2 && normPrimary.includes(query)) {
+            score = 40;
+          } else if (query.length > 2 && normFull.includes(query)) {
+            score = 20;
+          }
+
+          if (score > 0) {
+            item.style.display = 'flex';
+            visibleCount++;
+            if (score > bestScore) {
+              bestScore = score;
+              bestIndex = idx;
+            }
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        highlightedIndex = bestIndex;
+        updateHighlight();
+
+        const existingNoResults = dropdown.querySelector('.custom-select-no-results');
+        if (existingNoResults) existingNoResults.remove();
+
+        if (visibleCount === 0 && items.length > 0) {
+          const noResults = document.createElement('div');
+          noResults.className = 'custom-select-no-results';
+          noResults.textContent = 'Nenhum resultado encontrado';
+          dropdown.appendChild(noResults);
+        }
+      }
+
+      input.addEventListener('focus', () => openDropdown(true));
+      input.addEventListener('click', () => openDropdown(true));
+
+      input.addEventListener('input', () => {
+        isUserTyping = true;
+        if (dropdown.style.display === 'none') {
+          openDropdown(false);
+        }
+        filterItems();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (dropdown.style.display === 'none') {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter') {
+            openDropdown(false);
+            e.preventDefault();
+          }
+          return;
+        }
+
+        const visibleItems = items.filter(item => item.style.display !== 'none');
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (visibleItems.length === 0) return;
+
+          const currentVisibleIdx = visibleItems.findIndex(item => item.classList.contains('highlighted'));
+          let nextVisibleIdx = currentVisibleIdx + 1;
+          if (nextVisibleIdx >= visibleItems.length) nextVisibleIdx = 0;
+
+          const targetItem = visibleItems[nextVisibleIdx];
+          highlightedIndex = items.indexOf(targetItem);
+          updateHighlight();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (visibleItems.length === 0) return;
+
+          const currentVisibleIdx = visibleItems.findIndex(item => item.classList.contains('highlighted'));
+          let prevVisibleIdx = currentVisibleIdx - 1;
+          if (prevVisibleIdx < 0) prevVisibleIdx = visibleItems.length - 1;
+
+          const targetItem = visibleItems[prevVisibleIdx];
+          highlightedIndex = items.indexOf(targetItem);
+          updateHighlight();
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          const currentHighlighted = items[highlightedIndex];
+          if (currentHighlighted && currentHighlighted.style.display !== 'none') {
+            selectOption(currentHighlighted.dataset.value, currentHighlighted.textContent);
+          } else if (visibleItems.length > 0) {
+            selectOption(visibleItems[0].dataset.value, visibleItems[0].textContent);
+          }
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          isUserTyping = false;
+          closeDropdown(false);
+        } else if (e.key === 'Tab') {
+          closeDropdown(true);
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+          closeDropdown(true);
+        }
+      });
+
+      const observer = new MutationObserver(() => {
+        input.disabled = select.disabled;
+        updateDropdownItems();
+      });
+
+      observer.observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+
+      updateDropdownItems();
+    }
 
     // ==========================================
     // INITIALIZATION & AUTHENTICATION
@@ -3019,6 +3764,7 @@
         if (sigla === 'SP') opt.selected = true;
         elements.inputUf.appendChild(opt);
       }
+      makeSelectSearchable('input-uf', 'Digite o Estado ou UF (ex: SP, PR, SC)...');
     }
 
     // ==========================================
@@ -3028,6 +3774,10 @@
     let currentFipeData = null;
 
     async function initFipeQuickSelector() {
+      makeSelectSearchable('quick-fipe-brand', 'Digite a marca do veículo...');
+      makeSelectSearchable('quick-fipe-model', 'Digite o modelo...');
+      makeSelectSearchable('quick-fipe-year', 'Digite o ano...');
+
       try {
         const module = await import('/fipeService.js');
         fipeServiceModule = module.fipeService;
@@ -3117,7 +3867,10 @@
 
       if (!yearId) return;
 
-      elements.quickFipeDisplayVal.textContent = 'Buscando FIPE...';
+      if (elements.quickFipeDisplayVal) {
+        if ('value' in elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.value = 'Buscando FIPE...';
+        elements.quickFipeDisplayVal.textContent = 'Buscando FIPE...';
+      }
       elements.quickFipeStatusNote.textContent = 'Consultando tabela FIPE oficial na API fipeX...';
 
       try {
@@ -3126,7 +3879,10 @@
           currentFipeData = priceDetails;
           const fipeParsed = parseMoney(priceDetails.Valor);
 
-          elements.quickFipeDisplayVal.textContent = formatCurrency(fipeParsed);
+          if (elements.quickFipeDisplayVal) {
+            if ('value' in elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.value = formatCurrency(fipeParsed);
+            elements.quickFipeDisplayVal.textContent = formatCurrency(fipeParsed);
+          }
           elements.inputFipeVal.value = formatCurrency(fipeParsed);
 
           elements.quickFipeRefBadge.textContent = priceDetails.MesReferencia || 'FIPE Oficial';
@@ -3145,14 +3901,18 @@
           elements.quickFipeStatusNote.innerHTML = `Veículo <strong>${priceDetails.Marca} ${priceDetails.Modelo} (${priceDetails.AnoModelo})</strong> carregado! Caso tenha pago com desconto ou ágio, ajuste o <em>Valor Real Pago</em> ao lado.`;
         }
       } catch (err) {
-        elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value || 'R$ 50.000,00';
+        const fallback = elements.inputFipeVal.value || 'R$ 50.000,00';
+        if (elements.quickFipeDisplayVal) {
+          if ('value' in elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.value = fallback;
+          elements.quickFipeDisplayVal.textContent = fallback;
+        }
         elements.quickFipeStatusNote.textContent = 'Erro ao consultar cotação oficial da FIPE. Você pode digitar o valor manualmente.';
       }
     }
 
     function updateFipeDiffBadge() {
       if (!elements.quickCarValInput || !elements.quickFipeDisplayVal) return;
-      const fipeVal = parseMoney(elements.quickFipeDisplayVal.textContent) || parseMoney(elements.inputFipeVal.value) || 50000;
+      const fipeVal = parseMoney(elements.quickFipeDisplayVal.value || elements.quickFipeDisplayVal.textContent) || parseMoney(elements.inputFipeVal.value) || 50000;
       const paidVal = parseMoney(elements.quickCarValInput.value) || parseMoney(elements.inputCarVal.value) || 50000;
 
       const diff = paidVal - fipeVal;
@@ -3225,7 +3985,10 @@
           }
           if (p.fipeVal) {
             elements.inputFipeVal.value = p.fipeVal;
-            if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = p.fipeVal;
+            if (elements.quickFipeDisplayVal) {
+              if ('value' in elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.value = p.fipeVal;
+              elements.quickFipeDisplayVal.textContent = p.fipeVal;
+            }
           }
           if (p.deprecRate) elements.inputDeprecRate.value = p.deprecRate;
           if (p.rentWeek) {
@@ -3239,6 +4002,30 @@
           }
           if (p.upsellM1) elements.inputUpsellM1.value = p.upsellM1;
           if (p.uf) elements.inputUf.value = p.uf;
+
+          if (typeof p.isLocadoraBenefit === 'boolean') {
+            isLocadoraBenefit = p.isLocadoraBenefit;
+            if (elements.btnLocadoraBenefit) {
+              elements.btnLocadoraBenefit.classList.toggle('active', isLocadoraBenefit);
+              elements.btnLocadoraBenefit.setAttribute('aria-pressed', isLocadoraBenefit ? 'true' : 'false');
+            }
+          }
+
+          if (typeof p.isVehicleManual === 'boolean') {
+            isVehicleManual = p.isVehicleManual;
+            if (elements.btnModeFipe && elements.btnModeManual) {
+              elements.btnModeManual.classList.toggle('active', isVehicleManual);
+              elements.btnModeFipe.classList.toggle('active', !isVehicleManual);
+              if (elements.quickFipeSelectors) elements.quickFipeSelectors.style.display = isVehicleManual ? 'none' : 'grid';
+              if (elements.quickManualSelectors) elements.quickManualSelectors.style.display = isVehicleManual ? 'grid' : 'none';
+            }
+          }
+          if (p.manualBrand && elements.manualBrandInput) elements.manualBrandInput.value = p.manualBrand;
+          if (p.manualModel && elements.manualModelInput) elements.manualModelInput.value = p.manualModel;
+          if ((p.manualBrand || p.manualModel) && elements.quickFipeSubInfo) {
+            elements.quickFipeSubInfo.innerHTML = `<strong>${p.manualBrand || ''} ${p.manualModel || ''}</strong> &bull; Digitação Manual`;
+          }
+
           if (p.ipva) elements.inputIpva.value = p.ipva;
           if (p.reserveFund) elements.inputReserveFund.value = p.reserveFund;
           if (p.tracker) elements.inputTracker.value = p.tracker;
@@ -3279,7 +4066,10 @@
           }
           if (ps.fipeVal) {
             elements.inputFipeVal.value = formatCurrency(ps.fipeVal);
-            if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = formatCurrency(ps.fipeVal);
+            if (elements.quickFipeDisplayVal) {
+              if ('value' in elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.value = formatCurrency(ps.fipeVal);
+              elements.quickFipeDisplayVal.textContent = formatCurrency(ps.fipeVal);
+            }
           }
           if (ps.weeklyRent) {
             elements.inputRentWeek.value = formatCurrency(ps.weeklyRent);
@@ -3291,6 +4081,30 @@
           }
           if (ps.upsellM1Val) elements.inputUpsellM1.value = formatCurrency(ps.upsellM1Val);
           if (ps.uf) elements.inputUf.value = ps.uf;
+
+          if (typeof ps.isLocadoraBenefit === 'boolean') {
+            isLocadoraBenefit = ps.isLocadoraBenefit;
+            if (elements.btnLocadoraBenefit) {
+              elements.btnLocadoraBenefit.classList.toggle('active', isLocadoraBenefit);
+              elements.btnLocadoraBenefit.setAttribute('aria-pressed', isLocadoraBenefit ? 'true' : 'false');
+            }
+          }
+
+          if (typeof ps.isVehicleManual === 'boolean') {
+            isVehicleManual = ps.isVehicleManual;
+            if (elements.btnModeFipe && elements.btnModeManual) {
+              elements.btnModeManual.classList.toggle('active', isVehicleManual);
+              elements.btnModeFipe.classList.toggle('active', !isVehicleManual);
+              if (elements.quickFipeSelectors) elements.quickFipeSelectors.style.display = isVehicleManual ? 'none' : 'grid';
+              if (elements.quickManualSelectors) elements.quickManualSelectors.style.display = isVehicleManual ? 'grid' : 'none';
+            }
+          }
+          if (ps.vehicleBrand && elements.manualBrandInput) elements.manualBrandInput.value = ps.vehicleBrand;
+          if (ps.vehicleModel && elements.manualModelInput) elements.manualModelInput.value = ps.vehicleModel;
+          if ((ps.vehicleBrand || ps.vehicleModel) && elements.quickFipeSubInfo) {
+            elements.quickFipeSubInfo.innerHTML = `<strong>${ps.vehicleBrand || ''} ${ps.vehicleModel || ''}</strong> &bull; ${isVehicleManual ? 'Digitação Manual' : 'FIPE'}`;
+          }
+
           if (ps.ipvaVal) elements.inputIpva.value = formatCurrency(ps.ipvaVal);
           if (ps.trackerVal) elements.inputTracker.value = formatCurrency(ps.trackerVal);
           if (ps.insuranceVal) {
@@ -3334,6 +4148,10 @@
           vacancy: currentVacancy,
           upsellM1: elements.inputUpsellM1.value,
           uf: elements.inputUf.value,
+          isLocadoraBenefit: isLocadoraBenefit,
+          isVehicleManual: isVehicleManual,
+          manualBrand: elements.manualBrandInput ? elements.manualBrandInput.value : '',
+          manualModel: elements.manualModelInput ? elements.manualModelInput.value : '',
           ipva: elements.inputIpva.value,
           reserveFund: elements.inputReserveFund.value,
           tracker: elements.inputTracker.value,
@@ -3380,12 +4198,58 @@
       elements.tabSnowball.addEventListener('click', () => switchStrategy('snowball'));
       elements.tabLeverage.addEventListener('click', () => switchStrategy('leverage'));
 
-      // Quick FIPE Toggle
-      if (elements.toggleEnableFipe) {
-        elements.toggleEnableFipe.addEventListener('change', () => {
-          if (elements.quickFipeSelectors) {
-            elements.quickFipeSelectors.style.display = elements.toggleEnableFipe.checked ? 'grid' : 'none';
+      // Vehicle Mode Selector (FIPE vs Manual)
+      if (elements.btnModeFipe && elements.btnModeManual) {
+        elements.btnModeFipe.addEventListener('click', () => {
+          isVehicleManual = false;
+          elements.btnModeFipe.classList.add('active');
+          elements.btnModeManual.classList.remove('active');
+          if (elements.quickFipeSelectors) elements.quickFipeSelectors.style.display = 'grid';
+          if (elements.quickManualSelectors) elements.quickManualSelectors.style.display = 'none';
+          saveSimulationState();
+        });
+
+        elements.btnModeManual.addEventListener('click', () => {
+          isVehicleManual = true;
+          elements.btnModeManual.classList.add('active');
+          elements.btnModeFipe.classList.remove('active');
+          if (elements.quickFipeSelectors) elements.quickFipeSelectors.style.display = 'none';
+          if (elements.quickManualSelectors) elements.quickManualSelectors.style.display = 'grid';
+          saveSimulationState();
+        });
+      }
+
+      // Manual Vehicle Inputs
+      if (elements.manualBrandInput) {
+        elements.manualBrandInput.addEventListener('input', () => {
+          const brand = elements.manualBrandInput.value.trim();
+          const model = elements.manualModelInput ? elements.manualModelInput.value.trim() : '';
+          if (brand || model) {
+            elements.quickFipeSubInfo.innerHTML = `<strong>${brand || 'Marca'} ${model}</strong> &bull; Digitação Manual`;
           }
+          saveSimulationState();
+        });
+      }
+      if (elements.manualModelInput) {
+        elements.manualModelInput.addEventListener('input', () => {
+          const brand = elements.manualBrandInput ? elements.manualBrandInput.value.trim() : '';
+          const model = elements.manualModelInput.value.trim();
+          if (brand || model) {
+            elements.quickFipeSubInfo.innerHTML = `<strong>${brand} ${model || 'Modelo'}</strong> &bull; Digitação Manual`;
+          }
+          saveSimulationState();
+        });
+      }
+
+      // Benefício Locadora 1% IPVA (CNPJ)
+      if (elements.btnLocadoraBenefit) {
+        elements.btnLocadoraBenefit.addEventListener('click', () => {
+          isLocadoraBenefit = !isLocadoraBenefit;
+          elements.btnLocadoraBenefit.classList.toggle('active', isLocadoraBenefit);
+          elements.btnLocadoraBenefit.setAttribute('aria-pressed', isLocadoraBenefit ? 'true' : 'false');
+          updateUfTax();
+          recalculate();
+          saveSimulationState();
         });
       }
 
@@ -3398,6 +4262,27 @@
       }
       if (elements.quickFipeYear) {
         elements.quickFipeYear.addEventListener('change', handleFipeYearChange);
+      }
+
+      // Quick FIPE Input (Edição direta de FIPE no card)
+      if (elements.quickFipeDisplayVal) {
+        elements.quickFipeDisplayVal.addEventListener('input', () => {
+          elements.inputFipeVal.value = elements.quickFipeDisplayVal.value;
+          updateFipeDiffBadge();
+          updateUfTax();
+          updateInsuranceFromFipe(false);
+          syncCarValToConsorcio();
+          recalculate();
+        });
+        elements.quickFipeDisplayVal.addEventListener('blur', () => {
+          formatCurrencyInput(elements.quickFipeDisplayVal);
+          elements.inputFipeVal.value = elements.quickFipeDisplayVal.value;
+          updateFipeDiffBadge();
+          updateUfTax();
+          updateInsuranceFromFipe(false);
+          recalculate();
+        });
+        elements.quickFipeDisplayVal.addEventListener('focus', () => elements.quickFipeDisplayVal.select());
       }
 
       // Quick Car Value Input (Valor Real Pago ao Lado)
@@ -3457,7 +4342,10 @@
 
       // When FIPE changes in sidebar, update IPVA & sync to Quick FIPE display
       elements.inputFipeVal.addEventListener('input', () => {
-        if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value;
+        if (elements.quickFipeDisplayVal) {
+          if ('value' in elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.value = elements.inputFipeVal.value;
+          elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value;
+        }
         updateFipeDiffBadge();
         updateUfTax();
         updateInsuranceFromFipe(false);
@@ -3465,7 +4353,10 @@
         recalculate();
       });
       elements.inputFipeVal.addEventListener('blur', () => {
-        if (elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value;
+        if (elements.quickFipeDisplayVal) {
+          if ('value' in elements.quickFipeDisplayVal) elements.quickFipeDisplayVal.value = elements.inputFipeVal.value;
+          elements.quickFipeDisplayVal.textContent = elements.inputFipeVal.value;
+        }
         updateFipeDiffBadge();
         updateInsuranceFromFipe(false);
         recalculate();
@@ -3644,11 +4535,32 @@
       const ufData = UF_TAX_DATA_2026[uf] || UF_TAX_DATA_2026.SP;
       const fipeVal = parseMoney(elements.inputFipeVal.value) || 50000;
 
-      const ipvaAnual = fipeVal * ufData.ipvaRate;
+      // Benefício fiscal de Locadora com CNPJ: alíquota de IPVA vai para 1,0% a.a.
+      // A taxa estadual de licenciamento do DETRAN continua a mesma (inalterada).
+      const ipvaRateEfetiva = isLocadoraBenefit ? 0.01 : ufData.ipvaRate;
+      const ipvaAnual = fipeVal * ipvaRateEfetiva;
       const mensalIpvaELicenc = (ipvaAnual + ufData.licenciamento) / 12;
 
       elements.inputIpva.value = formatCurrency(mensalIpvaELicenc);
-      elements.ufBadgeInfo.textContent = `${uf}: IPVA ${(ufData.ipvaRate * 100).toFixed(1)}% (${formatCurrency(ipvaAnual)}/ano) + Licenc. ${formatCurrency(ufData.licenciamento)} = ${formatCurrency(mensalIpvaELicenc)}/mês`;
+
+      if (isLocadoraBenefit) {
+        const ipvaPadraoAnual = fipeVal * ufData.ipvaRate;
+        const economiaAnual = Math.max(0, ipvaPadraoAnual - ipvaAnual);
+        const economiaMensal = economiaAnual / 12;
+
+        elements.ufBadgeInfo.innerHTML = `<strong>CNPJ Locadora Ativo (${uf}):</strong> IPVA reduzido para 1,0% (${formatCurrency(ipvaAnual)}/ano) + Licenc. ${formatCurrency(ufData.licenciamento)} = ${formatCurrency(mensalIpvaELicenc)}/mês. <span style="color: #10B981; font-weight: 700;">Economia: ${formatCurrency(economiaMensal)}/mês (${formatCurrency(economiaAnual)}/ano)</span>`;
+
+        if (elements.locadoraSavingsBox && elements.locadoraSavingsAmount && elements.locadoraSavingsDetail) {
+          elements.locadoraSavingsBox.style.display = 'flex';
+          elements.locadoraSavingsAmount.textContent = `${formatCurrency(economiaAnual)}/ano (${formatCurrency(economiaMensal)}/mês)`;
+          elements.locadoraSavingsDetail.textContent = `IPVA reduzido de ${(ufData.ipvaRate * 100).toFixed(1)}% para 1,0% a.a. Taxa de licenciamento estadual de ${formatCurrency(ufData.licenciamento)} mantida intacta.`;
+        }
+      } else {
+        elements.ufBadgeInfo.textContent = `${uf}: IPVA ${(ufData.ipvaRate * 100).toFixed(1)}% (${formatCurrency(ipvaAnual)}/ano) + Licenc. ${formatCurrency(ufData.licenciamento)} = ${formatCurrency(mensalIpvaELicenc)}/mês`;
+        if (elements.locadoraSavingsBox) {
+          elements.locadoraSavingsBox.style.display = 'none';
+        }
+      }
     }
 
     function updateInsuranceFromFipe(force = false) {

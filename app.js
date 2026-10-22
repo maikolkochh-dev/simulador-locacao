@@ -2850,7 +2850,11 @@ function runCalculationsAndRender(options = {}) {
       valorEntrada: data.valorEntrada,
       valorFinanciado: data.valorFinanciado,
       qtdParcelas: data.qtdParcelas,
-      valorParcela: data.valorParcela
+      valorParcela: data.valorParcela,
+      isLocadoraBenefit: Boolean(state.costs.isLocadoraBenefit),
+      vehicleBrand: state.vehicle.isManual ? elements.manualBrand.value : state.vehicle.brandName,
+      vehicleModel: state.vehicle.isManual ? elements.manualModel.value : (state.vehicle.modelName ? `${state.vehicle.modelName} (${state.vehicle.yearName})` : ''),
+      isVehicleManual: Boolean(state.vehicle.isManual)
     }));
   } catch (e) {
     // Ignore localStorage storage errors
