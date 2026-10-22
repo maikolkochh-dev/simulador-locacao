@@ -1220,6 +1220,45 @@
       margin-top: 6px;
     }
 
+    .kpi-sub-highlight {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      margin-bottom: 3px;
+    }
+
+    .kpi-sub-metric-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+    }
+
+    .kpi-sub-metric-val {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      letter-spacing: -0.01em;
+    }
+
+    .kpi-sub-note {
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.3;
+    }
+
+    body.theme-light .kpi-sub-metric-label,
+    body.theme-light .kpi-sub-metric-val {
+      color: #0284C7 !important;
+    }
+
+    body.theme-light .kpi-sub-note {
+      color: #64748B !important;
+    }
+
     /* CHARTS CONTAINER */
     .chart-container-card {
       background: rgba(18, 26, 44, 0.45);
@@ -2987,7 +3026,13 @@
               <span class="kpi-label" id="kpi-fleet-label">Frota Final (24 Meses)</span>
             </div>
             <div class="kpi-value" id="kpi-fleet" style="color: var(--accent-cyan);">4 Carros</div>
-            <div class="kpi-sub" id="kpi-fleet-sub">Operação padrão</div>
+            <div class="kpi-sub" id="kpi-fleet-sub">
+              <div class="kpi-sub-highlight">
+                <span class="kpi-sub-metric-label">RECEITA MENSAL MÉDIA:</span>
+                <span class="kpi-sub-metric-val" id="kpi-fleet-revenue-val">R$ 0,00</span>
+              </div>
+              <div class="kpi-sub-note" id="kpi-fleet-context">Operação padrão</div>
+            </div>
           </div>
 
           <div class="kpi-card">
@@ -2995,7 +3040,13 @@
               <span class="kpi-label">Caixa Líquido Acumulado</span>
             </div>
             <div class="kpi-value" id="kpi-cash" style="color: #34D399;">R$ 258.448</div>
-            <div class="kpi-sub" id="kpi-cash-sub">Saldo em conta no final do período</div>
+            <div class="kpi-sub" id="kpi-cash-sub">
+              <div class="kpi-sub-highlight">
+                <span class="kpi-sub-metric-label">LUCRO MENSAL MÉDIO:</span>
+                <span class="kpi-sub-metric-val" id="kpi-cash-profit-val">R$ 0,00</span>
+              </div>
+              <div class="kpi-sub-note" id="kpi-cash-context">Saldo em conta no final do período</div>
+            </div>
           </div>
 
           <div class="kpi-card">
@@ -4783,7 +4834,6 @@
       elements.mainHeroTitle.textContent = `Simulação Executiva de Escala (${totalMonths} Meses)`;
       elements.chartTitle.textContent = `Evolução Patrimonial ao Longo dos ${totalMonths} Meses`;
       elements.kpiFleetLabel.textContent = `Frota Final (${totalMonths} Meses)`;
-      elements.kpiCashSub.textContent = `Saldo em conta no mês ${totalMonths}`;
       if (elements.btnMonthlyLabel) elements.btnMonthlyLabel.textContent = `${totalMonths} Meses`;
       if (elements.modalMonthsBadge) elements.modalMonthsBadge.textContent = `${totalMonths} Meses`;
 
@@ -4929,12 +4979,36 @@
         ? `${initialCars} cotas &bull; Lance de ${formatCurrency(consLanceVal)}/cota`
         : `${initialCars} veículos &bull; R$ ${formatMoney(carPurchaseVal)}/carro`;
 
+      // Média mensal calculada sobre a operação completa no período
+      const totalRevenueSum = monthData.reduce((acc, m) => acc + m.totalRevenue, 0);
+      const avgMonthlyRevenue = totalMonths > 0 ? (totalRevenueSum / totalMonths) : 0;
+
+      const totalNetProfitSum = monthData.reduce((acc, m) => acc + m.netProfit, 0);
+      const avgMonthlyNetProfit = totalMonths > 0 ? (totalNetProfitSum / totalMonths) : 0;
+
       elements.kpiFleet.textContent = `${finalFleetCount} Carros`;
-      elements.kpiFleetSub.textContent = (activeStrategy === 'snowball')
+      const fleetContextNote = (activeStrategy === 'snowball')
         ? `Cresceu de ${initialCars} para ${finalFleetCount} veículos`
         : `Frota constante nos ${totalMonths} meses`;
 
+      elements.kpiFleetSub.innerHTML = `
+        <div class="kpi-sub-highlight">
+          <span class="kpi-sub-metric-label">RECEITA MENSAL MÉDIA:</span>
+          <span class="kpi-sub-metric-val">${formatCurrency(avgMonthlyRevenue)}</span>
+        </div>
+        <div class="kpi-sub-note">${fleetContextNote}</div>
+      `;
+
       elements.kpiCash.textContent = formatCurrency(finalCash);
+      const cashContextNote = `Saldo em conta no mês ${totalMonths}`;
+
+      elements.kpiCashSub.innerHTML = `
+        <div class="kpi-sub-highlight">
+          <span class="kpi-sub-metric-label">LUCRO MENSAL MÉDIO:</span>
+          <span class="kpi-sub-metric-val">${formatCurrency(avgMonthlyNetProfit)}</span>
+        </div>
+        <div class="kpi-sub-note">${cashContextNote}</div>
+      `;
       elements.kpiLiquidation.textContent = formatCurrency(netLiquidationGain);
       
       if (activeStrategy === 'leverage') {
@@ -4956,9 +5030,9 @@
 
       // 8.1 ROI Mensal Médio
       const roiMonthly = totalMonths > 0 ? (roiPercent / totalMonths) : 0;
-      const avgMonthlyNetProfit = totalMonths > 0 ? (totalNetProfit / totalMonths) : 0;
+      const avgMonthlyEquityProfit = totalMonths > 0 ? (totalNetProfit / totalMonths) : 0;
       elements.kpiRoiMonth.textContent = `${roiMonthly.toFixed(2)}% a.m.`;
-      elements.kpiRoiMonthSub.textContent = `Média de ${formatCurrency(avgMonthlyNetProfit)} / mês`;
+      elements.kpiRoiMonthSub.textContent = `Média de ${formatCurrency(avgMonthlyEquityProfit)} / mês`;
 
       // 8.2 Payback Estimado
       // Calcula em quantos meses o fluxo de lucros da locação recupera 100% do capital investido
