@@ -15,6 +15,7 @@ const app = express();
 const PORT = 3000;
 const DB_FILE = path.join(__dirname, 'users.json');
 const STUDENTS_FILE = path.join(__dirname, 'students.json');
+const PRO_REQUESTS_FILE = path.join(__dirname, 'pro_requests.json');
 
 app.use(cors());
 app.use(express.json());
@@ -114,6 +115,28 @@ function writeStudents(students) {
     fs.writeFileSync(STUDENTS_FILE, JSON.stringify(students, null, 2));
   } catch (err) {
     console.error('Error writing to students database:', err);
+  }
+}
+
+function readProRequests() {
+  if (!fs.existsSync(PRO_REQUESTS_FILE)) {
+    fs.writeFileSync(PRO_REQUESTS_FILE, JSON.stringify([]));
+    return [];
+  }
+  try {
+    const data = fs.readFileSync(PRO_REQUESTS_FILE, 'utf-8');
+    return JSON.parse(data || '[]');
+  } catch (err) {
+    console.error('Error reading pro requests database, resetting:', err);
+    return [];
+  }
+}
+
+function writeProRequests(requests) {
+  try {
+    fs.writeFileSync(PRO_REQUESTS_FILE, JSON.stringify(requests, null, 2));
+  } catch (err) {
+    console.error('Error writing to pro requests database:', err);
   }
 }
 
@@ -300,6 +323,53 @@ async function sendProStudentCodeEmail(studentEmail, studentName, accessCode) {
     return true;
   } catch (error) {
     console.error('[PRO EMAIL ERROR] Falha ao enviar:', error.message);
+    return false;
+  }
+}
+
+async function sendAdminNewProRequestAlert(studentEmail, studentName, studentPhone, attemptsCount) {
+  try {
+    const transporter = await getMailTransporter();
+    const adminRecipients = ['adm@locadornomade.com', 'maikolkochh@gmail.com'];
+    const emailHtml = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <title>Nova Solicitacao de Acesso PRO</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; background-color: #080C14; color: #FFFFFF; padding: 30px;">
+        <div style="max-width: 560px; margin: 0 auto; background: #0D1424; border: 1px solid #F59E0B; border-radius: 12px; padding: 25px;">
+          <h2 style="color: #FBBF24; margin-top: 0;">Nova Solicitacao de Acesso ao Modulo PRO</h2>
+          <p style="color: #E2E8F0; font-size: 15px;">Um aluno tentou acessar o simulador PRO e esta aguardando sua liberacao:</p>
+          <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 4px 0;"><strong>E-mail:</strong> <span style="color: #00F2FE;">${studentEmail}</span></p>
+            ${studentName ? `<p style="margin: 4px 0;"><strong>Nome:</strong> ${studentName}</p>` : ''}
+            ${studentPhone ? `<p style="margin: 4px 0;"><strong>Telefone:</strong> ${studentPhone}</p>` : ''}
+            <p style="margin: 4px 0;"><strong>Tentativas de Acesso:</strong> ${attemptsCount || 1}</p>
+            <p style="margin: 4px 0;"><strong>Horario:</strong> ${new Date().toLocaleString('pt-BR')}</p>
+          </div>
+          <p style="color: #94A3B8; font-size: 14px;">Voce pode liberar o acesso dele com 1 clique direto no seu painel administrativo:</p>
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="https://simulador.locadornomade.com/admin" style="background: linear-gradient(135deg, #10B981, #00F2FE); color: #042F1A; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 800; display: inline-block;">
+              Acessar Painel e Liberar Aluno &rarr;
+            </a>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || '"LOCADOR NOMADE" <adm@locadornomade.com>',
+      to: adminRecipients.join(','),
+      subject: `[SOLICITACAO PRO] Aluno aguardando liberacao: ${studentEmail}`,
+      html: emailHtml
+    });
+    console.log(`[ALERT EMAIL] Alerta de solicitacao PRO enviado para administradores!`);
+    return true;
+  } catch (err) {
+    console.warn(`[ALERT EMAIL] Nao foi possivel enviar alerta por e-mail: ${err.message}`);
     return false;
   }
 }
@@ -893,10 +963,46 @@ app.post('/api/pro/request-code', async (req, res) => {
     const student = students.find(s => s.email && s.email.trim().toLowerCase() === cleanEmail);
 
     if (!student) {
+      // 1. Check if user is known in users.json (free leads) to retrieve name/phone
+      const users = readUsers();
+      const matchedUser = users.find(u => u.email && u.email.trim().toLowerCase() === cleanEmail);
+
+      // 2. Register or update request in pro_requests.json
+      const requests = readProRequests();
+      let existingReq = requests.find(r => r.email && r.email.trim().toLowerCase() === cleanEmail);
+
+      let attemptsCount = 1;
+      if (existingReq) {
+        existingReq.attemptsCount = (existingReq.attemptsCount || 1) + 1;
+        existingReq.lastAttemptAt = new Date().toISOString();
+        if (existingReq.status === 'recusado') {
+          existingReq.status = 'pendente';
+        }
+        attemptsCount = existingReq.attemptsCount;
+      } else {
+        const newReq = {
+          id: 'req_' + Date.now(),
+          email: cleanEmail,
+          name: matchedUser ? matchedUser.nome : '',
+          phone: matchedUser ? matchedUser.telefone : '',
+          status: 'pendente',
+          attemptsCount: 1,
+          requestedAt: new Date().toISOString(),
+          lastAttemptAt: new Date().toISOString()
+        };
+        requests.push(newReq);
+        existingReq = newReq;
+      }
+      writeProRequests(requests);
+
+      // 3. Notify admin asynchronously
+      sendAdminNewProRequestAlert(cleanEmail, existingReq.name, existingReq.phone, attemptsCount).catch(() => {});
+
       return res.status(403).json({
         success: false,
         authorized: false,
-        error: 'E-mail não autorizado. Este módulo é 100% exclusivo para alunos da Mentoria Locador Nômade. Se você já é aluno, solicite sua liberação ao suporte.'
+        pendingApproval: true,
+        error: 'E-mail não autorizado ainda. Sua solicitação de acesso foi enviada para o mentor Maikol Koch. Assim que seu acesso for liberado no painel, você receberá o código por e-mail.'
       });
     }
 
@@ -1106,6 +1212,177 @@ app.post('/api/admin/students/resend', async (req, res) => {
     res.json({
       success: true,
       message: `Novo código (${newCode}) gerado e enviado para ${student.email}!`
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================
+// API: PRO ACCESS REQUESTS MANAGEMENT
+// ==========================================
+
+// POST /api/admin/pro-requests (List all requests)
+app.post('/api/admin/pro-requests', (req, res) => {
+  try {
+    const { password } = req.body;
+    const adminPass = process.env.ADMIN_PASSWORD || 'LocadorAdmin2026!';
+    if (password !== adminPass) {
+      return res.status(401).json({ success: false, error: 'Senha de administrador incorreta' });
+    }
+
+    const requests = readProRequests();
+    const students = readStudents();
+
+    // Auto-sync status: if email is already active in students.json, mark as aprovado
+    let hasChanges = false;
+    requests.forEach(r => {
+      const isStudent = students.some(s => s.email && s.email.trim().toLowerCase() === r.email.trim().toLowerCase());
+      if (isStudent && r.status !== 'aprovado') {
+        r.status = 'aprovado';
+        hasChanges = true;
+      }
+    });
+    if (hasChanges) {
+      writeProRequests(requests);
+    }
+
+    // Sort: pendente first, then newest lastAttemptAt
+    requests.sort((a, b) => {
+      if (a.status === 'pendente' && b.status !== 'pendente') return -1;
+      if (a.status !== 'pendente' && b.status === 'pendente') return 1;
+      return new Date(b.lastAttemptAt || b.requestedAt) - new Date(a.lastAttemptAt || a.requestedAt);
+    });
+
+    res.json({
+      success: true,
+      requests
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/admin/pro-requests/approve (Authorize and send code with 1 click)
+app.post('/api/admin/pro-requests/approve', async (req, res) => {
+  try {
+    const { password, email, name, phone } = req.body;
+    const adminPass = process.env.ADMIN_PASSWORD || 'LocadorAdmin2026!';
+    if (password !== adminPass) {
+      return res.status(401).json({ success: false, error: 'Senha de administrador incorreta' });
+    }
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'E-mail do aluno é obrigatório.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const students = readStudents();
+    let student = students.find(s => s.email && s.email.trim().toLowerCase() === cleanEmail);
+
+    const initialCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    if (!student) {
+      student = {
+        id: 'std_' + Date.now(),
+        name: (name || '').trim() || cleanEmail.split('@')[0],
+        email: cleanEmail,
+        phone: (phone || '').trim(),
+        status: 'ativo',
+        accessCode: initialCode,
+        createdAt: new Date().toISOString(),
+        lastAccess: null,
+        codeGeneratedAt: new Date().toISOString()
+      };
+      students.push(student);
+    } else {
+      student.status = 'ativo';
+      student.accessCode = initialCode;
+      student.codeGeneratedAt = new Date().toISOString();
+      if (name && (!student.name || student.name === 'Aluno')) student.name = name.trim();
+      if (phone && !student.phone) student.phone = phone.trim();
+    }
+    writeStudents(students);
+
+    // Update pro_requests.json
+    const requests = readProRequests();
+    let reqItem = requests.find(r => r.email && r.email.trim().toLowerCase() === cleanEmail);
+    if (reqItem) {
+      reqItem.status = 'aprovado';
+      reqItem.approvedAt = new Date().toISOString();
+      if (name) reqItem.name = name.trim();
+      if (phone) reqItem.phone = phone.trim();
+    } else {
+      requests.push({
+        id: 'req_' + Date.now(),
+        email: cleanEmail,
+        name: student.name,
+        phone: student.phone,
+        status: 'aprovado',
+        attemptsCount: 1,
+        requestedAt: new Date().toISOString(),
+        lastAttemptAt: new Date().toISOString(),
+        approvedAt: new Date().toISOString()
+      });
+    }
+    writeProRequests(requests);
+
+    // Send access code email to the newly approved student
+    await sendProStudentCodeEmail(student.email, student.name, initialCode);
+
+    res.json({
+      success: true,
+      message: `Acesso aprovado com sucesso para ${student.email}! Código inicial (${initialCode}) enviado por e-mail.`,
+      student
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/admin/pro-requests/reject
+app.post('/api/admin/pro-requests/reject', (req, res) => {
+  try {
+    const { password, email } = req.body;
+    const adminPass = process.env.ADMIN_PASSWORD || 'LocadorAdmin2026!';
+    if (password !== adminPass) {
+      return res.status(401).json({ success: false, error: 'Senha de administrador incorreta' });
+    }
+
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const requests = readProRequests();
+    const reqItem = requests.find(r => r.email && r.email.trim().toLowerCase() === cleanEmail);
+    if (reqItem) {
+      reqItem.status = 'recusado';
+      writeProRequests(requests);
+    }
+
+    res.json({
+      success: true,
+      message: 'Solicitação recusada.'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/admin/pro-requests/remove
+app.post('/api/admin/pro-requests/remove', (req, res) => {
+  try {
+    const { password, email } = req.body;
+    const adminPass = process.env.ADMIN_PASSWORD || 'LocadorAdmin2026!';
+    if (password !== adminPass) {
+      return res.status(401).json({ success: false, error: 'Senha de administrador incorreta' });
+    }
+
+    const cleanEmail = (email || '').trim().toLowerCase();
+    let requests = readProRequests();
+    requests = requests.filter(r => r.email && r.email.trim().toLowerCase() !== cleanEmail);
+    writeProRequests(requests);
+
+    res.json({
+      success: true,
+      message: 'Solicitação removida do histórico.'
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

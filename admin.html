@@ -381,6 +381,111 @@
       font-size: 15px;
     }
 
+    /* STATUS BADGES & MODAL */
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-status.pending {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #FBBF24;
+    }
+
+    .badge-status.approved {
+      background: rgba(52, 211, 153, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #34D399;
+    }
+
+    .badge-status.rejected {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #EF4444;
+    }
+
+    .badge-count {
+      background: #F59E0B;
+      color: #000;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-left: 6px;
+    }
+
+    .btn-approve {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+      color: #FFFFFF !important;
+      border: none !important;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+    }
+    .btn-approve:hover {
+      filter: brightness(1.15) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .gate-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 8, 16, 0.75);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-box {
+      background: #0D1424;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+      position: relative;
+    }
+
+    .filter-btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFF;
+    }
+
+    .filter-btn.active {
+      background: rgba(0, 242, 254, 0.15);
+      border-color: var(--accent-primary);
+      color: #FFF;
+    }
+
     /* RESPONSIVE DESIGN */
     @media (max-width: 768px) {
       .dashboard-header {
@@ -460,17 +565,111 @@
     </div>
 
     <!-- TABS NAVIGATION -->
-    <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-      <button type="button" id="tab-btn-leads" class="btn-secondary" style="background: rgba(0, 242, 254, 0.15); border-color: var(--accent-primary); color: #FFF; font-weight: 700;">
-        Leads do Simulador Gratuito
+    <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap;">
+      <button type="button" id="tab-btn-requests" class="btn-secondary" style="background: rgba(245, 158, 11, 0.15); border-color: #F59E0B; color: #FFF; font-weight: 700; display: inline-flex; align-items: center;">
+        Solicitações Módulo PRO
+        <span class="badge-count" id="badge-pending-count" style="display: none;">0</span>
       </button>
       <button type="button" id="tab-btn-students" class="btn-secondary" style="font-weight: 700;">
-        Alunos Mentoria (Módulo PRO)
+        Alunos Autorizados (PRO)
+      </button>
+      <button type="button" id="tab-btn-leads" class="btn-secondary" style="font-weight: 700;">
+        Leads Simulador Gratuito
       </button>
     </div>
 
+    <!-- VIEW: SOLICITACOES MODULO PRO -->
+    <div id="view-requests">
+      <!-- KPIs Row -->
+      <div class="kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <div class="kpi-card" style="border-left: 4px solid #F59E0B;">
+          <div>
+            <span class="kpi-label">Pendentes de Liberação</span>
+            <span class="kpi-val" id="kpi-pending-requests" style="color: #F59E0B;">0</span>
+          </div>
+          <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.12); color: #F59E0B;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #00F2FE;">
+          <div>
+            <span class="kpi-label">Total de Solicitações</span>
+            <span class="kpi-val" id="kpi-total-requests" style="color: #00F2FE;">0</span>
+          </div>
+          <div class="kpi-icon" style="background: rgba(0, 242, 254, 0.1); color: #00F2FE;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #34D399;">
+          <div>
+            <span class="kpi-label">Acessos Liberados</span>
+            <span class="kpi-val" id="kpi-approved-requests" style="color: #34D399;">0</span>
+          </div>
+          <div class="kpi-icon" style="background: rgba(52, 211, 153, 0.1); color: #34D399;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- REQUESTS TABLE CARD -->
+      <div class="table-card">
+        <div class="table-header-row">
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="search-requests-input" placeholder="Pesquisar por nome, e-mail ou WhatsApp...">
+          </div>
+
+          <div class="filter-btn-group">
+            <button type="button" class="filter-btn active" id="filter-btn-all" data-filter="all">Todas</button>
+            <button type="button" class="filter-btn" id="filter-btn-pending" data-filter="pendente">Apenas Pendentes</button>
+            <button type="button" class="filter-btn" id="filter-btn-approved" data-filter="aprovado">Aprovadas</button>
+            <button type="button" class="filter-btn" id="filter-btn-rejected" data-filter="recusado">Recusadas</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="requests-table">
+            <thead>
+              <tr>
+                <th>Aluno / Solicitante</th>
+                <th>E-mail</th>
+                <th>WhatsApp</th>
+                <th style="text-align: center;">Tentativas</th>
+                <th>Primeira Solicitação</th>
+                <th>Última Tentativa</th>
+                <th style="text-align: center;">Status</th>
+                <th style="text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="requests-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div class="empty-state" id="requests-empty-state" style="display: none;">
+            Nenhuma solicitação encontrada.
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- VIEW 1: LEADS GRATUITOS -->
-    <div id="view-leads">
+    <div id="view-leads" style="display: none;">
       <!-- KPIs Row -->
       <div class="kpi-row">
         <div class="kpi-card">
@@ -604,11 +803,52 @@
     </div>
   </div>
 
+  <!-- MODAL DE APROVAÇÃO RÁPIDA -->
+  <div class="gate-overlay" id="modal-approve" style="display: none;">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #FFF; margin: 0 0 4px 0;">Liberar Acesso ao Módulo PRO</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Confirme os dados do aluno. A senha de acesso será gerada e enviada por e-mail automaticamente.</p>
+        </div>
+        <button type="button" id="btn-close-modal-approve" style="background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; padding: 0 6px; line-height: 1;">&times;</button>
+      </div>
+
+      <form id="approve-form">
+        <input type="hidden" id="approve-email">
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; display: block;">E-mail do Aluno</label>
+          <div id="approve-display-email" style="padding: 12px 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 14px; color: var(--accent-primary); font-weight: 600;"></div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="approve-name" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; display: block;">Nome Completo do Aluno</label>
+          <input type="text" id="approve-name" placeholder="Ex: Bruno Samuel" required style="width: 100%; padding: 12px 14px; background: rgba(8, 12, 20, 0.5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: #FFF; font-size: 14px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label for="approve-phone" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; display: block;">WhatsApp / Telefone (Opcional)</label>
+          <input type="text" id="approve-phone" placeholder="Ex: (11) 99999-9999" style="width: 100%; padding: 12px 14px; background: rgba(8, 12, 20, 0.5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: #FFF; font-size: 14px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end;">
+          <button type="button" class="btn-secondary" id="btn-cancel-approve">Cancelar</button>
+          <button type="submit" class="btn btn-approve" id="btn-submit-approve">
+            Confirmar e Enviar Senha
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // State management
+    let proRequestsData = [];
     let leadsData = [];
     let studentsData = [];
-    let currentTab = 'leads'; // 'leads' or 'students'
+    let currentTab = 'requests'; // 'requests', 'students', 'leads'
+    let requestFilter = 'all';
 
     const elements = {
       loginPanel: document.getElementById('login-panel'),
@@ -618,10 +858,36 @@
       loginError: document.getElementById('login-error'),
       
       // Tabs
-      tabBtnLeads: document.getElementById('tab-btn-leads'),
+      tabBtnRequests: document.getElementById('tab-btn-requests'),
       tabBtnStudents: document.getElementById('tab-btn-students'),
-      viewLeads: document.getElementById('view-leads'),
+      tabBtnLeads: document.getElementById('tab-btn-leads'),
+      badgePendingCount: document.getElementById('badge-pending-count'),
+      viewRequests: document.getElementById('view-requests'),
       viewStudents: document.getElementById('view-students'),
+      viewLeads: document.getElementById('view-leads'),
+
+      // Requests
+      kpiPendingRequests: document.getElementById('kpi-pending-requests'),
+      kpiTotalRequests: document.getElementById('kpi-total-requests'),
+      kpiApprovedRequests: document.getElementById('kpi-approved-requests'),
+      searchRequestsInput: document.getElementById('search-requests-input'),
+      requestsTbody: document.getElementById('requests-tbody'),
+      requestsEmptyState: document.getElementById('requests-empty-state'),
+      filterBtnAll: document.getElementById('filter-btn-all'),
+      filterBtnPending: document.getElementById('filter-btn-pending'),
+      filterBtnApproved: document.getElementById('filter-btn-approved'),
+      filterBtnRejected: document.getElementById('filter-btn-rejected'),
+
+      // Approval Modal
+      modalApprove: document.getElementById('modal-approve'),
+      btnCloseModalApprove: document.getElementById('btn-close-modal-approve'),
+      btnCancelApprove: document.getElementById('btn-cancel-approve'),
+      approveForm: document.getElementById('approve-form'),
+      approveEmail: document.getElementById('approve-email'),
+      approveDisplayEmail: document.getElementById('approve-display-email'),
+      approveName: document.getElementById('approve-name'),
+      approvePhone: document.getElementById('approve-phone'),
+      btnSubmitApprove: document.getElementById('btn-submit-approve'),
       
       // Leads
       kpiTotalLeads: document.getElementById('kpi-total-leads'),
@@ -659,30 +925,175 @@
       fetchAll(password);
     });
 
-    // Tab switching
-    elements.tabBtnLeads.addEventListener('click', () => {
-      currentTab = 'leads';
-      elements.viewLeads.style.display = 'block';
+    // Tab switching function
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      // Reset views
+      elements.viewRequests.style.display = 'none';
       elements.viewStudents.style.display = 'none';
-      elements.tabBtnLeads.style.background = 'rgba(0, 242, 254, 0.15)';
-      elements.tabBtnLeads.style.borderColor = 'var(--accent-primary)';
-      elements.tabBtnLeads.style.color = '#FFF';
-      elements.tabBtnStudents.style.background = 'rgba(255, 255, 255, 0.05)';
-      elements.tabBtnStudents.style.borderColor = 'var(--border-color)';
-      elements.tabBtnStudents.style.color = 'var(--text-muted)';
+      elements.viewLeads.style.display = 'none';
+
+      // Reset button styles
+      [elements.tabBtnRequests, elements.tabBtnStudents, elements.tabBtnLeads].forEach(btn => {
+        btn.style.background = 'rgba(255, 255, 255, 0.05)';
+        btn.style.borderColor = 'var(--border-color)';
+        btn.style.color = 'var(--text-muted)';
+      });
+
+      if (tab === 'requests') {
+        elements.viewRequests.style.display = 'block';
+        elements.tabBtnRequests.style.background = 'rgba(245, 158, 11, 0.15)';
+        elements.tabBtnRequests.style.borderColor = '#F59E0B';
+        elements.tabBtnRequests.style.color = '#FFF';
+      } else if (tab === 'students') {
+        elements.viewStudents.style.display = 'block';
+        elements.tabBtnStudents.style.background = 'rgba(52, 211, 153, 0.15)';
+        elements.tabBtnStudents.style.borderColor = '#34D399';
+        elements.tabBtnStudents.style.color = '#FFF';
+      } else if (tab === 'leads') {
+        elements.viewLeads.style.display = 'block';
+        elements.tabBtnLeads.style.background = 'rgba(0, 242, 254, 0.15)';
+        elements.tabBtnLeads.style.borderColor = 'var(--accent-primary)';
+        elements.tabBtnLeads.style.color = '#FFF';
+      }
+    }
+
+    elements.tabBtnRequests.addEventListener('click', () => switchTab('requests'));
+    elements.tabBtnStudents.addEventListener('click', () => switchTab('students'));
+    elements.tabBtnLeads.addEventListener('click', () => switchTab('leads'));
+
+    // Filter Buttons for Requests
+    const filterButtons = [
+      elements.filterBtnAll,
+      elements.filterBtnPending,
+      elements.filterBtnApproved,
+      elements.filterBtnRejected
+    ];
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        requestFilter = btn.getAttribute('data-filter');
+        applyRequestsFilter();
+      });
     });
 
-    elements.tabBtnStudents.addEventListener('click', () => {
-      currentTab = 'students';
-      elements.viewLeads.style.display = 'none';
-      elements.viewStudents.style.display = 'block';
-      elements.tabBtnStudents.style.background = 'rgba(52, 211, 153, 0.15)';
-      elements.tabBtnStudents.style.borderColor = '#34D399';
-      elements.tabBtnStudents.style.color = '#FFF';
-      elements.tabBtnLeads.style.background = 'rgba(255, 255, 255, 0.05)';
-      elements.tabBtnLeads.style.borderColor = 'var(--border-color)';
-      elements.tabBtnLeads.style.color = 'var(--text-muted)';
+    // Search filter for Requests
+    elements.searchRequestsInput.addEventListener('keyup', () => {
+      applyRequestsFilter();
     });
+
+    function applyRequestsFilter() {
+      const query = elements.searchRequestsInput.value.toLowerCase().trim();
+      let filtered = proRequestsData.filter(req => {
+        if (requestFilter === 'all') return true;
+        return (req.status || 'pendente') === requestFilter;
+      });
+
+      if (query) {
+        filtered = filtered.filter(req => 
+          (req.email && req.email.toLowerCase().includes(query)) ||
+          (req.name && req.name.toLowerCase().includes(query)) ||
+          (req.phone && req.phone.toLowerCase().includes(query))
+        );
+      }
+
+      renderRequestsTable(filtered);
+    }
+
+    // Modal Events
+    elements.btnCloseModalApprove.addEventListener('click', () => {
+      elements.modalApprove.style.display = 'none';
+    });
+    elements.btnCancelApprove.addEventListener('click', () => {
+      elements.modalApprove.style.display = 'none';
+    });
+
+    // Submit Approval Form
+    elements.approveForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = sessionStorage.getItem('admin_password');
+      const email = elements.approveEmail.value.trim();
+      const name = elements.approveName.value.trim();
+      const phone = elements.approvePhone.value.trim();
+
+      elements.btnSubmitApprove.disabled = true;
+      elements.btnSubmitApprove.textContent = 'Liberando e enviando...';
+
+      try {
+        const res = await fetch('/api/admin/pro-requests/approve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, email, name, phone })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert(data.message || 'Acesso liberado e código enviado com sucesso!');
+          elements.modalApprove.style.display = 'none';
+          await fetchProRequests(password);
+          await fetchStudents(password);
+        } else {
+          alert(data.error || 'Erro ao liberar acesso.');
+        }
+      } catch (err) {
+        alert('Erro ao conectar ao servidor para aprovação.');
+      } finally {
+        elements.btnSubmitApprove.disabled = false;
+        elements.btnSubmitApprove.textContent = 'Confirmar e Enviar Senha';
+      }
+    });
+
+    // Open Approval Modal
+    window.openApproveModal = function(email) {
+      const req = proRequestsData.find(r => r.email.toLowerCase() === email.toLowerCase());
+      elements.approveEmail.value = email;
+      elements.approveDisplayEmail.textContent = email;
+      elements.approveName.value = (req && req.name) ? req.name : '';
+      elements.approvePhone.value = (req && req.phone) ? req.phone : '';
+      elements.modalApprove.style.display = 'flex';
+      setTimeout(() => elements.approveName.focus(), 100);
+    };
+
+    // Reject Request
+    window.rejectRequest = async function(email) {
+      const password = sessionStorage.getItem('admin_password');
+      if (!confirm(`Deseja recusar a solicitação de acesso para ${email}?`)) return;
+
+      try {
+        const res = await fetch('/api/admin/pro-requests/reject', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, email })
+        });
+        const data = await res.json();
+        alert(data.message || (data.success ? 'Solicitação recusada com sucesso.' : data.error));
+        fetchProRequests(password);
+      } catch (err) {
+        alert('Erro ao recusar solicitação.');
+      }
+    };
+
+    // Remove Request
+    window.removeRequest = async function(email) {
+      const password = sessionStorage.getItem('admin_password');
+      if (!confirm(`Deseja excluir o registro da solicitação de ${email}?`)) return;
+
+      try {
+        const res = await fetch('/api/admin/pro-requests/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, email })
+        });
+        const data = await res.json();
+        alert(data.message || (data.success ? 'Registro removido com sucesso.' : data.error));
+        fetchProRequests(password);
+      } catch (err) {
+        alert('Erro ao remover solicitação.');
+      }
+    };
 
     // Log out admin
     elements.btnLogout.addEventListener('click', () => {
@@ -693,7 +1104,7 @@
       document.body.style.justifyContent = 'center';
     });
 
-    // Search filters
+    // Search filters for Leads and Students
     elements.searchInput.addEventListener('keyup', () => {
       const query = elements.searchInput.value.toLowerCase();
       const filtered = leadsData.filter(user => 
@@ -714,7 +1125,7 @@
       renderStudentsTable(filtered);
     });
 
-    // Add new student
+    // Add new student form
     elements.addStudentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const password = sessionStorage.getItem('admin_password');
@@ -742,6 +1153,7 @@
           elements.newStudentEmail.value = '';
           elements.newStudentPhone.value = '';
           fetchStudents(password);
+          fetchProRequests(password);
         } else {
           elements.addStudentFeedback.style.display = 'block';
           elements.addStudentFeedback.style.background = 'rgba(239, 68, 68, 0.15)';
@@ -756,7 +1168,13 @@
 
     // Export to CSV trigger
     elements.btnExport.addEventListener('click', () => {
-      if (currentTab === 'leads') {
+      if (currentTab === 'requests') {
+        if (proRequestsData.length === 0) {
+          alert('Não há solicitações para exportação.');
+          return;
+        }
+        exportRequestsToCSV(proRequestsData);
+      } else if (currentTab === 'leads') {
         if (leadsData.length === 0) {
           alert('Não há contatos cadastrados para exportação.');
           return;
@@ -772,8 +1190,53 @@
     });
 
     async function fetchAll(password) {
-      await fetchLeads(password);
-      await fetchStudents(password);
+      await Promise.all([
+        fetchProRequests(password),
+        fetchStudents(password),
+        fetchLeads(password)
+      ]);
+    }
+
+    async function fetchProRequests(password) {
+      try {
+        const response = await fetch('/api/admin/pro-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          proRequestsData = data.requests || [];
+          sessionStorage.setItem('admin_password', password);
+          
+          elements.loginPanel.style.display = 'none';
+          elements.dashboardPanel.style.display = 'block';
+          elements.loginError.style.display = 'none';
+          document.body.style.justifyContent = 'flex-start';
+          document.body.style.paddingTop = '40px';
+
+          const pendingCount = proRequestsData.filter(r => (r.status || 'pendente') === 'pendente').length;
+          const approvedCount = proRequestsData.filter(r => r.status === 'aprovado').length;
+
+          elements.kpiPendingRequests.textContent = pendingCount;
+          elements.kpiTotalRequests.textContent = proRequestsData.length;
+          elements.kpiApprovedRequests.textContent = approvedCount;
+
+          if (pendingCount > 0) {
+            elements.badgePendingCount.textContent = pendingCount;
+            elements.badgePendingCount.style.display = 'inline-block';
+          } else {
+            elements.badgePendingCount.style.display = 'none';
+          }
+
+          applyRequestsFilter();
+        } else {
+          showError(data.error || 'Senha incorreta. Tente novamente.');
+        }
+      } catch (err) {
+        showError('Erro ao carregar solicitações de acesso.');
+      }
     }
 
     async function fetchLeads(password) {
@@ -787,21 +1250,11 @@
 
         if (data.success) {
           leadsData = data.users || [];
-          sessionStorage.setItem('admin_password', password);
-          
-          elements.loginPanel.style.display = 'none';
-          elements.dashboardPanel.style.display = 'block';
-          elements.loginError.style.display = 'none';
-          document.body.style.justifyContent = 'flex-start';
-          document.body.style.paddingTop = '40px';
-
           elements.kpiTotalLeads.textContent = leadsData.length;
           renderLeadsTable(leadsData);
-        } else {
-          showError(data.error || 'Senha incorreta. Tente novamente.');
         }
       } catch (err) {
-        showError('Erro ao conectar ao servidor administrativo.');
+        console.error('Erro ao buscar leads:', err);
       }
     }
 
@@ -828,6 +1281,85 @@
       elements.loginError.textContent = text;
       elements.loginError.style.display = 'block';
       sessionStorage.removeItem('admin_password');
+    }
+
+    function renderRequestsTable(data) {
+      elements.requestsTbody.innerHTML = '';
+      if (data.length === 0) {
+        elements.requestsEmptyState.style.display = 'block';
+        return;
+      }
+      elements.requestsEmptyState.style.display = 'none';
+
+      data.forEach(req => {
+        const row = document.createElement('tr');
+        
+        let firstRequestedDate = 'N/A';
+        if (req.firstRequestedAt) {
+          try {
+            firstRequestedDate = new Date(req.firstRequestedAt).toLocaleString('pt-BR');
+          } catch(e) {}
+        }
+
+        let lastAttemptDate = 'N/A';
+        if (req.lastAttemptAt) {
+          try {
+            lastAttemptDate = new Date(req.lastAttemptAt).toLocaleString('pt-BR');
+          } catch(e) {}
+        }
+
+        const status = req.status || 'pendente';
+        let statusBadgeHtml = '';
+        if (status === 'pendente') {
+          statusBadgeHtml = '<span class="badge-status pending">Pendente</span>';
+        } else if (status === 'aprovado') {
+          statusBadgeHtml = '<span class="badge-status approved">Liberado</span>';
+        } else {
+          statusBadgeHtml = '<span class="badge-status rejected">Recusado</span>';
+        }
+
+        let actionsHtml = '';
+        if (status === 'pendente') {
+          actionsHtml = `
+            <button class="btn btn-approve" style="display: inline-flex; padding: 6px 14px; font-size: 11.5px; margin-right: 6px;" onclick="openApproveModal('${escapeHTML(req.email)}')">
+              Liberar Acesso
+            </button>
+            <button class="btn-secondary btn-logout" style="display: inline-flex; padding: 6px 12px; font-size: 11.5px;" onclick="rejectRequest('${escapeHTML(req.email)}')">
+              Recusar
+            </button>
+          `;
+        } else if (status === 'aprovado') {
+          actionsHtml = `
+            <button class="btn-secondary" style="display: inline-flex; padding: 6px 12px; font-size: 11px; margin-right: 6px;" onclick="resendCode('${escapeHTML(req.email)}')">
+              Reenviar
+            </button>
+            <button class="btn-secondary btn-logout" style="display: inline-flex; padding: 6px 12px; font-size: 11px;" onclick="removeRequest('${escapeHTML(req.email)}')">
+              Remover
+            </button>
+          `;
+        } else {
+          actionsHtml = `
+            <button class="btn-secondary" style="display: inline-flex; padding: 6px 12px; font-size: 11px; margin-right: 6px;" onclick="openApproveModal('${escapeHTML(req.email)}')">
+              Reavaliar / Liberar
+            </button>
+            <button class="btn-secondary btn-logout" style="display: inline-flex; padding: 6px 12px; font-size: 11px;" onclick="removeRequest('${escapeHTML(req.email)}')">
+              Remover
+            </button>
+          `;
+        }
+
+        row.innerHTML = `
+          <td class="td-name">${escapeHTML(req.name || 'Aluno Não Identificado')}</td>
+          <td>${escapeHTML(req.email)}</td>
+          <td>${escapeHTML(req.phone || '-')}</td>
+          <td style="text-align: center;"><span style="background: rgba(255, 255, 255, 0.08); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700;">${req.attemptsCount || 1}</span></td>
+          <td class="td-date">${firstRequestedDate}</td>
+          <td class="td-date">${lastAttemptDate}</td>
+          <td style="text-align: center;">${statusBadgeHtml}</td>
+          <td style="text-align: right; white-space: nowrap;">${actionsHtml}</td>
+        `;
+        elements.requestsTbody.appendChild(row);
+      });
     }
 
     function renderLeadsTable(data) {
@@ -915,6 +1447,7 @@
         const data = await res.json();
         alert(data.message || (data.success ? 'Código reenviado com sucesso!' : data.error));
         fetchStudents(password);
+        fetchProRequests(password);
       } catch (err) {
         alert('Erro ao reenviar código.');
       }
@@ -932,6 +1465,7 @@
         const data = await res.json();
         alert(data.message || 'Aluno removido com sucesso!');
         fetchStudents(password);
+        fetchProRequests(password);
       } catch (err) {
         alert('Erro ao remover aluno.');
       }
@@ -948,6 +1482,20 @@
           '"': '&quot;'
         }[tag] || tag)
       );
+    }
+
+    function exportRequestsToCSV(data) {
+      const headers = ['Nome', 'Email', 'Telefone', 'Tentativas', 'Primeira Solicitacao', 'Ultima Tentativa', 'Status'];
+      const rows = data.map(req => [
+        `"${(req.name || '').replace(/"/g, '""')}"`,
+        `"${(req.email || '').replace(/"/g, '""')}"`,
+        `"${(req.phone || '').replace(/"/g, '""')}"`,
+        `"${req.attemptsCount || 1}"`,
+        `"${req.firstRequestedAt ? new Date(req.firstRequestedAt).toLocaleString('pt-BR') : 'N/A'}"`,
+        `"${req.lastAttemptAt ? new Date(req.lastAttemptAt).toLocaleString('pt-BR') : 'N/A'}"`,
+        `"${(req.status || 'pendente').replace(/"/g, '""')}"`
+      ]);
+      downloadCSV('solicitacoes_modulo_pro.csv', headers, rows);
     }
 
     function exportLeadsToCSV(data) {

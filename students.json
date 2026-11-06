@@ -9,5 +9,16 @@
     "createdAt": "2026-10-19T16:55:00.000Z",
     "lastAccess": "2026-10-20T23:23:23.984Z",
     "codeGeneratedAt": "2026-10-20T23:23:02.184Z"
+  },
+  {
+    "id": "std_2",
+    "name": "Bruno Samuel",
+    "email": "brunosamuell@hotmail.com",
+    "phone": "",
+    "status": "ativo",
+    "accessCode": "842915",
+    "createdAt": "2026-11-06T17:15:00.000Z",
+    "lastAccess": null,
+    "codeGeneratedAt": "2026-11-06T17:15:00.000Z"
   }
 ]

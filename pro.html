@@ -476,6 +476,12 @@
       color: #34D399;
     }
 
+    .feedback-warning {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #FBBF24;
+    }
+
     /* TOOLTIP POPUP STYLES */
     .has-tooltip {
       position: relative;
@@ -2396,6 +2402,7 @@
       </div>
 
       <div class="feedback-box feedback-error" id="gate-error"></div>
+      <div class="feedback-box feedback-warning" id="gate-warning"></div>
       <div class="feedback-box feedback-success" id="gate-success"></div>
 
       <!-- STEP 1: SOLICITAR CÓDIGO POR EMAIL -->
@@ -2416,6 +2423,12 @@
         <p style="margin-top: 20px; margin-bottom: 0; font-size: 12.5px; text-align: center; color: var(--text-dim);">
           Apenas alunos autorizados da <strong>Mentoria Locador Nômade</strong> possuem acesso liberado.
         </p>
+
+        <div style="margin-top: 22px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); text-align: center;">
+          <a href="/admin" style="font-size: 11.5px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#F59E0B'" onmouseout="this.style.color='var(--text-dim)'">
+            Painel do Administrador / Mentor &rarr;
+          </a>
+        </div>
       </div>
 
       <!-- STEP 2: DIGITAR O CÓDIGO DE 6 DÍGITOS -->
@@ -2475,6 +2488,13 @@
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
           Simulador Básico
+        </a>
+
+        <a href="/admin" class="btn-header" title="Painel de Administração e Aprovações">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+          </svg>
+          Painel Mentor
         </a>
 
         <button type="button" class="btn-header" onclick="window.print()" title="Imprimir Relatório Anual Executivo">
@@ -3317,6 +3337,7 @@
     const elements = {
       gateOverlay: document.getElementById('gate-overlay'),
       gateError: document.getElementById('gate-error'),
+      gateWarning: document.getElementById('gate-warning'),
       gateSuccess: document.getElementById('gate-success'),
       stepRequest: document.getElementById('step-request'),
       stepVerify: document.getElementById('step-verify'),
@@ -4233,6 +4254,7 @@
         elements.stepVerify.style.display = 'none';
         elements.stepRequest.style.display = 'block';
         elements.gateError.style.display = 'none';
+        if (elements.gateWarning) elements.gateWarning.style.display = 'none';
         elements.gateSuccess.style.display = 'none';
       });
 
@@ -4637,6 +4659,7 @@
       elements.btnRequestCode.disabled = true;
       elements.btnRequestCode.innerHTML = '<span>Verificando aluno...</span>';
       elements.gateError.style.display = 'none';
+      if (elements.gateWarning) elements.gateWarning.style.display = 'none';
       elements.gateSuccess.style.display = 'none';
 
       try {
@@ -4652,6 +4675,8 @@
           elements.stepRequest.style.display = 'none';
           elements.stepVerify.style.display = 'block';
           elements.studentCode.focus();
+        } else if (data.pendingApproval) {
+          showGateWarning(data.error || 'Sua solicitação de acesso foi registrada com sucesso e aguarda liberação do mentor.');
         } else {
           showGateError(data.error || 'E-mail não autorizado.');
         }
@@ -4701,12 +4726,26 @@
     function showGateError(msg) {
       elements.gateError.textContent = msg;
       elements.gateError.style.display = 'block';
+      if (elements.gateWarning) elements.gateWarning.style.display = 'none';
+      elements.gateSuccess.style.display = 'none';
+    }
+
+    function showGateWarning(msg) {
+      if (elements.gateWarning) {
+        elements.gateWarning.textContent = msg;
+        elements.gateWarning.style.display = 'block';
+      } else {
+        elements.gateError.textContent = msg;
+        elements.gateError.style.display = 'block';
+      }
+      elements.gateError.style.display = elements.gateWarning ? 'none' : 'block';
       elements.gateSuccess.style.display = 'none';
     }
 
     function showGateSuccess(msg) {
       elements.gateSuccess.textContent = msg;
       elements.gateSuccess.style.display = 'block';
+      if (elements.gateWarning) elements.gateWarning.style.display = 'none';
       elements.gateError.style.display = 'none';
     }
 

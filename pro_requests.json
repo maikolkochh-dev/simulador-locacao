@@ -1,0 +1,13 @@
+[
+  {
+    "id": "req_1",
+    "email": "brunosamuell@hotmail.com",
+    "name": "Bruno Samuel",
+    "phone": "",
+    "status": "aprovado",
+    "attemptsCount": 1,
+    "requestedAt": "2026-11-06T17:10:00.000Z",
+    "lastAttemptAt": "2026-11-06T17:14:00.000Z",
+    "approvedAt": "2026-11-06T17:15:00.000Z"
+  }
+]
